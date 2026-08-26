@@ -58,3 +58,47 @@
   white-space: pre;
   overflow-x: auto;
 }
+
+/* ---- syntax tokens ---- */
+.tok--keyword {
+  color: var(--tok-keyword);
+}
+
+.tok--literal {
+  color: var(--tok-literal);
+}
+
+.tok--string {
+  color: var(--tok-string);
+}
+
+.tok--number {
+  color: var(--tok-number);
+}
+
+.tok--function {
+  color: var(--tok-function);
+}
+
+.tok--property {
+  color: var(--tok-property);
+}
+
+.tok--type {
+  color: var(--tok-type);
+}
+
+.tok--comment {
+  color: var(--tok-comment);
+  font-style: italic;
+}
+
+.tok--punctuation {
+  color: var(--tok-punctuation);
+}
+
+/* Rows exist so the plain block keeps its line structure without a wrapper
+   that would break `white-space: pre`. */
+.code__row {
+  display: inline;
+}

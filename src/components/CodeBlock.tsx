@@ -1,3 +1,5 @@
+import { useMemo } from 'react';
+import { tokenize, type Token } from '../engine/highlight';
 import type { CodeBlock as CodeBlockData } from '../content/types';
 import './CodeBlock.css';
 
@@ -8,27 +10,51 @@ interface Props {
   lineState?: (index: number) => 'idle' | 'wrong' | 'correct';
 }
 
+function Highlighted({ tokens }: { tokens: Token[] }) {
+  return (
+    <>
+      {tokens.map((token, i) =>
+        token.kind === 'plain' ? (
+          <span key={i}>{token.text}</span>
+        ) : (
+          <span key={i} className={`tok tok--${token.kind}`}>
+            {token.text}
+          </span>
+        ),
+      )}
+    </>
+  );
+}
+
 /**
  * Mobile-legible code. Scrolls horizontally *inside the block* rather than
  * letting the page scroll sideways (docs/02).
  *
- * Syntax highlighting arrives in M3 with the remaining renderers; the palette
- * hook is already in the stylesheet.
+ * Highlighting is per-line so the tappable and plain modes share one source of
+ * truth — a whole-block highlighter would have to be cut apart at every line
+ * boundary for spot-bug, which is where nested spans break.
  */
 export function CodeBlock({ code, onLineTap, lineState }: Props) {
-  const lines = code.source.split('\n');
+  const lines = useMemo(() => tokenize(code.source), [code.source]);
 
   if (!onLineTap) {
     return (
       <pre className="code" aria-label={`${code.lang} code`}>
-        <code>{code.source}</code>
+        <code>
+          {lines.map((tokens, i) => (
+            <span className="code__row" key={i}>
+              <Highlighted tokens={tokens} />
+              {i < lines.length - 1 ? '\n' : ''}
+            </span>
+          ))}
+        </code>
       </pre>
     );
   }
 
   return (
     <div className="code code--interactive" role="group" aria-label="Tap the line with the bug">
-      {lines.map((line, i) => (
+      {lines.map((tokens, i) => (
         <button
           key={i}
           type="button"
@@ -38,7 +64,9 @@ export function CodeBlock({ code, onLineTap, lineState }: Props) {
           <span className="code__gutter" aria-hidden>
             {i + 1}
           </span>
-          <span className="code__text">{line || ' '}</span>
+          <span className="code__text">
+            {tokens.length === 0 ? ' ' : <Highlighted tokens={tokens} />}
+          </span>
         </button>
       ))}
     </div>

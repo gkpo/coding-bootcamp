@@ -39,6 +39,20 @@
   --danger-bg: rgba(220, 38, 38, 0.1);
   --info-bg: rgba(37, 99, 235, 0.1);
 
+  /* ---- syntax highlighting ----
+     Drawn from the deep end of the track colours, never neon-on-white
+     (docs/06 §Core components). Every one clears WCAG AA on --surface-2,
+     where code blocks sit, and on --surface for the concept-card examples. */
+  --tok-keyword: #6d28d9; /* deep violet  — 6.14 on --surface-2 */
+  --tok-string: #0f766e; /* deep teal    — 4.73 */
+  --tok-number: #b05109; /* deep amber   — 4.50 */
+  --tok-function: #2462eb; /* deep blue    — 4.51 */
+  --tok-property: #be185d; /* deep pink    — 5.21 */
+  --tok-literal: #6d28d9;
+  --tok-type: #0f766e;
+  --tok-comment: #666c7a; /* --text-dim   — 4.54 */
+  --tok-punctuation: #666c7a;
+
   /* ---- track identity ---- */
   --track-t1: #d97706;
   --track-t2: #7c3aed;

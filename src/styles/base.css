@@ -65,6 +65,33 @@ pre {
   font-size: var(--fs-mono);
 }
 
+/* JetBrains Mono ligates => into a single arrow glyph and ++ into one mark.
+   Handsome, and wrong here: this app trains you to recognise the characters an
+   interviewer expects you to type, so the code has to look like code.
+
+   Applied with a wildcard rather than a list of mono roots because these
+   settings do not survive `button { font: inherit }` — the `font` shorthand
+   resets font-variant-ligatures and font-feature-settings to their initial
+   values, so the tappable spot-bug block, built from buttons, silently kept
+   its ligatures while the <pre> blocks lost theirs. */
+code,
+pre,
+.code,
+.code *,
+.inline-code,
+.sortable__item,
+.blank__template,
+.blank__template *,
+.blank__gap,
+.blank__token,
+.option--mono,
+.match__cell--term {
+  font-variant-ligatures: none;
+  font-feature-settings:
+    'liga' 0,
+    'calt' 0;
+}
+
 /* Mobile is the target; desktop is a centered phone-width column on a dimmed backdrop. */
 .app-shell {
   display: flex;
