@@ -311,7 +311,7 @@ export const t6Exercises: Exercise[] = [
 export const t6: Track = {
   id: 't6',
   title: 'Interview decoder',
-  emoji: '🗣️',
+  icon: 'speech',
   tagline: 'The riddles, and what to say when you are stuck.',
   lessons: [
     { id: 't6-l1', title: 'The phrasebook', exerciseIds: ['t6-01', 't6-02', 't6-11'] },

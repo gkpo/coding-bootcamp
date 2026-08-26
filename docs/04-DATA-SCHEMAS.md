@@ -11,7 +11,7 @@ type Difficulty = 1 | 2 | 3;
 interface Track {
   id: TrackId;
   title: string; // "Big-O & optimization talk"
-  emoji: string; // "📈"
+  icon: IconName; // key into the drawn icon set
   tagline: string; // one line shown on the track card
   lessons: Lesson[];
 }
@@ -106,7 +106,7 @@ type Exercise =
 interface ConceptCard {
   id: string; // e.g. "closure". Matches Exercise.conceptId
   title: string; // "Closure"
-  emoji: string; // "🎒"
+  icon: IconName; // key into the drawn icon set
   trackIds: TrackId[]; // for grouping in the Sheets tab
   plainWords: string; // 1–2 sentences, zero jargon
   analogy: string; // 2–3 sentences, one concrete everyday image

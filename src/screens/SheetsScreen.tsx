@@ -4,6 +4,10 @@ import { cards, exercises, tracks } from '../content';
 import { searchCards } from '../engine/search';
 import { isMastered } from '../engine/leitner';
 import { useStore } from '../store/useStore';
+import { ConceptIcon } from '../components/ConceptIcon';
+import { RichText } from '../components/RichText';
+import { CheckIcon } from '../components/icons';
+import type { IconName } from '../components/iconNames';
 import './SheetsScreen.css';
 
 export function SheetsScreen() {
@@ -65,7 +69,10 @@ export function SheetsScreen() {
           return (
             <section key={track.id}>
               <h2 className="sheets__group">
-                <span aria-hidden>{track.emoji}</span> {track.title}
+                <span style={{ color: `var(--track-${track.id})` }}>
+                  <ConceptIcon name={track.icon} size={16} />
+                </span>
+                {track.title}
               </h2>
               <div className="sheets__grid">
                 {inTrack.map((card) => (
@@ -84,24 +91,22 @@ function CardChip({
   card,
   known,
 }: {
-  card: { id: string; title: string; emoji: string; plainWords: string };
+  card: { id: string; title: string; icon: IconName; plainWords: string };
   known: boolean;
 }) {
   return (
     <Link to={`/sheets/${card.id}`} className="sheets__card">
-      <span className="sheets__card-emoji" aria-hidden>
-        {card.emoji}
+      <span className="sheets__card-icon">
+        <ConceptIcon name={card.icon} size={20} />
       </span>
       <span className="sheets__card-body">
         <span className="sheets__card-title">
-          {card.title}
-          {known && (
-            <span className="sheets__known" aria-label="known">
-              ✓
-            </span>
-          )}
+          <RichText text={card.title} />
+          {known && <CheckIcon />}
         </span>
-        <span className="sheets__card-plain">{card.plainWords}</span>
+        <span className="sheets__card-plain">
+          <RichText text={card.plainWords} />
+        </span>
       </span>
     </Link>
   );

@@ -106,6 +106,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  color: var(--text);
   padding: 8px var(--sp-3);
   border-radius: var(--r-pill);
   background: var(--surface);

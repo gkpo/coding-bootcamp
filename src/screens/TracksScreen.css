@@ -119,3 +119,32 @@
   font-size: 12px;
   letter-spacing: 2px;
 }
+
+.track-detail__title {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.track-card__icon {
+  display: flex;
+  align-items: center;
+}
+
+/* Difficulty as three drawn pips rather than repeated bullet characters. */
+.lesson__diff {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.lesson__pip {
+  width: 5px;
+  height: 5px;
+  border-radius: var(--r-pill);
+  background: var(--border);
+}
+
+.lesson__pip.is-on {
+  background: var(--text-dim);
+}

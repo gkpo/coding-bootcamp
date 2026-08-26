@@ -395,7 +395,7 @@ export const t5Exercises: Exercise[] = [
 export const t5: Track = {
   id: 't5',
   title: 'System design foundations',
-  emoji: '🏗️',
+  icon: 'blocks',
   tagline: 'The vocabulary and the script for the design round.',
   lessons: [
     { id: 't5-l1', title: 'The script & the boxes', exerciseIds: ['t5-01', 't5-02', 't5-10'] },

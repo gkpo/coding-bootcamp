@@ -2,6 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '../components/Button';
 import { FlameIcon } from '../components/icons';
 import { RichText } from '../components/RichText';
+import { ConceptIcon } from '../components/ConceptIcon';
 import { cards, tracks, trackExerciseIds } from '../content';
 import { conceptOfTheDay } from '../engine/conceptOfTheDay';
 import { addDays, todayKey } from '../engine/dates';
@@ -95,8 +96,8 @@ export function HomeScreen() {
                 onClick={() => setLastOpenedTrack(track.id)}
                 style={{ borderTopColor: `var(--track-${track.id})` }}
               >
-                <span className="home__track-emoji" aria-hidden>
-                  {track.emoji}
+                <span className="home__track-icon" style={{ color: `var(--track-${track.id})` }}>
+                  <ConceptIcon name={track.icon} size={22} />
                 </span>
                 <span className="home__track-title">{track.title}</span>
                 <span className="home__track-count">
@@ -121,7 +122,10 @@ export function HomeScreen() {
         <section className="card home__concept">
           <p className="home__concept-kicker">Concept of the day</p>
           <p className="home__concept-title">
-            <span aria-hidden>{card.emoji}</span> {card.title}
+            <span className="home__concept-icon">
+              <ConceptIcon name={card.icon} size={20} />
+            </span>
+            {card.title}
           </p>
           <p className="home__concept-plain">
             <RichText text={card.plainWords} />

@@ -3,6 +3,7 @@ import { Button } from '../components/Button';
 import { RichText } from '../components/RichText';
 import { FlameIcon } from '../components/icons';
 import { Confetti } from '../components/Confetti';
+import { ConceptIcon } from '../components/ConceptIcon';
 import { getCard, getExercise } from '../content';
 import type { Result } from '../engine/leitner';
 import './SessionSummaryScreen.css';
@@ -80,7 +81,8 @@ export function SessionSummaryScreen() {
           <div className="summary__chips">
             {cards.map((card) => (
               <span className="summary__chip" key={card.id}>
-                <span aria-hidden>{card.emoji}</span> {card.title}
+                <ConceptIcon name={card.icon} size={16} />
+                <RichText text={card.title} />
               </span>
             ))}
           </div>

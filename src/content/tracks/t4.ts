@@ -356,7 +356,7 @@ function isStale(ageMs: number): ____ {
 export const t4: Track = {
   id: 't4',
   title: 'Refactoring & code quality',
-  emoji: '🪜',
+  icon: 'ladder',
   tagline: 'Improve code out loud, in the right order.',
   lessons: [
     { id: 't4-l1', title: 'The ladder', exerciseIds: ['t4-01', 't4-02', 't4-03'] },

@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { tracks, trackExerciseIds } from '../content';
+import { ConceptIcon } from '../components/ConceptIcon';
 import { useStore } from '../store/useStore';
 import './TracksScreen.css';
 
@@ -24,8 +25,8 @@ export function TracksScreen() {
             style={{ borderLeftColor: `var(--track-${track.id})` }}
           >
             <div className="track-card__head">
-              <span className="track-card__emoji" aria-hidden>
-                {track.emoji}
+              <span className="track-card__icon" style={{ color: `var(--track-${track.id})` }}>
+                <ConceptIcon name={track.icon} size={24} />
               </span>
               <div className="track-card__titles">
                 <h2 className="track-card__title">{track.title}</h2>

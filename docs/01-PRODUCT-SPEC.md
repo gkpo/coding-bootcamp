@@ -71,7 +71,7 @@ The core requirement: **a quick way to understand a concept in simple words.**
 
 Card anatomy (all fields authored per card, see schemas doc):
 
-1. **Title + emoji**, e.g. "Closure 🎒".
+1. **Title + icon**, e.g. "Closure" with the key icon.
 2. **In plain words**: 1–2 sentences, zero jargon. _"A function that carries a backpack: it keeps access to the variables that existed where it was created, even after that place is gone."_
 3. **The analogy**. One concrete everyday image, expanded to 2–3 sentences.
 4. **Interviewer says…**. The riddle phrases that map to this concept: _"a function that remembers", "how would you keep this variable private?"_. This field is the decoder ring and is searchable.

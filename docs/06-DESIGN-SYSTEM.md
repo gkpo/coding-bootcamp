@@ -68,7 +68,7 @@ Contrast: all text/background pairs must pass WCAG AA (the values above do; keep
 
 ## Copy voice
 
-Short, warm, adult. Sound like a sharp friend, not a teacher. Examples. Correct: "That's the one." / "Interviewer nods." Wrong: "Not this one. Here's the idea:" Unsure: "No stress. Here's how it works:" Streak: "Day 12. This is becoming a habit." Never: "Incorrect", "Oops!", "Great job!!!", emoji spam (emoji live in track/card identities, not in feedback copy).
+Short, warm, adult. Sound like a sharp friend, not a teacher. Examples. Correct: "That's the one." / "Interviewer nods." Wrong: "Not this one. Here's the idea:" Unsure: "No stress. Here's how it works:" Streak: "Day 12. This is becoming a habit." Never: "Incorrect", "Oops!", "Great job!!!". No emoji anywhere: track and card identity is carried by a drawn icon and the track colour.
 
 ## Screens with prescribed layouts
 

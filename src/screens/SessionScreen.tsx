@@ -20,7 +20,8 @@ import {
 import { randomSeed } from '../engine/shuffle';
 import { todayKey } from '../engine/dates';
 import { useStore } from '../store/useStore';
-import { vibrate } from '../engine/feedback';
+import { playTone, vibrate } from '../engine/feedback';
+import { CloseIcon } from '../components/icons';
 import './SessionScreen.css';
 
 type Answered = { outcome: Outcome; whyWrong?: string } | null;
@@ -35,6 +36,7 @@ export function SessionScreen() {
   const lastOpenedTrackId = useStore((s) => s.lastOpenedTrackId);
   const recordAnswer = useStore((s) => s.recordAnswer);
   const haptics = useStore((s) => s.settings.haptics);
+  const sound = useStore((s) => s.settings.sound);
   const finishSession = useStore((s) => s.finishSession);
 
   // Composed once per mount: the session must not reshuffle under the user
@@ -83,10 +85,12 @@ export function SessionScreen() {
       if (session.firstResults[exerciseId] === undefined) {
         recordAnswer(exerciseId, outcome);
       }
-      vibrate(outcome === 'right' ? 'right' : 'wrong', haptics);
+      const kind = outcome === 'right' ? 'right' : 'wrong';
+      vibrate(kind, haptics);
+      playTone(kind, sound);
       setAnswered({ outcome, whyWrong });
     },
-    [exerciseId, recordAnswer, session.firstResults, haptics],
+    [exerciseId, recordAnswer, session.firstResults, haptics, sound],
   );
 
   const onContinue = useCallback(() => {
@@ -131,7 +135,7 @@ export function SessionScreen() {
           aria-label="Abandon session"
           onClick={() => setConfirmExit(true)}
         >
-          ✕
+          <CloseIcon />
         </button>
         <div className="session__segments" aria-label={`${cleared} of ${total} done`}>
           {Array.from({ length: total }, (_, i) => (

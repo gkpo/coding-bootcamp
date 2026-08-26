@@ -12,7 +12,7 @@ Authoring quality bar (applies to everything):
 
 ---
 
-## Track 1. Big-O & optimization talk 📈 (18 exercises)
+## Track 1. Big-O & optimization talk (18 exercises)
 
 Goal: see code → name its growth → _say it_ the way interviewers expect. Directly targets the "it grows linearly" failure.
 
@@ -37,7 +37,7 @@ Goal: see code → name its growth → _say it_ the way interviewers expect. Dir
 | t1-17 | mcq        | 3    | Which input size makes O(n²) fine? (n≈100 vs n≈10⁶. Pragmatism talk)                                                      | pragmatic-perf |
 | t1-18 | steps      | 2    | Order the interviewer script: state current complexity → identify bottleneck → propose structure → restate new complexity | perf-script    |
 
-## Track 2. Algorithm patterns 🧩 (24 exercises)
+## Track 2. Algorithm patterns (24 exercises)
 
 Goal: read a problem statement → name the pattern in under a minute. Includes two problems that show up in real interviews (coin change, text chunking) as flagship lessons.
 
@@ -68,7 +68,7 @@ Goal: read a problem statement → name the pattern in under a minute. Includes 
 | t2-23 | match    | 2    | Pair 5 statements ↔ 5 patterns (mixed review of the track)                                                 | pattern-map       |
 | t2-24 | mcq      | 3    | Trick round: a statement that _looks like_ sliding window but is a frequency map. Reading carefully        | pattern-map       |
 
-## Track 3. JS/TS language concepts ⚙️ (20 exercises)
+## Track 3. JS/TS language concepts (20 exercises)
 
 Goal: the language-internals questions full stack interviews love, closures first (the most-asked of them).
 
@@ -95,7 +95,7 @@ Goal: the language-internals questions full stack interviews love, closures firs
 | t3-19 | parsons  | 3    | Build memoize(fn) higher-order function (closure over cache Map)                                                                                                                | memoization       |
 | t3-20 | match    | 2    | Pair phrase ↔ feature: "runs later, in order"↔microtask, "copies the top layer"↔shallow copy, "remembers its birthplace"↔closure, "decides `this` at call time"↔dynamic binding | event-loop        |
 
-## Track 4. Refactoring & code quality 🪜 (12 exercises)
+## Track 4. Refactoring & code quality (12 exercises)
 
 Goal: the staged-interview reflex: improve code out loud, in the right order.
 
@@ -114,7 +114,7 @@ Goal: the staged-interview reflex: improve code out loud, in the right order.
 | t4-11 | blank    | 2    | Fill the extracted-constant refactor (naming a magic number, TS `const` assertion)                                                                         | naming                |
 | t4-12 | steps    | 3    | Order a live code review out loud: praise intent → correctness risk → readability → perf → style                                                           | review-script         |
 
-## Track 5. System design foundations 🏗️ (14 exercises)
+## Track 5. System design foundations (14 exercises)
 
 Goal: the full stack system design round: vocabulary + the walkthrough script, at the "senior generalist" depth, not distributed-systems-PhD depth.
 
@@ -135,7 +135,7 @@ Goal: the full stack system design round: vocabulary + the walkthrough script, a
 | t5-13 | match | 2    | Pair failure ↔ mitigation: thundering herd↔jitter, hot key↔sharding, cascade↔circuit breaker, lost job↔retry+DLQ | resilience     |
 | t5-14 | mcq   | 3    | "How would you scale this to 10× users?". Order of levers (measure first)                                        | scaling        |
 
-## Track 6. Interview decoder & communication 🗣️ (12 exercises)
+## Track 6. Interview decoder & communication (12 exercises)
 
 Goal: the meta-game itself. Interviewer riddles → canonical answers; what to say when stuck; how to not spiral (a lost interview is usually a spiral, not a knowledge gap).
 

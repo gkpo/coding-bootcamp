@@ -634,7 +634,7 @@ function fib(n) {
 export const t2: Track = {
   id: 't2',
   title: 'Algorithm patterns',
-  emoji: '🧩',
+  icon: 'compass',
   tagline: 'Read the problem, name the pattern, inside a minute.',
   lessons: [
     {

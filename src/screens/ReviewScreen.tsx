@@ -5,6 +5,7 @@ import { getExercise, getTrack, tracks } from '../content';
 import { dueExercises } from '../engine/leitner';
 import { todayKey } from '../engine/dates';
 import { useStore } from '../store/useStore';
+import { ConceptIcon } from '../components/ConceptIcon';
 import type { TrackId } from '../content/types';
 import './ReviewScreen.css';
 
@@ -57,7 +58,10 @@ export function ReviewScreen() {
         return (
           <section className="card" key={track.id}>
             <h2 className="review__track">
-              <span aria-hidden>{track.emoji}</span> {getTrack(track.id)?.title}
+              <span style={{ color: `var(--track-${track.id})` }}>
+                <ConceptIcon name={track.icon} size={20} />
+              </span>
+              {getTrack(track.id)?.title}
               <span className="review__count">{ids.length}</span>
             </h2>
           </section>

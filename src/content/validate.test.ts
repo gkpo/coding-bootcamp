@@ -5,7 +5,7 @@ import type { ConceptCard, Exercise, McqExercise, Track } from './types';
 const card = (over: Partial<ConceptCard> = {}): ConceptCard => ({
   id: 'big-o',
   title: 'Big-O',
-  emoji: '📈',
+  icon: 'growth',
   trackIds: ['t1'],
   plainWords: 'How work grows.',
   analogy: 'Flyers and megaphones.',
@@ -33,7 +33,7 @@ const mcq = (over: Partial<McqExercise> = {}): Exercise => ({
 const track = (exerciseIds: string[]): Track => ({
   id: 't1',
   title: 'Track 1',
-  emoji: '📈',
+  icon: 'growth',
   tagline: 'x',
   lessons: [{ id: 't1-l1', title: 'L1', exerciseIds }],
 });
@@ -244,7 +244,7 @@ describe('lesson coverage', () => {
           {
             id: 't1',
             title: 'T',
-            emoji: '📈',
+            icon: 'growth',
             tagline: 'x',
             lessons: [
               { id: 't1-l1', title: 'A', exerciseIds: ['t1-01', 't1-02', 't1-03'] },

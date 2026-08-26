@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/Button';
 import { FlameIcon } from '../components/icons';
+import { ConceptIcon } from '../components/ConceptIcon';
+import type { IconName } from '../components/iconNames';
 import { useStore } from '../store/useStore';
 import './OnboardingScreen.css';
 
@@ -9,19 +11,19 @@ import './OnboardingScreen.css';
  * Three screens, no configuration: docs/01 is explicit that there is nothing
  * to choose. It exists to set expectations, then get out of the way.
  */
-const SCREENS = [
+const SCREENS: { icon: IconName; title: string; body: string }[] = [
   {
-    emoji: '🎯',
+    icon: 'target',
     title: 'Interviews test a different skill',
     body: 'You can be good at the job and still lose interviews. On pattern recognition, on vocabulary, on saying the thing out loud. That gap is what this trains.',
   },
   {
-    emoji: '⏱️',
+    icon: 'clock',
     title: 'Five minutes a day',
     body: 'Eight short exercises, all tap or drag. No typing, no code editor. Get something wrong and it comes back later, until it sticks.',
   },
   {
-    emoji: '🎒',
+    icon: 'key',
     title: 'Never a term you do not know',
     body: 'Every exercise links to a plain-words card with an everyday analogy, the phrases interviewers use, and a sentence to say back.',
   },
@@ -42,8 +44,8 @@ export function OnboardingScreen() {
   return (
     <main className="onboarding">
       <div className="onboarding__body">
-        <span className="onboarding__emoji" aria-hidden>
-          {screen.emoji}
+        <span className="onboarding__icon">
+          <ConceptIcon name={screen.icon} size={34} />
         </span>
         <h1 className="onboarding__title">{screen.title}</h1>
         <p className="onboarding__text">{screen.body}</p>

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { vibrate } from './feedback';
+import { playTone, resetAudioForTests, vibrate } from './feedback';
 
 const withVibrate = (impl?: (p: number | number[]) => boolean) => {
   const spy = vi.fn(impl ?? (() => true));
@@ -7,7 +7,10 @@ const withVibrate = (impl?: (p: number | number[]) => boolean) => {
   return spy;
 };
 
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => {
+  vi.unstubAllGlobals();
+  resetAudioForTests();
+});
 
 describe('vibrate', () => {
   it('does nothing when haptics are switched off', () => {
@@ -41,5 +44,81 @@ describe('vibrate', () => {
       throw new Error('not allowed');
     });
     expect(() => vibrate('wrong', true)).not.toThrow();
+  });
+});
+
+describe('playTone', () => {
+  const stubAudio = () => {
+    const started: number[] = [];
+    const osc = () => ({
+      type: '',
+      frequency: { value: 0 },
+      connect: (n: unknown) => n,
+      start: (t: number) => started.push(t),
+      stop: () => {},
+    });
+    const gain = () => ({
+      gain: {
+        setValueAtTime: () => {},
+        exponentialRampToValueAtTime: () => {},
+      },
+      connect: () => ({}),
+    });
+    const ctx = {
+      state: 'running',
+      currentTime: 0,
+      resume: vi.fn(),
+      destination: {},
+      createOscillator: vi.fn(osc),
+      createGain: vi.fn(gain),
+    };
+    vi.stubGlobal('AudioContext', function () {
+      return ctx;
+    });
+    resetAudioForTests();
+    return ctx;
+  };
+
+  it('stays silent when the sound setting is off', () => {
+    const ctx = stubAudio();
+    playTone('right', false);
+    expect(ctx.createOscillator).not.toHaveBeenCalled();
+  });
+
+  it('plays when the setting is on', () => {
+    const ctx = stubAudio();
+    playTone('right', true);
+    expect(ctx.createOscillator).toHaveBeenCalled();
+  });
+
+  it('uses a different number of notes per outcome', () => {
+    const a = stubAudio();
+    playTone('right', true);
+    const rightNotes = a.createOscillator.mock.calls.length;
+    const b = stubAudio();
+    playTone('wrong', true);
+    expect(b.createOscillator.mock.calls.length).not.toBe(rightNotes);
+  });
+
+  it('resumes a context suspended by the autoplay policy', () => {
+    const ctx = stubAudio();
+    ctx.state = 'suspended';
+    playTone('right', true);
+    expect(ctx.resume).toHaveBeenCalled();
+  });
+
+  it('is a no-op where the platform has no audio', () => {
+    vi.stubGlobal('AudioContext', undefined);
+    vi.stubGlobal('webkitAudioContext', undefined);
+    resetAudioForTests();
+    expect(() => playTone('right', true)).not.toThrow();
+  });
+
+  it('survives a constructor that throws', () => {
+    vi.stubGlobal('AudioContext', function () {
+      throw new Error('blocked');
+    });
+    resetAudioForTests();
+    expect(() => playTone('wrong', true)).not.toThrow();
   });
 });

@@ -12,7 +12,7 @@ export const conceptCards: ConceptCard[] = [
   {
     id: 'big-o',
     title: 'Big-O (how work grows)',
-    emoji: '📈',
+    icon: 'growth',
     trackIds: ['t1'],
     plainWords:
       'Big-O describes how much *more* work a function does when you give it more input. It ignores exact seconds and asks one question: if the input doubles, what happens to the work?',
@@ -26,7 +26,7 @@ export const conceptCards: ConceptCard[] = [
     ],
     example: {
       lang: 'js',
-      source: `// visits every item once → work grows with the list
+      source: `// visits every item once, so work grows with the list
 for (const item of items) {
   total += item.price;
 }`,
@@ -41,7 +41,7 @@ for (const item of items) {
   {
     id: 'log-n',
     title: 'O(log n) and binary search',
-    emoji: '✂️',
+    icon: 'halve',
     trackIds: ['t1', 't2'],
     plainWords:
       'O(log n) means every step throws away half of what is left. Because the pile shrinks so fast, even an enormous input only needs a handful of steps.',
@@ -71,7 +71,7 @@ for (const item of items) {
   {
     id: 'sort-cost',
     title: 'The cost of sorting',
-    emoji: '🔤',
+    icon: 'sort',
     trackIds: ['t1'],
     plainWords:
       'Sorting is not free. The usual cost is O(n log n). If your solution sorts first and then walks the list once, the sort is the expensive part and the walk barely registers.',
@@ -95,7 +95,7 @@ for (const n of sorted) {                        // O(n)
   {
     id: 'hidden-loops',
     title: 'Hidden loops',
-    emoji: '🕳️',
+    icon: 'loop',
     trackIds: ['t1'],
     plainWords:
       'Some methods look like one quick call but secretly walk the entire list. Put one of those inside a loop and you have two loops, even though you only typed one.',
@@ -123,7 +123,7 @@ for (const name of guests) {
   {
     id: 'hash-lookup',
     title: 'Hash maps and Sets',
-    emoji: '🎫',
+    icon: 'key',
     trackIds: ['t1', 't2'],
     plainWords:
       'A Set or a Map finds something in one step, no matter how much is stored in it. Instead of searching, it computes where the item must be and looks straight there.',
@@ -151,7 +151,7 @@ for (const name of guests) {
   {
     id: 'space-time',
     title: 'Space and time trade off',
-    emoji: '⚖️',
+    icon: 'balance',
     trackIds: ['t1'],
     plainWords:
       'You can usually make code faster by letting it use more memory, or shrink its memory by letting it run slower. Interviewers want you to name the trade you just made.',
@@ -171,7 +171,7 @@ for (const name of guests) {
   {
     id: 'amortized',
     title: 'Amortized cost',
-    emoji: '🚌',
+    icon: 'coins',
     trackIds: ['t1'],
     plainWords:
       'Some operations are almost always cheap but occasionally expensive. Amortized cost is the average across many operations, which is why we say "O(1) amortized" instead of pretending the expensive case never happens.',
@@ -194,7 +194,7 @@ for (const x of items) {
   {
     id: 'pragmatic-perf',
     title: 'When performance actually matters',
-    emoji: '🎚️',
+    icon: 'gauge',
     trackIds: ['t1'],
     plainWords:
       'Big-O only starts to bite when the input gets big. An O(n²) loop over 100 items finishes before you blink; the same loop over a million items will not finish today.',
@@ -215,7 +215,7 @@ for (const x of items) {
   {
     id: 'memoization',
     title: 'Memoization',
-    emoji: '🗒️',
+    icon: 'note',
     trackIds: ['t1', 't3'],
     plainWords:
       'Memoizing means remembering an answer the first time you work it out, so that the next time the same question comes up you just look it up instead of redoing the work.',
@@ -242,7 +242,7 @@ const fib = (n) => {
   {
     id: 'perf-script',
     title: 'Talking about performance',
-    emoji: '🎙️',
+    icon: 'speech',
     trackIds: ['t1', 't6'],
     plainWords:
       'There is a script interviewers expect when they ask about speed: name the complexity, say it in plain words, point at the line that costs the most, then say what you would change.',
@@ -265,7 +265,7 @@ const fib = (n) => {
   {
     id: 'greedy',
     title: 'Greedy (take the best bite)',
-    emoji: '🍰',
+    icon: 'coins',
     trackIds: ['t2'],
     plainWords:
       'A greedy method makes the choice that looks best right now and never looks back. It is fast and simple, and it is correct only when local best choices happen to add up to the overall best.',
@@ -291,7 +291,7 @@ const fib = (n) => {
   {
     id: 'sliding-window',
     title: 'Sliding window',
-    emoji: '🪟',
+    icon: 'window',
     trackIds: ['t2'],
     plainWords:
       'Keep a stretch of the input, a window, and move its edges instead of starting over. Grow it from the right, shrink it from the left, and each item is looked at about twice instead of once per possible stretch.',
@@ -321,7 +321,7 @@ for (let end = 0; end < s.length; end++) {
   {
     id: 'chunking',
     title: 'Chunking text',
-    emoji: '✂️',
+    icon: 'halve',
     trackIds: ['t2'],
     plainWords:
       'Splitting a long piece of text into pieces no bigger than some limit. The interesting part is never the splitting. It is what you do when a cut would land in the middle of a word.',
@@ -349,7 +349,7 @@ text = text.slice(cut).trimStart();`,
   {
     id: 'two-pointers',
     title: 'Two pointers',
-    emoji: '👉',
+    icon: 'pointers',
     trackIds: ['t2'],
     plainWords:
       'Walk two positions through the data at once. Often one from each end, sometimes both from the front at different speeds. It replaces a nested loop with a single pass.',
@@ -374,7 +374,7 @@ return true;`,
   {
     id: 'frequency-map',
     title: 'Frequency counters',
-    emoji: '🧮',
+    icon: 'sort',
     trackIds: ['t2'],
     plainWords:
       'Count how many times each thing appears by keeping a tally in an object or Map. One pass to count, then a second pass to answer whatever the question actually was.',
@@ -402,7 +402,7 @@ return true;`,
   {
     id: 'bfs-mental-model',
     title: 'BFS and DFS in plain words',
-    emoji: '🗺️',
+    icon: 'graph',
     trackIds: ['t2'],
     plainWords:
       'Two ways to explore options. Breadth-first checks everything one step away, then everything two steps away, so the first time it reaches the goal, that path is the shortest. Depth-first follows one path all the way down before trying the next.',
@@ -418,7 +418,7 @@ return true;`,
   {
     id: 'recursion',
     title: 'Recursion and the call stack',
-    emoji: '🪆',
+    icon: 'loop',
     trackIds: ['t2'],
     plainWords:
       'A function that calls itself on a smaller piece of the problem until the piece is small enough to answer outright. Every call in progress is remembered on a stack, and that stack has a limit.',
@@ -443,7 +443,7 @@ return true;`,
   {
     id: 'pattern-map',
     title: 'The pattern cheat table',
-    emoji: '🧭',
+    icon: 'compass',
     trackIds: ['t2'],
     plainWords:
       'Most interview problems are a handful of shapes wearing different costumes. Recognising the shape in the first minute is worth more than any clever coding afterwards.',
@@ -462,7 +462,7 @@ return true;`,
   {
     id: 'edge-cases',
     title: 'The edge case checklist',
-    emoji: '🧊',
+    icon: 'warning',
     trackIds: ['t2', 't6'],
     plainWords:
       'The handful of inputs that break code written for the normal case: nothing, one thing, enormous, repeats, and negatives or odd characters. Naming them unprompted is a strong interview signal.',
@@ -478,7 +478,7 @@ return true;`,
   {
     id: 'whiteboard-script',
     title: 'Opening a whiteboard problem',
-    emoji: '📋',
+    icon: 'compass',
     trackIds: ['t2', 't6'],
     plainWords:
       'The first two minutes have a script: say the problem back in your own words, invent a tiny example, describe the obvious slow approach out loud, name the pattern, then plan the code. Silence is what sinks people, not difficulty.',
@@ -501,7 +501,7 @@ return true;`,
   {
     id: 'closure',
     title: 'Closure (the backpack)',
-    emoji: '🎒',
+    icon: 'key',
     trackIds: ['t3'],
     plainWords:
       'A function that carries a backpack: it keeps access to the variables that existed where it was written, even after that place has finished running.',
@@ -532,7 +532,7 @@ next(); // 2`,
   {
     id: 'equality',
     title: '== versus === ',
-    emoji: '⚖️',
+    icon: 'balance',
     trackIds: ['t3'],
     plainWords:
       '`===` asks "are these the same type and the same value?". `==` first tries to convert one side to match the other, which produces some genuinely surprising answers.',
@@ -555,7 +555,7 @@ null === undefined // false`,
   {
     id: 'event-loop',
     title: 'The event loop',
-    emoji: '🔁',
+    icon: 'clock',
     trackIds: ['t3'],
     plainWords:
       'JavaScript does one thing at a time. Work that has to wait goes on a to-do list, and the engine picks the next item only once the current one finishes. Promise callbacks jump the queue ahead of timers.',
@@ -580,7 +580,7 @@ console.log('d');
   {
     id: 'this-binding',
     title: '`this` and arrow functions',
-    emoji: '👇',
+    icon: 'cursor',
     trackIds: ['t3'],
     plainWords:
       'In a normal function, `this` is decided by how the function is called. An arrow function has no `this` of its own. It uses the one from where it was written.',
@@ -608,7 +608,7 @@ console.log('d');
   {
     id: 'async-await',
     title: 'async/await pitfalls',
-    emoji: '⏳',
+    icon: 'clock',
     trackIds: ['t3'],
     plainWords:
       '`await` pauses the function until a promise settles. The classic mistakes are awaiting inside `forEach` (which ignores it entirely) and awaiting in a loop when the work could run at the same time.',
@@ -636,7 +636,7 @@ const results = await Promise.all(urls.map(fetch));`,
   {
     id: 'debounce-throttle',
     title: 'Debounce versus throttle',
-    emoji: '🎚️',
+    icon: 'gauge',
     trackIds: ['t3'],
     plainWords:
       'Debounce waits until things go quiet and then acts once. Throttle acts straight away but refuses to act again until a set time has passed.',
@@ -666,7 +666,7 @@ const results = await Promise.all(urls.map(fetch));`,
   {
     id: 'reference-value',
     title: 'Reference versus value',
-    emoji: '🔗',
+    icon: 'link',
     trackIds: ['t3'],
     plainWords:
       'Numbers and strings are copied when you pass them around. Objects and arrays are not. You pass a pointer to the same thing, so changing it inside a function changes it everywhere.',
@@ -688,7 +688,7 @@ copy.address.city = 'Berlin';    // ALSO changes user.address`,
   {
     id: 'ts-annotations',
     title: 'TypeScript essentials',
-    emoji: '🏷️',
+    icon: 'note',
     trackIds: ['t3'],
     plainWords:
       'Types describe what a value is allowed to be, checked before the code ever runs. Most interview questions want parameter and return types on a function, and an opinion on `interface` versus `type`.',
@@ -711,7 +711,7 @@ copy.address.city = 'Berlin';    // ALSO changes user.address`,
   {
     id: 'ts-generics',
     title: 'Generics in one idea',
-    emoji: '🧬',
+    icon: 'braces',
     trackIds: ['t3'],
     plainWords:
       'A generic is a type left blank for the caller to fill in. It lets one function work with any type while still remembering which type it was given.',
@@ -738,7 +738,7 @@ first(['a', 'b']);     // string | undefined`,
   {
     id: 'refactor-ladder',
     title: 'Work, right, fast, typed',
-    emoji: '🪜',
+    icon: 'ladder',
     trackIds: ['t4'],
     plainWords:
       'The order to improve code in an interview: first make it work, then make it correct on the awkward inputs, then make it fast, then add types. Doing these out of order is the classic mistake.',
@@ -758,7 +758,7 @@ first(['a', 'b']);     // string | undefined`,
   {
     id: 'guard-clause',
     title: 'Guard clauses',
-    emoji: '🚪',
+    icon: 'door',
     trackIds: ['t4'],
     plainWords:
       'Handle the awkward cases first and return early, so the main logic sits flat at the bottom instead of buried inside three levels of `if`.',
@@ -780,7 +780,7 @@ return user.profile;    // the real work, unnested`,
   {
     id: 'dry',
     title: 'DRY, without overdoing it',
-    emoji: '🌵',
+    icon: 'link',
     trackIds: ['t4'],
     plainWords:
       'Do not repeat yourself: the same logic in two places will eventually be fixed in only one of them. But two pieces of code that merely look alike are not duplication, and merging them can make things worse.',
@@ -796,7 +796,7 @@ return user.profile;    // the real work, unnested`,
   {
     id: 'naming',
     title: 'Naming things',
-    emoji: '🏷️',
+    icon: 'note',
     trackIds: ['t4'],
     plainWords:
       'A good name says what the value means, not what type it is or how it was made. Naming a magic number is usually the cheapest improvement available to you.',
@@ -822,7 +822,7 @@ if (elapsed > ONE_DAY_MS) { }             // now it reads`,
   {
     id: 'single-responsibility',
     title: 'One job per function',
-    emoji: '🎯',
+    icon: 'target',
     trackIds: ['t4'],
     plainWords:
       'A function should do one thing. If you need the word "and" to describe it (validates and saves and emails), it is doing several, and each one is harder to test and reuse.',
@@ -841,7 +841,7 @@ if (elapsed > ONE_DAY_MS) { }             // now it reads`,
   {
     id: 'pure-functions',
     title: 'Pure functions and side effects',
-    emoji: '🧼',
+    icon: 'sparkle',
     trackIds: ['t4'],
     plainWords:
       'A pure function returns the same answer for the same input and changes nothing outside itself. It is trivially testable, because there is no setup and nothing to clean up.',
@@ -862,7 +862,7 @@ const addItemBad = (cart, item) => { cart.push(item); }; // mutates`,
   {
     id: 'review-script',
     title: 'Reviewing code out loud',
-    emoji: '🔍',
+    icon: 'speech',
     trackIds: ['t4'],
     plainWords:
       "There is an order to reviewing someone else's code that keeps it useful rather than nitpicky: say what the code is trying to do, then correctness, then readability, then performance, then style.",
@@ -881,7 +881,7 @@ const addItemBad = (cart, item) => { cart.push(item); }; // mutates`,
   {
     id: 'design-script',
     title: 'The system design script',
-    emoji: '🏗️',
+    icon: 'compass',
     trackIds: ['t5'],
     plainWords:
       'Design rounds have a running order: clarify what is actually being asked, estimate the scale, sketch the boxes, go deep on one of them, then talk about the trade-offs you made.',
@@ -897,7 +897,7 @@ const addItemBad = (cart, item) => { cart.push(item); }; // mutates`,
   {
     id: 'lb-cache-queue',
     title: 'The standard building blocks',
-    emoji: '🧱',
+    icon: 'blocks',
     trackIds: ['t5'],
     plainWords:
       'Nearly every design is assembled from the same few parts: a load balancer spreading requests, a cache holding recent answers, a queue holding work for later, a CDN serving files from nearby, and a database as the source of truth.',
@@ -916,7 +916,7 @@ const addItemBad = (cart, item) => { cart.push(item); }; // mutates`,
   {
     id: 'caching',
     title: 'Caching and invalidation',
-    emoji: '🗄️',
+    icon: 'database',
     trackIds: ['t5'],
     plainWords:
       'Keep a copy of an expensive answer somewhere fast, so the next person asking gets it immediately. The hard part is never storing it. It is deciding when the copy has gone stale.',
@@ -936,7 +936,7 @@ const addItemBad = (cart, item) => { cart.push(item); }; // mutates`,
   {
     id: 'queues',
     title: 'Queues and background work',
-    emoji: '📮',
+    icon: 'inbox',
     trackIds: ['t5'],
     plainWords:
       'When a request triggers slow work, write down that the work needs doing, answer straight away, and let a separate worker get through the list. The user stops waiting for something they do not need to watch.',
@@ -952,7 +952,7 @@ const addItemBad = (cart, item) => { cart.push(item); }; // mutates`,
   {
     id: 'sql-vs-nosql',
     title: 'Choosing a database',
-    emoji: '🗃️',
+    icon: 'database',
     trackIds: ['t5'],
     plainWords:
       'Pick based on the shape of your data and the questions you will ask of it. Relational databases are strong when things relate to each other and you need guarantees; document stores are strong when records are self-contained and you read them whole.',
@@ -968,7 +968,7 @@ const addItemBad = (cart, item) => { cart.push(item); }; // mutates`,
   {
     id: 'scaling',
     title: 'Scaling and statelessness',
-    emoji: '📶',
+    icon: 'growth',
     trackIds: ['t5'],
     plainWords:
       'Vertical scaling is a bigger machine. Easy until you cannot buy a bigger one. Horizontal scaling is more machines, which only works if any machine can serve any request, meaning they hold no session state of their own.',
@@ -984,7 +984,7 @@ const addItemBad = (cart, item) => { cart.push(item); }; // mutates`,
   {
     id: 'idempotency',
     title: 'Idempotency (safe to retry)',
-    emoji: '🔁',
+    icon: 'loop',
     trackIds: ['t5'],
     plainWords:
       'An operation is idempotent if doing it twice has the same effect as doing it once. It matters because networks retry, and users double-tap.',
@@ -1009,7 +1009,7 @@ if (await seen(idempotencyKey)) return existingResult;`,
   {
     id: 'pagination',
     title: 'Offset versus cursor',
-    emoji: '📄',
+    icon: 'inbox',
     trackIds: ['t5'],
     plainWords:
       'Offset paging asks for "the next twenty starting at number two thousand", which makes the database count past two thousand rows every time. Cursor paging says "the next twenty after this item", which it can jump straight to.',
@@ -1024,7 +1024,7 @@ if (await seen(idempotencyKey)) return existingResult;`,
   {
     id: 'rate-limiting',
     title: 'Rate limiting',
-    emoji: '🚦',
+    icon: 'gauge',
     trackIds: ['t5'],
     plainWords:
       'Capping how many requests one caller may make in a window, so a single client cannot exhaust the service for everyone else. It usually lives at the edge, before the request reaches your code.',
@@ -1043,7 +1043,7 @@ if (await seen(idempotencyKey)) return existingResult;`,
   {
     id: 'resilience',
     title: 'Failure patterns and mitigations',
-    emoji: '🛡️',
+    icon: 'shield',
     trackIds: ['t5'],
     plainWords:
       'Things fail, so systems are designed to fail small. Retry with random delays so clients do not stampede together, spread hot data across shards, stop calling a dead service, and keep failed jobs rather than losing them.',
@@ -1063,7 +1063,7 @@ if (await seen(idempotencyKey)) return existingResult;`,
   {
     id: 'decoder',
     title: 'The interviewer phrasebook',
-    emoji: '🗣️',
+    icon: 'speech',
     trackIds: ['t6'],
     plainWords:
       'Interviewers ask in riddles, and each riddle has a canonical answer they are waiting to hear. Knowing the mapping is worth as much as knowing the concept, because the concept without the word often scores zero.',
@@ -1084,7 +1084,7 @@ if (await seen(idempotencyKey)) return existingResult;`,
   {
     id: 'stuck-script',
     title: 'What to do when stuck',
-    emoji: '🧗',
+    icon: 'compass',
     trackIds: ['t6'],
     plainWords:
       'Being stuck is normal and survivable. Going quiet is what actually loses interviews. There is a script: say what you do know, restate the goal, offer the brute force, and ask one specific question.',
@@ -1101,7 +1101,7 @@ if (await seen(idempotencyKey)) return existingResult;`,
   {
     id: 'hints',
     title: 'Hints are gifts',
-    emoji: '🎁',
+    icon: 'cursor',
     trackIds: ['t6'],
     plainWords:
       'When an interviewer drops a detail ("what if the array were sorted?"), they are not making conversation. They are steering you toward the intended approach, and taking the hint is rewarded, not penalised.',

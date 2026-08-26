@@ -20,6 +20,9 @@
 }
 
 .sheets__group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: var(--fs-secondary);
   font-weight: 700;
   color: var(--text-dim);
@@ -43,9 +46,11 @@
   color: inherit;
 }
 
-.sheets__card-emoji {
-  font-size: 20px;
-  line-height: 1.3;
+.sheets__card-icon {
+  display: flex;
+  align-items: center;
+  padding-top: 1px;
+  color: var(--text-dim);
 }
 
 .sheets__card-body {
@@ -63,9 +68,9 @@
   gap: 6px;
 }
 
-.sheets__known {
+.sheets__known,
+.sheets__card-title svg {
   color: var(--success);
-  font-size: 12px;
 }
 
 .sheets__card-plain {

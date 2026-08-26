@@ -16,8 +16,16 @@
   gap: var(--sp-4);
 }
 
-.onboarding__emoji {
-  font-size: 48px;
+.onboarding__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  border-radius: var(--r-card);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--accent-text);
 }
 
 .onboarding__title {

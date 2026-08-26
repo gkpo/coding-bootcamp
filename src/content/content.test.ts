@@ -55,7 +55,10 @@ describe('the authored content', () => {
 
   it('links every exercise to a card that resolves', () => {
     for (const exercise of exercises) {
-      expect(getCard(exercise.conceptId), `${exercise.id} → ${exercise.conceptId}`).toBeDefined();
+      expect(
+        getCard(exercise.conceptId),
+        `${exercise.id} links to ${exercise.conceptId}`,
+      ).toBeDefined();
     }
   });
 

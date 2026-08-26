@@ -1,3 +1,4 @@
+import type { IconName } from '../components/iconNames';
 /**
  * Content shapes: the contract from docs/04-DATA-SCHEMAS.md.
  *
@@ -15,7 +16,7 @@ export type ExerciseType =
 export interface Track {
   id: TrackId;
   title: string;
-  emoji: string;
+  icon: IconName;
   tagline: string;
   lessons: Lesson[];
 }
@@ -134,7 +135,7 @@ export interface ConceptCard {
   /** Matches Exercise.conceptId, e.g. "closure". */
   id: string;
   title: string;
-  emoji: string;
+  icon: IconName;
   trackIds: TrackId[];
   /** 1–2 sentences, zero jargon. */
   plainWords: string;

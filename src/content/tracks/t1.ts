@@ -503,7 +503,7 @@ for (const item of items) {
 export const t1: Track = {
   id: 't1',
   title: 'Big-O & optimization talk',
-  emoji: '📈',
+  icon: 'growth',
   tagline: 'See the code, name the growth, say it out loud.',
   lessons: [
     { id: 't1-l1', title: 'Seeing growth', exerciseIds: ['t1-01', 't1-02', 't1-03', 't1-04'] },

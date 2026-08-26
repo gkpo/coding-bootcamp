@@ -3,7 +3,9 @@ import { BottomSheet } from '../components/BottomSheet';
 import { ConceptCardView } from '../components/ConceptCardView';
 import { CodeBlock } from '../components/CodeBlock';
 import { RichText } from '../components/RichText';
+import { stripMarkdown } from '../engine/markdown';
 import { getCard } from '../content';
+import { HelpIcon } from '../components/icons';
 import { useStore } from '../store/useStore';
 import type { Exercise } from '../content/types';
 import './ExerciseFrame.css';
@@ -54,7 +56,8 @@ export function ExerciseFrame({
         </p>
         {card && (
           <button type="button" className="chip chip--concept" onClick={openSheet}>
-            <span aria-hidden>?</span> {card.title}
+            <HelpIcon />
+            <RichText text={card.title} />
           </button>
         )}
       </div>
@@ -72,7 +75,11 @@ export function ExerciseFrame({
       {feedback}
 
       {card && (
-        <BottomSheet open={sheetOpen} onClose={() => setSheetOpen(false)} title={card.title}>
+        <BottomSheet
+          open={sheetOpen}
+          onClose={() => setSheetOpen(false)}
+          title={stripMarkdown(card.title)}
+        >
           <ConceptCardView card={card} />
         </BottomSheet>
       )}

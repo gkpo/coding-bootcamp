@@ -83,3 +83,41 @@ export function FlameIcon({ size = 24 }: IconProps) {
     </svg>
   );
 }
+
+/** Back chevron. Replaces a literal arrow character in link text. */
+export function BackIcon({ size = 18 }: IconProps) {
+  return (
+    <svg {...base(size)}>
+      <path d="M15 5.5 8.5 12l6.5 6.5" />
+    </svg>
+  );
+}
+
+/** Mastery tick. Replaces a literal check character. */
+export function CheckIcon({ size = 16 }: IconProps) {
+  return (
+    <svg {...base(size)}>
+      <path d="M4.5 12.5 9.5 17.5 19.5 6.5" />
+    </svg>
+  );
+}
+
+/** Close. Replaces a literal multiplication sign in the session bar. */
+export function CloseIcon({ size = 20 }: IconProps) {
+  return (
+    <svg {...base(size)}>
+      <path d="M6 6l12 12M18 6L6 18" />
+    </svg>
+  );
+}
+
+/** The concept chip marker. Replaces a bare "?" character. */
+export function HelpIcon({ size = 16 }: IconProps) {
+  return (
+    <svg {...base(size)}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M9.6 9.2a2.5 2.5 0 1 1 3.3 2.4c-.6.2-.9.8-.9 1.4v.5" />
+      <path d="M12 17h.01" />
+    </svg>
+  );
+}

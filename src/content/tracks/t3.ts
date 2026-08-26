@@ -584,7 +584,7 @@ console.log(original.name);`,
 export const t3: Track = {
   id: 't3',
   title: 'JS/TS language concepts',
-  emoji: '⚙️',
+  icon: 'braces',
   tagline: 'Closures, the event loop, and the traps interviewers love.',
   lessons: [
     { id: 't3-l1', title: 'The backpack', exerciseIds: ['t3-01', 't3-02', 't3-03', 't3-04'] },

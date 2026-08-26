@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Button } from '../components/Button';
 import { FlameIcon } from '../components/icons';
 import { tracks, trackExerciseIds } from '../content';
+import { ConceptIcon } from '../components/ConceptIcon';
 import { addDays, todayKey } from '../engine/dates';
 import { useStore } from '../store/useStore';
 import './ProfileScreen.css';
@@ -107,7 +108,10 @@ export function ProfileScreen() {
             return (
               <div className="profile__track" key={track.id}>
                 <span className="profile__track-name">
-                  <span aria-hidden>{track.emoji}</span> {track.title}
+                  <span style={{ color: `var(--track-${track.id})` }}>
+                    <ConceptIcon name={track.icon} size={18} />
+                  </span>
+                  {track.title}
                 </span>
                 <span className="profile__track-bar">
                   <span

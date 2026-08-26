@@ -1,6 +1,8 @@
 import { Link, useParams } from 'react-router-dom';
 import { getExercise, getTrack } from '../content';
 import { useStore } from '../store/useStore';
+import { ConceptIcon } from '../components/ConceptIcon';
+import { BackIcon } from '../components/icons';
 import { isMastered } from '../engine/leitner';
 import type { TrackId } from '../content/types';
 import './TracksScreen.css';
@@ -26,7 +28,7 @@ export function TrackDetailScreen() {
       <div className="stack">
         <h1 className="screen-title">Not found</h1>
         <Link to="/tracks" className="track-detail__back">
-          ← All tracks
+          <BackIcon /> All tracks
         </Link>
       </div>
     );
@@ -35,11 +37,14 @@ export function TrackDetailScreen() {
   return (
     <div className="stack">
       <Link to="/tracks" className="track-detail__back">
-        ← All tracks
+        <BackIcon /> All tracks
       </Link>
       <div>
-        <h1 className="screen-title">
-          <span aria-hidden>{track.emoji}</span> {track.title}
+        <h1 className="screen-title track-detail__title">
+          <span style={{ color: `var(--track-${track.id})` }}>
+            <ConceptIcon name={track.icon} size={24} />
+          </span>
+          {track.title}
         </h1>
         <p className="screen-lede">{track.tagline}</p>
       </div>
@@ -63,7 +68,12 @@ export function TrackDetailScreen() {
                   />
                   <span className="lesson__type">{TYPE_LABEL[exercise.type]}</span>
                   <span className="lesson__diff" aria-label={`Difficulty ${exercise.difficulty}`}>
-                    {'•'.repeat(exercise.difficulty)}
+                    {[1, 2, 3].map((level) => (
+                      <span
+                        key={level}
+                        className={`lesson__pip ${level <= exercise.difficulty ? 'is-on' : ''}`}
+                      />
+                    ))}
                   </span>
                 </li>
               );

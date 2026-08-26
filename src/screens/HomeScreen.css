@@ -71,8 +71,9 @@
   box-shadow: var(--shadow-card);
 }
 
-.home__track-emoji {
-  font-size: 20px;
+.home__track-icon {
+  display: flex;
+  align-items: center;
 }
 
 .home__track-title {
@@ -114,6 +115,7 @@
   display: flex;
   align-items: center;
   gap: var(--sp-2);
+  color: var(--text);
   font-size: var(--fs-heading);
   font-weight: 600;
 }
@@ -172,4 +174,9 @@
   .streak__flame--lit {
     animation: none;
   }
+}
+
+.home__concept-icon {
+  display: inline-flex;
+  color: var(--accent-text);
 }

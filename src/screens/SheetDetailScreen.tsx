@@ -1,6 +1,9 @@
 import { Link, useParams } from 'react-router-dom';
 import { getCard } from '../content';
 import { ConceptCardView } from '../components/ConceptCardView';
+import { ConceptIcon } from '../components/ConceptIcon';
+import { RichText } from '../components/RichText';
+import { BackIcon } from '../components/icons';
 import { useStore } from '../store/useStore';
 import { useEffect } from 'react';
 import './SheetsScreen.css';
@@ -19,7 +22,7 @@ export function SheetDetailScreen() {
       <div className="stack">
         <h1 className="screen-title">Not found</h1>
         <Link to="/sheets" className="track-detail__back">
-          ← All sheets
+          <BackIcon /> All sheets
         </Link>
       </div>
     );
@@ -28,7 +31,7 @@ export function SheetDetailScreen() {
   return (
     <div className="stack">
       <Link to="/sheets" className="track-detail__back">
-        ← All sheets
+        <BackIcon /> All sheets
       </Link>
       <ConceptCardView card={card} />
       {card.related.length > 0 && (
@@ -40,7 +43,8 @@ export function SheetDetailScreen() {
               if (!other) return null;
               return (
                 <Link key={id} to={`/sheets/${id}`} className="sheets__related-chip">
-                  <span aria-hidden>{other.emoji}</span> {other.title}
+                  <ConceptIcon name={other.icon} size={16} />
+                  <RichText text={other.title} />
                 </Link>
               );
             })}

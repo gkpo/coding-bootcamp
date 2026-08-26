@@ -1,6 +1,7 @@
 import type { ConceptCard } from '../content/types';
 import { CodeBlock } from './CodeBlock';
 import { RichText } from './RichText';
+import { ConceptIcon } from './ConceptIcon';
 import './ConceptCardView.css';
 
 /**
@@ -12,7 +13,10 @@ export function ConceptCardView({ card }: { card: ConceptCard }) {
   return (
     <article className="concept">
       <h2 className="concept__title">
-        <span aria-hidden>{card.emoji}</span> {card.title}
+        <span className="concept__icon">
+          <ConceptIcon name={card.icon} size={22} />
+        </span>
+        <RichText text={card.title} />
       </h2>
 
       <section className="concept__section">
