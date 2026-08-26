@@ -1,0 +1,33 @@
+.parsons {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.parsons__area {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.parsons__label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.parsons__code {
+  white-space: pre;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Prose steps read as sentences, not code. */
+.steps__text {
+  font-family: var(--font-ui);
+  font-size: var(--fs-body);
+  line-height: 1.45;
+  white-space: normal;
+}

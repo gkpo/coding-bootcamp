@@ -1,0 +1,72 @@
+.sortable {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  touch-action: none; /* the list owns vertical gestures while dragging */
+}
+
+.sortable__item {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  padding: var(--sp-2) var(--sp-3);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-button);
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono);
+  line-height: 1.45;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: grab;
+  transition:
+    transform var(--dur-micro) var(--ease),
+    border-color var(--dur-micro) var(--ease),
+    box-shadow var(--dur-micro) var(--ease);
+}
+
+.sortable__item.is-dragging {
+  cursor: grabbing;
+  border-color: var(--accent);
+  box-shadow: var(--shadow-card);
+  transform-origin: center;
+  z-index: 2;
+  position: relative;
+  transition: none;
+}
+
+.sortable__item--correct {
+  border-color: var(--success);
+  background: var(--success-bg);
+}
+
+.sortable__item--wrong {
+  border-color: var(--danger);
+  background: var(--danger-bg);
+  animation: option-shake 250ms var(--ease);
+}
+
+.sortable__empty {
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed var(--border);
+  border-radius: var(--r-button);
+  color: var(--text-dim);
+  font-size: var(--fs-secondary);
+  text-align: center;
+  padding: var(--sp-3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sortable__item {
+    transition: none;
+  }
+  .sortable__item--wrong {
+    animation: none;
+  }
+}

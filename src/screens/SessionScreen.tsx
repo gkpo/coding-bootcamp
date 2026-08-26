@@ -2,8 +2,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ExerciseFrame, type Outcome } from '../exercises/ExerciseFrame';
 import { FeedbackPanel } from '../exercises/FeedbackPanel';
-import { McqRenderer } from '../exercises/McqRenderer';
-import { ComplexityRenderer } from '../exercises/ComplexityRenderer';
+import { ExerciseRenderer } from '../exercises/ExerciseRenderer';
 import { getExercise, tracks, trackExerciseIds } from '../content';
 import { composeSession } from '../engine/sessionComposer';
 import {
@@ -15,11 +14,9 @@ import {
   toughestExerciseId,
   type SessionState,
 } from '../engine/sessionRunner';
-import { gradeComplexity, gradeMcq } from '../engine/grading';
 import { randomSeed } from '../engine/shuffle';
 import { todayKey } from '../engine/dates';
 import { useStore } from '../store/useStore';
-import type { ComplexityExercise, McqExercise } from '../content/types';
 import './SessionScreen.css';
 
 type Answered = { outcome: Outcome; whyWrong?: string } | null;
@@ -48,7 +45,6 @@ export function SessionScreen() {
   const [seed] = useState(() => randomSeed());
   const [session, setSession] = useState<SessionState>(() => startSession(plan));
   const [answered, setAnswered] = useState<Answered>(null);
-  const [selected, setSelected] = useState<number | string | null>(null);
   const [confirmExit, setConfirmExit] = useState(false);
 
   const exerciseId = currentExerciseId(session);
@@ -87,7 +83,6 @@ export function SessionScreen() {
     if (!answered) return;
     const next = answerSession(session, answered.outcome);
     setAnswered(null);
-    setSelected(null);
 
     if (isComplete(next)) {
       const results = resultsInOrder(next, plan);
@@ -117,24 +112,6 @@ export function SessionScreen() {
 
   const revealed = answered !== null;
 
-  const onMcqSelect = (authoredIndex: number) => {
-    if (revealed) return;
-    const mcq = exercise as McqExercise;
-    setSelected(authoredIndex);
-    const result = gradeMcq(mcq, authoredIndex);
-    resolve(result.correct ? 'right' : 'wrong', result.whyWrong);
-  };
-
-  const onComplexitySelect = (option: string) => {
-    if (revealed) return;
-    const cx = exercise as ComplexityExercise;
-    setSelected(option);
-    resolve(gradeComplexity(cx, option).correct ? 'right' : 'wrong');
-  };
-
-  const supported =
-    exercise.type === 'mcq' || exercise.type === 'ladder' || exercise.type === 'complexity';
-
   return (
     <div className="session">
       <header className="session__bar">
@@ -156,6 +133,8 @@ export function SessionScreen() {
       <main className="session__body">
         <ExerciseFrame
           exercise={exercise}
+          // spot-bug renders the snippet itself as tappable lines.
+          suppressCode={exercise.type === 'spot-bug'}
           showUnsure={!revealed}
           onUnsure={() => resolve('unsure')}
           feedback={
@@ -172,33 +151,14 @@ export function SessionScreen() {
             )
           }
         >
-          {exercise.type === 'mcq' || exercise.type === 'ladder' ? (
-            <McqRenderer
-              exercise={exercise}
-              seed={presentationSeed}
-              selected={typeof selected === 'number' ? selected : null}
-              onSelect={onMcqSelect}
-              revealed={revealed}
-            />
-          ) : exercise.type === 'complexity' ? (
-            <ComplexityRenderer
-              exercise={exercise}
-              selected={typeof selected === 'string' ? selected : null}
-              onSelect={onComplexitySelect}
-              revealed={revealed}
-            />
-          ) : (
-            <p className="session__unsupported">
-              This exercise type arrives in M3. Skipping it for now.
-            </p>
-          )}
+          <ExerciseRenderer
+            key={`${exercise.id}-${presentations}`}
+            exercise={exercise}
+            seed={presentationSeed}
+            revealed={revealed}
+            onResolve={resolve}
+          />
         </ExerciseFrame>
-
-        {!supported && (
-          <button type="button" className="session__skip" onClick={() => resolve('unsure')}>
-            Skip
-          </button>
-        )}
       </main>
 
       {confirmExit && (

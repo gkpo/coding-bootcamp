@@ -28,6 +28,18 @@ const router = createHashRouter([
   // you are answering (docs/01 §Screen map).
   { path: '/session', element: <SessionScreen /> },
   { path: '/session/summary', element: <SessionSummaryScreen /> },
+  // Dev-only harness for driving each renderer in isolation. The dynamic
+  // import keeps it out of the production bundle entirely.
+  ...(import.meta.env.DEV
+    ? [
+        {
+          path: '/dev/renderers',
+          lazy: async () => ({
+            Component: (await import('../dev/RendererHarness')).RendererHarness,
+          }),
+        },
+      ]
+    : []),
 ]);
 
 export function App() {

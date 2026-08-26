@@ -1,0 +1,58 @@
+.match {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-2);
+  align-items: start;
+}
+
+.match__col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.match__cell {
+  min-height: 56px;
+  padding: var(--sp-2) var(--sp-3);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-button);
+  font-size: var(--fs-secondary);
+  line-height: 1.35;
+  text-align: left;
+  transition:
+    border-color var(--dur-micro) var(--ease),
+    background-color var(--dur-micro) var(--ease),
+    opacity var(--dur-standard) var(--ease);
+}
+
+.match__cell--term {
+  font-family: var(--font-mono);
+  text-align: center;
+  justify-content: center;
+  display: flex;
+  align-items: center;
+}
+
+.match__cell.is-picked {
+  border-color: var(--info);
+  background: var(--info-bg);
+}
+
+.match__cell.is-matched {
+  border-color: var(--success);
+  background: var(--success-bg);
+  opacity: 0.55;
+}
+
+.match__cell.is-wrong {
+  border-color: var(--danger);
+  background: var(--danger-bg);
+  animation: option-shake 250ms var(--ease);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .match__cell.is-wrong {
+    animation: none;
+  }
+}
