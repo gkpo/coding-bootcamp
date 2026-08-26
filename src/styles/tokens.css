@@ -1,0 +1,83 @@
+/* Design tokens — docs/06-DESIGN-SYSTEM.md is binding. Light theme only in v1. */
+
+:root {
+  /* ---- surfaces & text ---- */
+  --bg: #f7f5f1;
+  --surface: #ffffff;
+  --surface-2: #f1eee8;
+  --border: #e5e1d8;
+  --text: #1f2430;
+  --text-dim: #6b7180;
+
+  /* ---- the one accent (warm amber) ---- */
+  --accent: #f59e0b;
+  --accent-pressed: #d97706;
+  --accent-text: #b45309; /* amber as text/small glyphs — the fill fails AA */
+  --on-accent: #33230a;
+
+  /* ---- semantic ---- */
+  --success: #059669;
+  --danger: #dc2626;
+  --info: #2563eb;
+  --success-bg: rgba(5, 150, 105, 0.1);
+  --danger-bg: rgba(220, 38, 38, 0.1);
+  --info-bg: rgba(37, 99, 235, 0.1);
+
+  /* ---- track identity ---- */
+  --track-t1: #d97706;
+  --track-t2: #7c3aed;
+  --track-t3: #db2777;
+  --track-t4: #0d9488;
+  --track-t5: #2563eb;
+  --track-t6: #059669;
+
+  /* ---- type ---- */
+  --font-ui: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --fs-display: 32px;
+  --fs-title: 22px;
+  --fs-heading: 17px;
+  --fs-body: 15.5px;
+  --fs-secondary: 13.5px;
+  --fs-mono: 13.5px;
+
+  /* ---- spacing (4px grid) ---- */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+  --gutter: 20px;
+
+  /* ---- shape ---- */
+  --r-card: 16px;
+  --r-button: 14px;
+  --r-code: 12px;
+  --r-sheet: 20px;
+  --r-pill: 999px;
+
+  /* ---- elevation ---- */
+  --shadow-card: 0 1px 3px rgba(31, 36, 48, 0.06), 0 4px 12px rgba(31, 36, 48, 0.05);
+  --shadow-sheet: 0 -2px 8px rgba(31, 36, 48, 0.08), 0 -12px 32px rgba(31, 36, 48, 0.12);
+
+  /* ---- motion ---- */
+  --dur-micro: 150ms;
+  --dur-standard: 250ms;
+  --dur-celebrate: 400ms;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* ---- layout ---- */
+  --app-max-width: 480px;
+  --tabbar-height: 56px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-micro: 0ms;
+    --dur-standard: 0ms;
+    --dur-celebrate: 0ms;
+  }
+}

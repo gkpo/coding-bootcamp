@@ -1,0 +1,47 @@
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  width: 100%;
+  min-height: 52px;
+  padding: 0 var(--sp-5);
+  border-radius: var(--r-button);
+  font-size: var(--fs-heading);
+  font-weight: 700;
+  transition:
+    transform var(--dur-micro) var(--ease),
+    background-color var(--dur-micro) var(--ease);
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  transform: none;
+  cursor: default;
+}
+
+.btn--primary {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.btn--primary:active {
+  background: var(--accent-pressed);
+}
+
+.btn--secondary {
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.btn--ghost {
+  min-height: 44px;
+  background: none;
+  color: var(--info);
+  font-weight: 600;
+}

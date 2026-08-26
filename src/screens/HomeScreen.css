@@ -1,0 +1,122 @@
+.home {
+  gap: var(--sp-4);
+}
+
+.streak {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.streak__flame--idle {
+  color: var(--text-dim);
+  display: inline-flex;
+}
+
+.streak__count {
+  font-size: var(--fs-display);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.streak__hint {
+  color: var(--text-dim);
+  font-size: var(--fs-secondary);
+}
+
+.streak__dots {
+  display: flex;
+  gap: var(--sp-2);
+}
+
+.streak__dot {
+  width: 12px;
+  height: 12px;
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+}
+
+.home__cta {
+  margin-top: var(--sp-4);
+}
+
+.home__section-title {
+  font-size: var(--fs-heading);
+  font-weight: 600;
+  margin-bottom: var(--sp-3);
+}
+
+/* Horizontal strip: one card per track, scrolls off the gutter edge-to-edge. */
+.home__strip {
+  display: flex;
+  gap: var(--sp-3);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  margin: 0 calc(var(--gutter) * -1);
+  padding: var(--sp-1) var(--gutter) var(--sp-3);
+  -webkit-overflow-scrolling: touch;
+}
+
+.home__track {
+  flex: 0 0 auto;
+  width: 150px;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--surface);
+  border-radius: var(--r-card);
+  border-top: 3px solid var(--border);
+  box-shadow: var(--shadow-card);
+}
+
+.home__track-emoji {
+  font-size: 20px;
+}
+
+.home__track-title {
+  font-size: var(--fs-secondary);
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.home__track-bar {
+  height: 6px;
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+.home__track-fill {
+  display: block;
+  height: 100%;
+  width: 0%;
+  border-radius: var(--r-pill);
+  transition: width 300ms ease-out;
+}
+
+.home__concept-kicker {
+  color: var(--accent-text);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.home__concept-title {
+  margin-top: var(--sp-2);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--fs-heading);
+  font-weight: 600;
+}
+
+.home__concept-plain {
+  margin-top: var(--sp-2);
+  color: var(--text-dim);
+  line-height: 1.6;
+}
