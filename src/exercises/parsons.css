@@ -20,8 +20,9 @@
 
 .parsons__code {
   white-space: pre;
+  /* Clips a long line rather than stretching the pill. Touch panning here is
+     off by design: the pill is a drag handle first (see SortableList.css). */
   overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
 }
 
 /* Prose steps read as sentences, not code. */

@@ -1,9 +1,11 @@
-import { useMemo, useState } from 'react';
-import { SortableList, type SortableItem } from '../components/SortableList';
+import { useCallback, useMemo, useState } from 'react';
+import { DragGroup, SortableZone, type SortableItem } from '../components/SortableList';
 import { shuffle } from '../engine/shuffle';
 import { Button } from '../components/Button';
 import type { ParsonsExercise } from '../content/types';
 import './parsons.css';
+
+const noop = () => {};
 
 interface Props {
   exercise: ParsonsExercise;
@@ -38,33 +40,48 @@ export function ParsonsRenderer({ exercise, seed, revealed, wrongPositions, onCh
     indent: line.indent,
   });
 
+  // A drop in the solution lands at the index the pointer picked; a drop back
+  // in the bank just leaves the solution, since the bank is an unordered pile.
+  const onMove = useCallback(
+    (id: string, _from: string, to: string, index: number) => {
+      setPlacedIds((ids) => {
+        const next = ids.filter((x) => x !== id);
+        if (to === 'solution') next.splice(index, 0, id);
+        return next;
+      });
+    },
+    [],
+  );
+
   return (
     <div className="parsons">
-      <div className="parsons__area">
-        <p className="parsons__label">Your solution</p>
-        <SortableList
-          items={placed.map(toItem)}
-          onReorder={setPlacedIds}
-          onTap={(id) => !revealed && setPlacedIds((ids) => ids.filter((x) => x !== id))}
-          disabled={revealed}
-          emptyLabel="Tap a line below to add it here, then drag to reorder."
-          stateOf={(_, index) =>
-            wrongPositions ? (wrongPositions[index] ? 'wrong' : 'correct') : 'idle'
-          }
-        />
-      </div>
-
-      {bank.length > 0 && (
+      <DragGroup onMove={revealed ? noop : onMove}>
         <div className="parsons__area">
-          <p className="parsons__label">Available lines</p>
-          <SortableList
-            items={bank.map(toItem)}
-            onReorder={() => {}}
-            onTap={(id) => !revealed && setPlacedIds((ids) => [...ids, id])}
+          <p className="parsons__label">Your solution</p>
+          <SortableZone
+            zone="solution"
+            items={placed.map(toItem)}
+            onTap={(id) => !revealed && setPlacedIds((ids) => ids.filter((x) => x !== id))}
             disabled={revealed}
+            emptyLabel="Drag a line up here, or tap it to add it."
+            stateOf={(_, index) =>
+              wrongPositions ? (wrongPositions[index] ? 'wrong' : 'correct') : 'idle'
+            }
           />
         </div>
-      )}
+
+        {bank.length > 0 && (
+          <div className="parsons__area">
+            <p className="parsons__label">Available lines</p>
+            <SortableZone
+              zone="bank"
+              items={bank.map(toItem)}
+              onTap={(id) => !revealed && setPlacedIds((ids) => [...ids, id])}
+              disabled={revealed}
+            />
+          </div>
+        )}
+      </DragGroup>
 
       {!revealed && (
         <Button
