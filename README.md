@@ -17,9 +17,9 @@ So this is not "learn to code": it's **pattern recognition, interview vocabulary
 
 ## What's in it
 
-- **100 exercises** across six tracks: Big-O talk, algorithm patterns, JS/TS internals, refactoring, system design, and the interview decoder.
+- **142 exercises** across nine tracks: Big-O talk, algorithm patterns, JS/TS internals, refactoring, system design, the interview decoder, React and the frontend, the web platform, and databases in practice.
 - **Eight mechanics**, all tap or drag: multiple choice, name-the-growth, drag-the-lines-into-order, tap-the-buggy-line, fill-the-blank, pick-the-next-move, pair-the-riddle, order-the-plan.
-- **49 concept cards** in plain words: an everyday analogy first, the formal term second, the phrases interviewers use, and a sentence to say back.
+- **71 concept cards** in plain words: an everyday analogy first, the formal term second, the phrases interviewers use, and a sentence to say back.
 - **Spaced repetition** on Leitner boxes: miss something and it returns until it sticks.
 - **Streaks, XP and freezes**, because a habit you can see is a habit you keep.
 
@@ -39,7 +39,7 @@ Develop at a **390×844** viewport: this is a phone app first; desktop is a cent
 
 ## Adding content
 
-Exercises live in `src/content/tracks/t1.ts` … `t6.ts` and concept cards in `src/content/concepts.ts`, as typed TypeScript literals matching [`docs/04-DATA-SCHEMAS.md`](./docs/04-DATA-SCHEMAS.md). UI code never hard-codes exercise text.
+Exercises live in `src/content/tracks/t1.ts` … `t9.ts` and concept cards in `src/content/concepts.ts`, as typed TypeScript literals matching [`docs/04-DATA-SCHEMAS.md`](./docs/04-DATA-SCHEMAS.md). UI code never hard-codes exercise text.
 
 `src/content/validate.ts` runs at import and **throws on startup** if anything is wrong. An exercise pointing at a concept card that doesn't exist, an mcq without exactly one correct option, a `spot-bug` index past the end of its snippet, a lesson with the wrong number of exercises. Content bugs fail loudly rather than rendering a chip that opens nothing.
 
@@ -55,29 +55,29 @@ Every push runs lint, tests and build. Pushes to `main` also deploy `dist/` to G
 
 > **One-time repo setup:** _Settings → Pages → Source → **GitHub Actions**_. The repo must be public for Pages on the free plan.
 
-Current state: **205 tests**, Lighthouse mobile **97 performance / 100 accessibility / 100 best practices**, bundle **158 kB gzipped**.
+Current state: **252 tests**, bundle **185 kB gzipped** against a 200 kB budget. Lighthouse mobile at v1: **97 performance / 100 accessibility / 100 best practices**.
 
 ## Documentation index
 
 The plan this was built from, in reading order:
 
-| Doc                                                      | Contents                                                       |
-| -------------------------------------------------------- | -------------------------------------------------------------- |
-| [docs/00-VISION.md](./docs/00-VISION.md)                 | Who this is for, goals, non-goals, product principles          |
-| [docs/01-PRODUCT-SPEC.md](./docs/01-PRODUCT-SPEC.md)     | Screens, flows, gamification, spaced repetition, concept cards |
-| [docs/02-EXERCISE-TYPES.md](./docs/02-EXERCISE-TYPES.md) | The 8 exercise mechanics, their UI and grading rules           |
-| [docs/03-CONTENT-PLAN.md](./docs/03-CONTENT-PLAN.md)     | 6 tracks, the full manifest of 100 exercises, the card list    |
-| [docs/04-DATA-SCHEMAS.md](./docs/04-DATA-SCHEMAS.md)     | TypeScript shapes for content, progress, spaced repetition     |
-| [docs/05-ARCHITECTURE.md](./docs/05-ARCHITECTURE.md)     | Stack, folder layout, state, persistence, PWA, deploy          |
-| [docs/06-DESIGN-SYSTEM.md](./docs/06-DESIGN-SYSTEM.md)   | Colors, type, spacing, components, motion                      |
-| [docs/07-ROADMAP.md](./docs/07-ROADMAP.md)               | Milestones with acceptance criteria                            |
-| [docs/08-CONTENT-EXPANSION.md](./docs/08-CONTENT-EXPANSION.md) | v1.1 manifest: React, web platform and database tracks   |
+| Doc                                                            | Contents                                                       |
+| -------------------------------------------------------------- | -------------------------------------------------------------- |
+| [docs/00-VISION.md](./docs/00-VISION.md)                       | Who this is for, goals, non-goals, product principles          |
+| [docs/01-PRODUCT-SPEC.md](./docs/01-PRODUCT-SPEC.md)           | Screens, flows, gamification, spaced repetition, concept cards |
+| [docs/02-EXERCISE-TYPES.md](./docs/02-EXERCISE-TYPES.md)       | The 8 exercise mechanics, their UI and grading rules           |
+| [docs/03-CONTENT-PLAN.md](./docs/03-CONTENT-PLAN.md)           | 6 tracks, the full manifest of 100 exercises, the card list    |
+| [docs/04-DATA-SCHEMAS.md](./docs/04-DATA-SCHEMAS.md)           | TypeScript shapes for content, progress, spaced repetition     |
+| [docs/05-ARCHITECTURE.md](./docs/05-ARCHITECTURE.md)           | Stack, folder layout, state, persistence, PWA, deploy          |
+| [docs/06-DESIGN-SYSTEM.md](./docs/06-DESIGN-SYSTEM.md)         | Colors, type, spacing, components, motion                      |
+| [docs/07-ROADMAP.md](./docs/07-ROADMAP.md)                     | Milestones with acceptance criteria                            |
+| [docs/08-CONTENT-EXPANSION.md](./docs/08-CONTENT-EXPANSION.md) | v1.1 manifest: React, web platform and database tracks         |
 
 ## Decisions already made (do not re-litigate)
 
 - **Language of exercises:** JavaScript/TypeScript only.
 - **Stack:** React + TypeScript + Vite, no backend, all state in `localStorage`. Architected so a later React Native port is realistic.
 - **Deploy:** GitHub Pages via GitHub Actions, installable as a PWA.
-- **v1 content size:** 100 exercises + 49 concept cards.
+- **Content size:** 100 exercises + 49 concept cards in v1; 142 + 71 with the v1.1 expansion in [`docs/08`](./docs/08-CONTENT-EXPANSION.md).
 - **Every exercise links to a plain-words concept card.** You must never meet an unexplained term.
 - **Visual bar:** simple but genuinely attractive. Generic unstyled UI is a failed deliverable.

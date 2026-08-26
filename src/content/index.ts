@@ -7,6 +7,7 @@ import { t5, t5Exercises } from './tracks/t5';
 import { t6, t6Exercises } from './tracks/t6';
 import { t7, t7Exercises } from './tracks/t7';
 import { t8, t8Exercises } from './tracks/t8';
+import { t9, t9Exercises } from './tracks/t9';
 import { assertContentValid } from './validate';
 import type { ConceptCard, Exercise, Track, TrackId } from './types';
 
@@ -15,7 +16,7 @@ import type { ConceptCard, Exercise, Track, TrackId } from './types';
  * the v1.1 expansion (docs/08). Adding one is an import and two array entries.
  */
 
-export const tracks: Track[] = [t1, t2, t3, t4, t5, t6, t7, t8];
+export const tracks: Track[] = [t1, t2, t3, t4, t5, t6, t7, t8, t9];
 export const exercises: Exercise[] = [
   ...t1Exercises,
   ...t2Exercises,
@@ -25,6 +26,7 @@ export const exercises: Exercise[] = [
   ...t6Exercises,
   ...t7Exercises,
   ...t8Exercises,
+  ...t9Exercises,
 ];
 export const cards: ConceptCard[] = conceptCards;
 

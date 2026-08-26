@@ -146,7 +146,7 @@ for (const name of guests) {
       "I'd put them in a Set so lookups are O(1) instead of scanning the array each time.",
       'That trades a little memory for a lot of speed.',
     ],
-    related: ['hidden-loops', 'space-time', 'big-o'],
+    related: ['hidden-loops', 'space-time', 'big-o', 'indexes'],
   },
   {
     id: 'space-time',
@@ -1064,7 +1064,7 @@ if (await seen(idempotencyKey)) return existingResult;`,
     id: 'decoder',
     title: 'The interviewer phrasebook',
     icon: 'speech',
-    trackIds: ['t6', 't8'],
+    trackIds: ['t6', 't8', 't9'],
     plainWords:
       'Interviewers ask in riddles, and each riddle has a canonical answer they are waiting to hear. Knowing the mapping is worth as much as knowing the concept, because the concept without the word often scores zero.',
     analogy:
@@ -1079,6 +1079,10 @@ if (await seen(idempotencyKey)) return existingResult;`,
       'a script smuggled into the page',
       'a forged request from another site',
       'a quote that breaks out of the query',
+      'the index at the back of the book',
+      'all of it, or none of it',
+      'one query per row',
+      'only the rows that matched on both sides',
     ],
     sayThis: [
       '"A function that remembers" is a closure. "Grows linearly" is O(n). "Instant lookup" is a hash map. "Only computed once" is memoization.',
@@ -1569,5 +1573,144 @@ ETag: "a9f3"                      // ask, get 304 if unchanged`,
       'Hashed filenames plus a long max-age, so a new build is a new URL and the old one can be cached forever.',
     ],
     related: ['caching', 'url-journey'],
+  },
+
+  // ---------------------------------------------------------------------
+  // Track 9. Databases in practice
+  // ---------------------------------------------------------------------
+  {
+    id: 'joins',
+    title: 'Reading JOINs',
+    icon: 'rows',
+    trackIds: ['t9'],
+    plainWords:
+      'A join lines two tables up on a shared value. An inner join keeps only the rows that matched on both sides. A left join keeps everything on the left, filling the right with nothing where there was no match.',
+    analogy:
+      'Two guest lists against each other. The inner join is the people on both. The left join is everyone on the first list, with a blank beside the ones who never appeared on the second, which is how you find who did not turn up.',
+    interviewerSays: [
+      'users who never ordered',
+      'inner or left here?',
+      'what happens to the rows with no match?',
+    ],
+    example: {
+      lang: 'js',
+      source: `LEFT JOIN orders o ON o.user_id = u.id
+WHERE o.id IS NULL`,
+    },
+    exampleCaption: 'Keep every user, then keep only the ones whose order columns came back empty.',
+    sayThis: [
+      'An inner join keeps only matches, so a user with no orders disappears and a user with four appears four times.',
+      'Left join plus IS NULL is the "never did this" idiom.',
+    ],
+    related: ['sql-reading', 'sql-vs-nosql'],
+  },
+  {
+    id: 'sql-reading',
+    title: 'Reading aggregate queries',
+    icon: 'note',
+    trackIds: ['t9'],
+    plainWords:
+      'Read a query in the order it runs, not the order it is written. Rows are filtered by `WHERE`, folded into groups by `GROUP BY`, and the groups are then filtered by `HAVING`.',
+    analogy:
+      'Sorting a pile of receipts. First throw out the ones you do not care about. Then stack what is left by shop. Then discard the stacks that are too short. Trying to judge a stack before you have made any stacks is the mistake `HAVING` exists to prevent.',
+    interviewerSays: [
+      'what does this query return?',
+      'WHERE or HAVING?',
+      'what does one row of this mean?',
+    ],
+    example: {
+      lang: 'js',
+      source: `WHERE status = 'shipped'
+GROUP BY user_id
+HAVING COUNT(*) > 3`,
+    },
+    exampleCaption:
+      'WHERE filters orders. After the GROUP BY, one row is one user, and HAVING filters those.',
+    sayThis: [
+      'WHERE filters rows before grouping, HAVING filters the groups after. That is why only HAVING can talk about a COUNT.',
+      'Each row of the result is one group, so I would describe it as one user and their count.',
+    ],
+    related: ['joins', 'indexes'],
+  },
+  {
+    id: 'indexes',
+    title: 'Indexes (the book index)',
+    icon: 'sort',
+    trackIds: ['t9'],
+    plainWords:
+      'An index is a second, sorted copy of one column, kept beside the table. Without one the database reads every row to find yours. With one it looks the value up and goes straight there.',
+    analogy:
+      'The index at the back of a book. To find every mention of a word without it you read the whole book, and a longer book takes longer. With it you look the word up and turn to the page, and the length of the book barely matters.',
+    interviewerSays: [
+      'this query got slow, what would you do?',
+      'why not index everything?',
+      'is it using the index?',
+    ],
+    example: {
+      lang: 'js',
+      source: `CREATE INDEX ON users (email);`,
+    },
+    exampleCaption:
+      'Lookups on email stop scanning the table, and every write now maintains this index too.',
+    sayThis: [
+      'Index the columns the real queries filter and sort on, then check the query plan actually uses them.',
+      'Not every column, because every write has to update every index.',
+    ],
+    related: ['hash-lookup', 'sql-reading', 'n-plus-one'],
+  },
+  {
+    id: 'n-plus-one',
+    title: 'The N+1 problem',
+    icon: 'loop',
+    trackIds: ['t9'],
+    plainWords:
+      'One query fetches a list, then the code loops over it and queries once per row. A hundred rows means a hundred and one queries, and none of them is slow on its own.',
+    analogy:
+      'Ringing the warehouse for a list of a hundred orders, then ringing back a hundred times to ask who placed each one. Every call is quick. It is the hundred calls that take the afternoon.',
+    interviewerSays: [
+      'it makes a hundred queries',
+      'one query per row',
+      'why is this endpoint slow?',
+    ],
+    example: {
+      lang: 'js',
+      source: `for (const post of posts) {
+  post.author = await findUser(post.authorId); // 1 per row
+}`,
+    },
+    exampleCaption: 'Collect the ids, fetch them in one query, then attach. Two queries in total.',
+    sayThis: [
+      'That is an N+1. One query for the list and one per row, so the cost grows with the list.',
+      'I would batch the lookups into a single query with IN, or let the ORM include the relation.',
+    ],
+    related: ['indexes', 'hidden-loops', 'pagination'],
+  },
+  {
+    id: 'transactions',
+    title: 'Transactions and ACID',
+    icon: 'balance',
+    trackIds: ['t9'],
+    plainWords:
+      'A transaction wraps several statements so they count as one. Either all of them take effect or none of them do, however badly things go wrong in the middle.',
+    analogy:
+      'Swapping keys for cash on a house. Neither side hands theirs over until both do, and if anything falls through, everyone walks away holding what they started with. There is no version where one half happened.',
+    interviewerSays: [
+      'what if it crashes halfway?',
+      'all or nothing',
+      'how do you keep those two writes together?',
+    ],
+    example: {
+      lang: 'js',
+      source: `await db.transaction(async (tx) => {
+  await tx.debit(from, amount);
+  await tx.credit(to, amount);   // crash here rolls back the debit
+});`,
+    },
+    exampleCaption: 'Atomicity: the crash leaves the accounts exactly as they were.',
+    sayThis: [
+      'I would put both writes in a transaction, so a crash between them rolls the first one back.',
+      'ACID in plain words: all or nothing, the rules stay true, concurrent work does not see half-done state, and a commit survives a power cut.',
+    ],
+    related: ['idempotency', 'resilience', 'sql-reading'],
   },
 ];
