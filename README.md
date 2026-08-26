@@ -55,7 +55,7 @@ Every push runs lint, tests and build. Pushes to `main` also deploy `dist/` to G
 
 > **One-time repo setup:** _Settings → Pages → Source → **GitHub Actions**_. The repo must be public for Pages on the free plan.
 
-Current state: **252 tests**, bundle **185 kB gzipped** against a 200 kB budget. Lighthouse mobile at v1: **97 performance / 100 accessibility / 100 best practices**.
+Current state: **254 tests**, bundle **185 kB gzipped** against a 200 kB budget. Lighthouse mobile at v1: **97 performance / 100 accessibility / 100 best practices**.
 
 ## Documentation index
 

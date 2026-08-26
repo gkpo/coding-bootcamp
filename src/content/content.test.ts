@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { cards, cardsForTrack, exercises, getCard, getExercise, trackExerciseIds } from './index';
 import { findContentProblems } from './validate';
+import { composeSession } from '../engine/sessionComposer';
+import type { ExerciseProgress } from '../engine/leitner';
 import { tracks } from './index';
 
 /**
@@ -136,5 +138,48 @@ describe('code snippets', () => {
       if (!exercise.code) continue;
       expect(exercise.code.source.endsWith('\n'), exercise.id).toBe(false);
     }
+  });
+});
+
+describe('the daily session over the real content', () => {
+  // docs/08 promised the new tracks would join the round-robin with no
+  // composer change. Worth asserting rather than assuming: a track no session
+  // can ever reach is content nobody will ever see.
+  const pools = () => tracks.map((t) => ({ id: t.id, exerciseIds: trackExerciseIds(t.id) }));
+  const mastered = (ids: string[]): Record<string, ExerciseProgress> =>
+    Object.fromEntries(
+      ids.map((id) => [
+        id,
+        { box: 5, dueDay: '2026-12-01', seen: 4, lapses: 0, lastResult: 'right' },
+      ]),
+    );
+  const compose = (progress: Record<string, ExerciseProgress>) => {
+    const reached = new Set<string>();
+    for (let seed = 0; seed < 20; seed++) {
+      const session = composeSession({
+        tracks: pools(),
+        decoderExerciseIds: trackExerciseIds('t6'),
+        progress,
+        today: '2026-08-26',
+        seed,
+      });
+      for (const id of session) reached.add(id.slice(0, 2));
+    }
+    return reached;
+  };
+
+  it('works the least-advanced tracks first, so day one is not spread across nine subjects', () => {
+    // Four frontier slots and an even mastery ratio, so the tie-break on id
+    // decides: t1 to t4, plus the decoder item. This is by design, and it is
+    // why the assertion below is about a profile that has made progress.
+    expect([...compose({})].sort()).toEqual(['t1', 't2', 't3', 't4', 't6']);
+  });
+
+  it('brings the v1.1 tracks in once the earlier ones are done', () => {
+    const done = ['t1', 't2', 't3', 't4', 't5', 't6'].flatMap((t) =>
+      trackExerciseIds(t as Parameters<typeof trackExerciseIds>[0]),
+    );
+    const reached = compose(mastered(done));
+    for (const id of ['t7', 't8', 't9']) expect(reached, id).toContain(id);
   });
 });
