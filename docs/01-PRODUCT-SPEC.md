@@ -39,6 +39,7 @@ Session player behavior:
 - **"I'm not sure" button** on every exercise (in addition to answering). It reveals the answer + explanation, counts as a miss for spaced repetition, but with gentler copy ("No stress. Here's the idea"). This prevents guess-gambling from corrupting the learning signal.
 - Wrong/unsure items are **re-queued at the end of the same session** (Duolingo-style: you must get it right once before the session completes).
 - Every exercise screen has a small **"?" chip** next to the prompt: opens the linked concept card in a bottom sheet _without_ leaving or failing the exercise. Reading the card before answering is allowed and encouraged. This is a learning app, not an exam.
+- The chip is the icon alone, never the concept's name. On a "name the pattern" exercise the concept title _is_ the answer ("Sliding window", "Guard clauses", "Idempotency"), and everywhere else printing it decodes the interviewer's riddle before the user has had a go at it (vision, gap 3). The help stays one tap away; it is just never given away unasked.
 
 ### Session summary screen
 

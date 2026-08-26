@@ -36,7 +36,13 @@
   font-weight: 600;
 }
 
+/* Icon only, so it never spells out the concept the exercise is asking for. */
 .chip--concept {
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0;
+  justify-content: center;
   background: var(--info-bg);
   color: var(--info);
 }

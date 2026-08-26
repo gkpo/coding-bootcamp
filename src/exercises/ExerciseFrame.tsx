@@ -30,6 +30,12 @@ interface Props {
  *
  * The "?" chip opens the concept card *without* failing the exercise. Reading
  * before answering is encouraged. This is a learning app, not an exam.
+ *
+ * It carries no label, because the concept's name is often the answer: on
+ * "name the pattern" exercises a chip reading "Sliding window" or "Guard
+ * clauses" hands over the option to pick, and everywhere else it decodes the
+ * interviewer's riddle before the user has had a go at it (docs/00, gap 3).
+ * The help is still one tap away; it is just no longer given away unasked.
  */
 export function ExerciseFrame({
   exercise,
@@ -55,9 +61,13 @@ export function ExerciseFrame({
           <RichText text={exercise.prompt} />
         </p>
         {card && (
-          <button type="button" className="chip chip--concept" onClick={openSheet}>
-            <HelpIcon />
-            <RichText text={card.title} />
+          <button
+            type="button"
+            className="chip chip--concept"
+            aria-label="Open the concept card for this exercise"
+            onClick={openSheet}
+          >
+            <HelpIcon size={20} />
           </button>
         )}
       </div>
