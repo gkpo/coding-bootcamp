@@ -125,3 +125,53 @@
   color: var(--text-dim);
   line-height: 1.6;
 }
+
+.streak__flame--lit {
+  color: var(--accent);
+  display: inline-flex;
+  animation: flame-pulse 1.5s var(--ease) infinite;
+}
+
+.streak__dot.is-on {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.home__review {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  text-decoration: none;
+  color: inherit;
+}
+
+.home__review-count {
+  font-size: var(--fs-title);
+  font-weight: 700;
+  color: var(--accent-text);
+}
+
+.home__review-text {
+  font-size: var(--fs-body);
+}
+
+.home__track {
+  text-decoration: none;
+  color: inherit;
+}
+
+@keyframes flame-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .streak__flame--lit {
+    animation: none;
+  }
+}

@@ -1,0 +1,59 @@
+.frame {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.frame__prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--sp-3);
+}
+
+.frame__question {
+  font-size: 17px;
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+.inline-code {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  background: var(--surface-2);
+  border-radius: 6px;
+  padding: 1px 5px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 0 var(--sp-3);
+  border-radius: var(--r-pill);
+  font-size: var(--fs-secondary);
+  font-weight: 600;
+}
+
+.chip--concept {
+  background: var(--info-bg);
+  color: var(--info);
+}
+
+.frame__answers {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.frame__unsure {
+  align-self: center;
+  min-height: 44px;
+  padding: 0 var(--sp-4);
+  color: var(--text-dim);
+  font-size: var(--fs-secondary);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

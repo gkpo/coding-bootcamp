@@ -1,0 +1,120 @@
+.summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  min-height: 100dvh;
+  padding: var(--sp-8) var(--gutter) var(--sp-6);
+  padding-top: calc(var(--sp-8) + env(safe-area-inset-top));
+  background: var(--bg);
+}
+
+.summary__hero {
+  text-align: center;
+  padding: var(--sp-4) 0 var(--sp-2);
+}
+
+.summary__kicker {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent-text);
+}
+
+.summary__xp {
+  font-size: var(--fs-display);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-top: var(--sp-2);
+}
+
+.summary__streak {
+  margin-top: var(--sp-2);
+  color: var(--text-dim);
+  font-size: var(--fs-secondary);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.summary__flame {
+  color: var(--accent);
+  display: inline-flex;
+}
+
+.summary__score-line {
+  font-size: var(--fs-heading);
+}
+
+.summary__dots {
+  display: flex;
+  gap: 6px;
+  margin-top: var(--sp-3);
+  flex-wrap: wrap;
+}
+
+.summary__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--r-pill);
+}
+
+.summary__dot--right {
+  background: var(--success);
+}
+
+.summary__dot--wrong {
+  background: var(--danger);
+}
+
+.summary__dot--unsure {
+  background: var(--info);
+}
+
+.summary__label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent-text);
+  margin-bottom: var(--sp-2);
+}
+
+.summary__label--loose {
+  margin-bottom: var(--sp-3);
+}
+
+.summary__tough {
+  font-size: var(--fs-body);
+  line-height: 1.5;
+}
+
+.summary__takeaway {
+  margin-top: var(--sp-2);
+  color: var(--text-dim);
+  font-size: var(--fs-secondary);
+  line-height: 1.5;
+}
+
+.summary__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+
+.summary__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px var(--sp-3);
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  font-size: var(--fs-secondary);
+  font-weight: 600;
+}
+
+.summary__cta {
+  margin-top: auto;
+  padding-top: var(--sp-5);
+}

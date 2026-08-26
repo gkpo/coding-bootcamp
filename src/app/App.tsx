@@ -5,6 +5,8 @@ import { TracksScreen } from '../screens/TracksScreen';
 import { ReviewScreen } from '../screens/ReviewScreen';
 import { SheetsScreen } from '../screens/SheetsScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
+import { SessionScreen } from '../screens/SessionScreen';
+import { SessionSummaryScreen } from '../screens/SessionSummaryScreen';
 
 /**
  * Hash routing on purpose: GitHub Pages has no SPA rewrite, and hash routes
@@ -22,6 +24,10 @@ const router = createHashRouter([
       { path: 'me', element: <ProfileScreen /> },
     ],
   },
+  // The session is a full-screen flow on top of the shell — no tab bar while
+  // you are answering (docs/01 §Screen map).
+  { path: '/session', element: <SessionScreen /> },
+  { path: '/session/summary', element: <SessionSummaryScreen /> },
 ]);
 
 export function App() {

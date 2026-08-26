@@ -1,0 +1,68 @@
+.sheet-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.sheet__scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  animation: sheet-fade var(--dur-standard) var(--ease);
+}
+
+.sheet {
+  position: relative;
+  width: 100%;
+  max-width: var(--app-max-width);
+  max-height: 82dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border-radius: var(--r-sheet) var(--r-sheet) 0 0;
+  box-shadow: var(--shadow-sheet);
+  animation: sheet-rise var(--dur-standard) var(--ease);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.sheet__handle {
+  width: 40px;
+  height: 4px;
+  border-radius: var(--r-pill);
+  background: var(--border);
+  margin: var(--sp-3) auto var(--sp-1);
+  flex: 0 0 auto;
+}
+
+.sheet__body {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: var(--sp-4) var(--gutter) var(--sp-6);
+}
+
+@keyframes sheet-rise {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes sheet-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet {
+    animation: sheet-fade var(--dur-standard) var(--ease);
+  }
+}
