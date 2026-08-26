@@ -3,9 +3,10 @@ import { createRoot } from 'react-dom/client';
 import './styles/tokens.css';
 import './styles/base.css';
 import { App } from './app/App';
-import { reloadOnServiceWorkerUpdate } from './app/swRefresh';
+import { checkForUpdates, reloadOnServiceWorkerUpdate } from './app/swRefresh';
 
 reloadOnServiceWorkerUpdate();
+checkForUpdates();
 
 const rootEl = document.getElementById('root');
 if (!rootEl) throw new Error('Root element #root is missing from index.html');

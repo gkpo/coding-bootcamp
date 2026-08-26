@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { reloadOnServiceWorkerUpdate } from './swRefresh';
+import { checkForUpdates, reloadOnServiceWorkerUpdate } from './swRefresh';
 
 type Listener = () => void;
 
@@ -49,5 +49,72 @@ describe('reloadOnServiceWorkerUpdate', () => {
   it('does nothing where service workers are unsupported', () => {
     vi.stubGlobal('navigator', {});
     expect(() => reloadOnServiceWorkerUpdate()).not.toThrow();
+  });
+});
+
+describe('checkForUpdates', () => {
+  function stubRegistration() {
+    const update = vi.fn().mockResolvedValue(undefined);
+    const listeners: Record<string, (() => void)[]> = {};
+    vi.stubGlobal('navigator', {
+      serviceWorker: {
+        controller: {},
+        addEventListener: () => {},
+        getRegistration: () => Promise.resolve({ update }),
+      },
+    });
+    vi.stubGlobal('document', {
+      visibilityState: 'visible',
+      addEventListener: (t: string, fn: () => void) => {
+        (listeners[t] ??= []).push(fn);
+      },
+      removeEventListener: () => {},
+    });
+    return { update, fire: (t: string) => (listeners[t] ?? []).forEach((f) => f()) };
+  }
+
+  it('asks once as soon as the app starts', async () => {
+    const { update } = stubRegistration();
+    const stop = checkForUpdates();
+    await vi.waitFor(() => expect(update).toHaveBeenCalledTimes(1));
+    stop();
+  });
+
+  it('asks again when the app becomes visible', async () => {
+    // The case that matters on a phone: reopening an installed PWA resumes the
+    // page instead of loading it, so nothing else would trigger a check.
+    const { update, fire } = stubRegistration();
+    const stop = checkForUpdates();
+    await vi.waitFor(() => expect(update).toHaveBeenCalledTimes(1));
+    fire('visibilitychange');
+    await vi.waitFor(() => expect(update).toHaveBeenCalledTimes(2));
+    stop();
+  });
+
+  it('keeps asking while the app stays open', async () => {
+    vi.useFakeTimers();
+    const { update } = stubRegistration();
+    const stop = checkForUpdates();
+    await vi.advanceTimersByTimeAsync(60_000 * 3);
+    expect(update.mock.calls.length).toBeGreaterThanOrEqual(3);
+    stop();
+    vi.useRealTimers();
+  });
+
+  it('stops polling once torn down, so it cannot leak a timer', async () => {
+    vi.useFakeTimers();
+    const { update } = stubRegistration();
+    const stop = checkForUpdates();
+    await vi.advanceTimersByTimeAsync(60_000);
+    const after = update.mock.calls.length;
+    stop();
+    await vi.advanceTimersByTimeAsync(60_000 * 5);
+    expect(update.mock.calls.length).toBe(after);
+    vi.useRealTimers();
+  });
+
+  it('does nothing where service workers are unsupported', () => {
+    vi.stubGlobal('navigator', {});
+    expect(() => checkForUpdates()()).not.toThrow();
   });
 });
