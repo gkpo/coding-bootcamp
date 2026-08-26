@@ -5,7 +5,7 @@
   padding: var(--sp-4);
   background: var(--surface);
   border-radius: var(--r-card);
-  border-left: 4px solid var(--border);
+  border: 1px solid var(--border);
   box-shadow: var(--shadow-card);
   text-decoration: none;
   color: inherit;
@@ -17,9 +17,22 @@
   align-items: flex-start;
 }
 
-.track-card__emoji {
-  font-size: 24px;
-  line-height: 1.2;
+/* The track colour lives in a chip with its own geometry, rather than on one
+   edge of the card. A thick single-sided border cannot share the card's 16px
+   radius, so CSS miters the join and the corners come to a point. Giving the
+   colour a shape of its own removes the conflict instead of tuning it, and a
+   40px block of colour is easier to scan down a list than a 4px edge.
+   Same reasoning as .concept__say-line, which squares off its left corners. */
+.track-card__icon {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: var(--surface-2);
+  background: color-mix(in srgb, currentColor 12%, var(--surface));
 }
 
 .track-card__title {

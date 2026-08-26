@@ -26,7 +26,7 @@ The bar: **simple but not ugly**: appealing enough that opening it daily feels g
 | `--info`                                     | `#2563EB`                                | Links, the "?" concept chip                                                                                                      |
 | `--success-bg` / `--danger-bg` / `--info-bg` | the above at ~10% opacity on `--surface` | Feedback panel tints                                                                                                             |
 
-Track identity colors (track cards, progress bars, lesson headers). Deep enough to read on light backgrounds: t1 amber `#D97706`, t2 violet `#7C3AED`, t3 pink `#DB2777`, t4 teal `#0D9488`, t5 blue `#2563EB`, t6 green `#059669`, t7 cyan `#0891B2`, t8 indigo `#4F46E5`, t9 slate `#475569`. Use at full strength only for small elements (icons, bar fills, 15px+ bold text); tint at ~8–10% for card backgrounds.
+Track identity colors (track cards, progress bars, lesson headers). Deep enough to read on light backgrounds: t1 amber `#D97706`, t2 violet `#7C3AED`, t3 pink `#DB2777`, t4 teal `#0D9488`, t5 blue `#2563EB`, t6 green `#059669`, t7 cyan `#0891B2`, t8 indigo `#4F46E5`, t9 slate `#475569`. Use at full strength only for small elements (icons, bar fills, 15px+ bold text); tint at ~8–10% for card backgrounds and icon chips. **Never carry track colour on a single edge of a rounded card.** A thick one-sided border cannot share the card's 16px radius, so the browser miters the join and the corners come to a point. Where colour must sit on an edge, square off that side's corners (as `.concept__say-line` does); otherwise give the colour a shape of its own.
 
 Contrast: all text/background pairs must pass WCAG AA (the values above do; keep it true if tweaked).
 
@@ -48,6 +48,7 @@ Contrast: all text/background pairs must pass WCAG AA (the values above do; keep
 
 - **Primary button:** full-width, 52px tall, `--accent` bg, `--on-accent` bold text, radius 14, subtle scale-down (0.98) on press. Secondary: `--surface-2` bg + `--border`. Ghost: text-only `--info`.
 - **Card:** `--surface`, radius 16, 16–20px padding, optional 1px border.
+- **Track card:** uniform 1px `--border` and the soft shadow, never an accent edge. Identity is carried by an **icon chip**: a 40px (34px in the Home strip) rounded square, radius 12 (10), filled with a ~12% tint of the track colour, with the drawn icon at full strength inside it. The progress-bar fill repeats the colour. Two deliberate uses beat one smeared along a border.
 - **Progress bar:** 6px tall, radius full, track `--surface-2`, fill = track color or accent; animate width 300ms ease-out.
 - **Progress ring:** (Home CTA, session summary) 3–4px stroke, accent on `--surface-2` track.
 - **Streak flame:** the one playful mascot-ish element. Inline SVG flame, accent-colored, subtle 1.5s ease pulse when today is done; grayed at `--text-dim` when today isn't done yet.

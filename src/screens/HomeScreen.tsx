@@ -94,7 +94,6 @@ export function HomeScreen() {
                 className="home__track"
                 key={track.id}
                 onClick={() => setLastOpenedTrack(track.id)}
-                style={{ borderTopColor: `var(--track-${track.id})` }}
               >
                 <span className="home__track-icon" style={{ color: `var(--track-${track.id})` }}>
                   <ConceptIcon name={track.icon} size={22} />

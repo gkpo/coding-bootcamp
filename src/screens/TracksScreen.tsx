@@ -20,12 +20,7 @@ export function TracksScreen() {
       {tracks.map((track) => {
         const mastery = trackMastery(track.id);
         return (
-          <Link
-            key={track.id}
-            to={`/tracks/${track.id}`}
-            className="track-card"
-            style={{ borderLeftColor: `var(--track-${track.id})` }}
-          >
+          <Link key={track.id} to={`/tracks/${track.id}`} className="track-card">
             <div className="track-card__head">
               <span className="track-card__icon" style={{ color: `var(--track-${track.id})` }}>
                 <ConceptIcon name={track.icon} size={24} />
