@@ -26,7 +26,7 @@ The bar: **simple but not ugly**: appealing enough that opening it daily feels g
 | `--info`                                     | `#2563EB`                                | Links, the "?" concept chip                                                                                                      |
 | `--success-bg` / `--danger-bg` / `--info-bg` | the above at ~10% opacity on `--surface` | Feedback panel tints                                                                                                             |
 
-Track identity colors (track cards, progress bars, lesson headers). Deep enough to read on light backgrounds: t1 amber `#D97706`, t2 violet `#7C3AED`, t3 pink `#DB2777`, t4 teal `#0D9488`, t5 blue `#2563EB`, t6 green `#059669`. Use at full strength only for small elements (icons, bar fills, 15px+ bold text); tint at ~8–10% for card backgrounds.
+Track identity colors (track cards, progress bars, lesson headers). Deep enough to read on light backgrounds: t1 amber `#D97706`, t2 violet `#7C3AED`, t3 pink `#DB2777`, t4 teal `#0D9488`, t5 blue `#2563EB`, t6 green `#059669`, t7 cyan `#0891B2`, t8 indigo `#4F46E5`, t9 slate `#475569`. Use at full strength only for small elements (icons, bar fills, 15px+ bold text); tint at ~8–10% for card backgrounds.
 
 Contrast: all text/background pairs must pass WCAG AA (the values above do; keep it true if tweaked).
 

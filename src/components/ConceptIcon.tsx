@@ -122,6 +122,32 @@ const P: Record<IconName, ReactNode> = {
     </>
   ),
   shield: <path d="M12 3.2 20 6v6.2c0 4.9-3.4 7.9-8 8.8-4.6-.9-8-3.9-8-8.8V6z" />,
+  component: (
+    <>
+      <rect x="2.8" y="3.2" width="9.2" height="9.2" rx="2" />
+      <rect x="12" y="11.6" width="9.2" height="9.2" rx="2" />
+      <path d="M12 7.8h4a2 2 0 0 1 2 2v1.8" />
+    </>
+  ),
+  globe: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M3.2 12h17.6" />
+      <path d="M12 3c3.1 3.6 3.1 14.4 0 18M12 3c-3.1 3.6-3.1 14.4 0 18" />
+    </>
+  ),
+  cookie: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M9 9.5h.01M14.9 11.4h.01M10.4 15.8h.01M15 16h.01" strokeWidth={2.8} />
+    </>
+  ),
+  rows: (
+    <>
+      <rect x="3" y="4.5" width="18" height="15" rx="2.5" />
+      <path d="M3 9.5h18M3 14.5h18M9.5 9.5v10" />
+    </>
+  ),
 };
 
 export type { IconName };

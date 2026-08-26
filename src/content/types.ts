@@ -7,7 +7,7 @@ import type { IconName } from '../components/iconNames';
  * checks that the type system can't express (id uniqueness, cross-references).
  */
 
-export type TrackId = 't1' | 't2' | 't3' | 't4' | 't5' | 't6';
+export type TrackId = 't1' | 't2' | 't3' | 't4' | 't5' | 't6' | 't7' | 't8' | 't9';
 export type Difficulty = 1 | 2 | 3;
 
 export type ExerciseType =

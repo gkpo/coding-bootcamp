@@ -34,6 +34,10 @@ export const ICON_NAMES = [
   'inbox',
   'gauge',
   'shield',
+  'component',
+  'globe',
+  'cookie',
+  'rows',
 ] as const;
 
 export type IconName = (typeof ICON_NAMES)[number];
