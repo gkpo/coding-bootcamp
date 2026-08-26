@@ -31,6 +31,7 @@ interface ExerciseBase {
   difficulty: Difficulty;
   conceptId: string; // linked concept card (the "?" chip target)
   prompt: string; // may contain **bold** (tiny markdown subset: bold + inline code)
+  promptVariants?: string[]; // alternate phrasings, same answer/options/code; one picked per presentation
   code?: CodeBlock; // optional snippet shown under the prompt
   explanation: string; // 2–4 sentences, plain words; shown on miss and via "Why?"
 }
@@ -149,3 +150,5 @@ Derived (never persisted): track mastery %, due-review list, daily-session compo
 ## Randomization rule
 
 Shuffles (mcq option order, parsons/steps order, match layout) derive from a per-presentation random seed, never persisted, never authored. The correct answer must not be positionally learnable.
+
+The same seed picks the prompt phrasing when an exercise carries `promptVariants`, so a re-render mid-question does not swap the wording under the user. Variants are for exercises whose prompt is a problem statement or a riddle (statement-to-pattern mcqs, decoder-adjacent mcqs); mechanics drills (parsons, blank, spot-bug) do not need them, because their repetition is the point. Prompt only: variant option sets and variant code are not worth the authoring and grading complexity.

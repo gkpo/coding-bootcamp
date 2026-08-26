@@ -257,3 +257,28 @@ describe('lesson coverage', () => {
     expect(problems).toContain('Track t1 lists the same exercise in more than one lesson');
   });
 });
+
+describe('prompt variants', () => {
+  it('accepts an exercise with alternate phrasings', () => {
+    const exercises = [
+      mcq({ promptVariants: ['Which of these?', 'Pick the one that fits.'] }),
+      mcq({ id: 't1-02' }),
+      mcq({ id: 't1-03' }),
+    ];
+    expect(findContentProblems(bundle({ exercises }))).toEqual([]);
+  });
+
+  it('rejects a blank variant', () => {
+    const exercises = [mcq({ promptVariants: ['  '] }), mcq({ id: 't1-02' }), mcq({ id: 't1-03' })];
+    expect(findContentProblems(bundle({ exercises }))).toContain(
+      't1-01 has a blank prompt variant',
+    );
+  });
+
+  it('rejects an empty variant list, which is a leftover rather than a choice', () => {
+    const exercises = [mcq({ promptVariants: [] }), mcq({ id: 't1-02' }), mcq({ id: 't1-03' })];
+    expect(findContentProblems(bundle({ exercises }))).toContain(
+      't1-01 has an empty promptVariants list, drop the field instead',
+    );
+  });
+});

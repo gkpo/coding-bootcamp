@@ -4,6 +4,7 @@ import { ConceptCardView } from '../components/ConceptCardView';
 import { CodeBlock } from '../components/CodeBlock';
 import { RichText } from '../components/RichText';
 import { stripMarkdown } from '../engine/markdown';
+import { promptFor } from '../engine/prompts';
 import { getCard } from '../content';
 import { HelpIcon } from '../components/icons';
 import { useStore } from '../store/useStore';
@@ -14,6 +15,8 @@ export type Outcome = 'right' | 'wrong' | 'unsure';
 
 interface Props {
   exercise: Exercise;
+  /** Per-presentation seed; picks the prompt phrasing (docs/10 part B). */
+  seed: number;
   /** The answer area. Supplied by the per-type renderer. */
   children: ReactNode;
   /** Hidden once the exercise is resolved. */
@@ -33,6 +36,7 @@ interface Props {
  */
 export function ExerciseFrame({
   exercise,
+  seed,
   children,
   onUnsure,
   showUnsure,
@@ -52,7 +56,7 @@ export function ExerciseFrame({
     <div className="frame">
       <div className="frame__prompt">
         <p className="frame__question">
-          <RichText text={exercise.prompt} />
+          <RichText text={promptFor(exercise, seed)} />
         </p>
         {card && (
           <button type="button" className="chip chip--concept" onClick={openSheet}>

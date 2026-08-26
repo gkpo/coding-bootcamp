@@ -14,6 +14,9 @@ function userVisibleStrings(): { where: string; text: string }[] {
 
   for (const exercise of exercises) {
     out.push({ where: `${exercise.id}.prompt`, text: exercise.prompt });
+    exercise.promptVariants?.forEach((variant, i) =>
+      out.push({ where: `${exercise.id}.promptVariants[${i}]`, text: variant }),
+    );
     out.push({ where: `${exercise.id}.explanation`, text: exercise.explanation });
     if (exercise.type === 'mcq' || exercise.type === 'ladder') {
       exercise.options.forEach((o, i) => {

@@ -42,6 +42,13 @@ export interface ExerciseBase {
   conceptId: string;
   /** Supports a tiny markdown subset: **bold** and `inline code`. */
   prompt: string;
+  /**
+   * Alternate phrasings of the same question: same answer, same options, same
+   * code. The renderer picks one per presentation (docs/10 part B), so an item
+   * cannot be recognised by its wording alone. For problem statements and
+   * riddles only; mechanics drills repeat on purpose.
+   */
+  promptVariants?: string[];
   code?: CodeBlock;
   /** 2–4 sentences, plain words. Shown on a miss and behind "Why?". */
   explanation: string;

@@ -10,6 +10,7 @@ Authoring quality bar (applies to everything):
 - `complexity` exercises must fill the mandatory "say it like this" phrase.
 - Difficulty 1 items must be answerable straight from the linked concept card.
 - **One concept, several skins** (docs/09). No concept card's exercises may all share a single surface story, and no riddle phrase may be the only phrasing an exercise ever shows for its concept. Cards keep at least three `interviewerSays` phrasings where the concept is commonly asked. When authoring new content, prefer a surface story that concept has not used yet.
+- `promptVariants` (docs/10 part B) carry alternate phrasings of a _problem statement or riddle_, never of a mechanics drill. Same answer, same options, same code.
 
 ---
 

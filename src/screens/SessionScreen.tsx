@@ -148,6 +148,7 @@ export function SessionScreen() {
         <div className="session__slide" key={presentations}>
           <ExerciseFrame
             exercise={exercise}
+            seed={presentationSeed}
             // spot-bug renders the snippet itself as tappable lines.
             suppressCode={exercise.type === 'spot-bug'}
             showUnsure={!revealed}

@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { ExerciseRenderer } from '../exercises/ExerciseRenderer';
+import { RichText } from '../components/RichText';
+import { promptFor } from '../engine/prompts';
 import { getExercise } from '../content';
 import type { Exercise } from '../content/types';
 import type { Outcome } from '../exercises/ExerciseFrame';
@@ -85,7 +87,9 @@ export function RendererHarness() {
           </button>
         ))}
       </div>
-      <p style={{ marginBottom: 12 }}>{exercise.prompt}</p>
+      <p style={{ marginBottom: 12 }}>
+        <RichText text={promptFor(exercise, 7)} />
+      </p>
       {exercise.code && (
         <pre className="code" style={{ marginBottom: 12 }}>
           <code>{exercise.code.source}</code>

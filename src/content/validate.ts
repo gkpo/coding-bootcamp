@@ -31,6 +31,16 @@ export function findContentProblems({ tracks, exercises, cards }: ContentBundle)
     if (!exercise.explanation.trim()) {
       problems.push(`${exercise.id} has an empty explanation`);
     }
+    if (exercise.promptVariants !== undefined) {
+      if (exercise.promptVariants.length === 0) {
+        problems.push(`${exercise.id} has an empty promptVariants list, drop the field instead`);
+      }
+      for (const variant of exercise.promptVariants) {
+        if (typeof variant !== 'string' || !variant.trim()) {
+          problems.push(`${exercise.id} has a blank prompt variant`);
+        }
+      }
+    }
 
     switch (exercise.type) {
       case 'mcq':
