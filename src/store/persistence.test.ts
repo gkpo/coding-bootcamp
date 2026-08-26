@@ -68,7 +68,7 @@ describe('reconcile', () => {
     expect(reconcile({ onboarded: true }).onboarded).toBe(true);
   });
 
-  it('preserves progress — the one thing that cannot be regenerated', () => {
+  it('preserves progress. The one thing that cannot be regenerated', () => {
     const exercises = {
       't1-01': { box: 5, dueDay: '2026-12-01', seen: 9, lapses: 2, lastResult: 'right' },
     };

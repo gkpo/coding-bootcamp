@@ -11,9 +11,8 @@ import './RevealedAnswer.css';
  * item has been answered right once, so an ordered exercise the user cannot
  * solve is a dead end unless the answer is shown.
  *
- * The types that already reveal in place — mcq and complexity highlight the
- * correct option, spot-bug highlights the line, match cannot finish unpaired —
- * render nothing here.
+ * The types that already reveal in place: mcq and complexity highlight the
+ * correct option, spot-bug highlights the line, match cannot finish unpaired: * render nothing here.
  */
 export function RevealedAnswer({ exercise }: { exercise: Exercise }) {
   switch (exercise.type) {

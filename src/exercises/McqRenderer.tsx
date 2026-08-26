@@ -14,7 +14,7 @@ interface Props {
 }
 
 /**
- * Tap to select and it grades immediately — no confirm step, because fewer
+ * Tap to select and it grades immediately: no confirm step, because fewer
  * taps matters more than undo on a phone (docs/02). Nothing is coloured until
  * the user commits.
  */

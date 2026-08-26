@@ -4,7 +4,7 @@ import { MARKDOWN_TOKEN } from '../engine/markdown';
 /**
  * The tiny markdown subset content may use: **bold**, *italic* and `code`.
  *
- * Hand-rolled on purpose — docs/05 rules out pulling in a markdown library for
+ * Hand-rolled on purpose: docs/05 rules out pulling in a markdown library for
  * three constructs, and this keeps the React Native port trivial.
  *
  * Italics were added to the documented bold+code pair because the authored
@@ -24,8 +24,7 @@ export function RichText({ text }: { text: string }) {
       nodes.push(<Fragment key={nodes.length}>{text.slice(lastIndex, match.index)}</Fragment>);
     }
     const token = match[0];
-    // Bold and italic recurse, so `code` nested inside them still renders —
-    // the authored copy does exactly that ("**why is `push` still O(1)?**").
+    // Bold and italic recurse, so `code` nested inside them still renders: // the authored copy does exactly that ("**why is `push` still O(1)?**").
     if (token.startsWith('**')) {
       nodes.push(
         <strong key={nodes.length}>

@@ -1,9 +1,8 @@
 /**
- * Leitner boxes — the spaced-repetition rules from docs/01 §Spaced repetition.
+ * Leitner boxes: the spaced-repetition rules from docs/01 §Spaced repetition.
  *
  * Deliberately simple and explainable rather than SM-2: a box 0–5, one step up
- * for a clean answer, two steps down for a miss. Dropping two is intentional —
- * something you got wrong on old material must come back fast, not in 16 days.
+ * for a clean answer, two steps down for a miss. Dropping two is intentional: * something you got wrong on old material must come back fast, not in 16 days.
  */
 
 import { addDays, isOnOrBefore, type DayKey } from './dates';

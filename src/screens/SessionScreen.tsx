@@ -62,7 +62,7 @@ export function SessionScreen() {
   const total = plan.length;
 
   // Total presentations so far. This is the only part of the session state
-  // that always moves — `cleared` and `queue.length` both stay put when an
+  // that always moves: `cleared` and `queue.length` both stay put when an
   // item is re-queued, which would hand a missed exercise back with its
   // options in exactly the same order (docs/04 forbids positionally learnable
   // answers, and it also made the queue impossible to drain).

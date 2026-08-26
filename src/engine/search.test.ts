@@ -25,7 +25,7 @@ describe('searchCards', () => {
     expect(searchCards(cards, 'closure')[0].id).toBe('closure');
   });
 
-  it('finds a card by the interviewer phrase — the whole point of the tab', () => {
+  it('finds a card by the interviewer phrase. The whole point of the tab', () => {
     expect(searchCards(cards, 'a function that remembers')[0].id).toBe('closure');
     expect(searchCards(cards, 'grows linearly')[0].id).toBe('big-o');
   });

@@ -1,5 +1,5 @@
 /**
- * Content shapes — the contract from docs/04-DATA-SCHEMAS.md.
+ * Content shapes: the contract from docs/04-DATA-SCHEMAS.md.
  *
  * Content is authored as typed TypeScript literals so the compiler catches
  * mistakes before the validator has to; see content/index.ts for the runtime
@@ -32,12 +32,12 @@ export interface CodeBlock {
 }
 
 export interface ExerciseBase {
-  /** Manifest id, e.g. "t1-03". STABLE — progress keys off it. */
+  /** Manifest id, e.g. "t1-03". STABLE, progress keys off it. */
   id: string;
   trackId: TrackId;
   type: ExerciseType;
   difficulty: Difficulty;
-  /** Linked concept card — the target of the "?" chip. */
+  /** Linked concept card. The target of the "?" chip. */
   conceptId: string;
   /** Supports a tiny markdown subset: **bold** and `inline code`. */
   prompt: string;
@@ -49,7 +49,7 @@ export interface ExerciseBase {
 export interface McqOption {
   text: string;
   correct?: true;
-  /** Shown when this specific wrong option is picked — target the misconception. */
+  /** Shown when this specific wrong option is picked. Target the misconception. */
   whyWrong?: string;
 }
 
@@ -140,7 +140,7 @@ export interface ConceptCard {
   plainWords: string;
   /** 2–3 sentences, one concrete everyday image. */
   analogy: string;
-  /** The riddle phrases an interviewer actually uses — searchable. */
+  /** The riddle phrases an interviewer actually uses, searchable. */
   interviewerSays: string[];
   example?: CodeBlock;
   exampleCaption?: string;

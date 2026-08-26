@@ -4,10 +4,10 @@
  * Emits tokens **per line**, carrying block-comment state across lines. That
  * shape is the reason this exists rather than a library: `spot-bug` renders
  * every line as its own tappable <button>, and a highlighter that returns one
- * blob of nested spans has to be cut apart at line boundaries — where a span
+ * blob of nested spans has to be cut apart at line boundaries, where a span
  * opened on line 2 and closed on line 5 leaves broken markup on both sides.
  *
- * It also keeps the promise docs/05 actually makes — "keep bundle small, no
+ * It also keeps the promise docs/05 actually makes: "keep bundle small, no
  * full Prism/hljs bundles". highlight.js core plus js/ts is roughly 15 kB
  * gzipped; this is about 1 kB, and the content it has to colour is deliberately
  * plain modern JS/TS (docs/03: const, arrow functions, template literals,
@@ -34,21 +34,69 @@ export interface Token {
 }
 
 const KEYWORDS = new Set([
-  'async', 'await', 'break', 'case', 'catch', 'class', 'const', 'continue',
-  'default', 'delete', 'do', 'else', 'export', 'extends', 'finally', 'for',
-  'from', 'function', 'if', 'import', 'in', 'instanceof', 'interface', 'let',
-  'new', 'of', 'return', 'static', 'switch', 'throw', 'try', 'type', 'typeof',
-  'var', 'void', 'while', 'yield',
+  'async',
+  'await',
+  'break',
+  'case',
+  'catch',
+  'class',
+  'const',
+  'continue',
+  'default',
+  'delete',
+  'do',
+  'else',
+  'export',
+  'extends',
+  'finally',
+  'for',
+  'from',
+  'function',
+  'if',
+  'import',
+  'in',
+  'instanceof',
+  'interface',
+  'let',
+  'new',
+  'of',
+  'return',
+  'static',
+  'switch',
+  'throw',
+  'try',
+  'type',
+  'typeof',
+  'var',
+  'void',
+  'while',
+  'yield',
 ]);
 
-/** Values, not control flow — coloured apart from keywords so they read as data. */
+/** Values, not control flow. Coloured apart from keywords so they read as data. */
 const LITERALS = new Set(['true', 'false', 'null', 'undefined', 'this', 'NaN', 'Infinity']);
 
 /** Built-in types and constructors that read as types in these snippets. */
 const TYPES = new Set([
-  'Array', 'Boolean', 'Date', 'Error', 'Map', 'Math', 'Number', 'Object',
-  'Promise', 'RangeError', 'Set', 'String', 'Symbol', 'boolean', 'number',
-  'string', 'unknown', 'any', 'never',
+  'Array',
+  'Boolean',
+  'Date',
+  'Error',
+  'Map',
+  'Math',
+  'Number',
+  'Object',
+  'Promise',
+  'RangeError',
+  'Set',
+  'String',
+  'Symbol',
+  'boolean',
+  'number',
+  'string',
+  'unknown',
+  'any',
+  'never',
 ]);
 
 const ID_START = /[A-Za-z_$]/;
@@ -74,7 +122,7 @@ function push(tokens: Token[], text: string, kind: TokenKind): void {
 
 /**
  * Tokenize one line, mutating `state` for the next. Returns tokens whose text
- * concatenates back to exactly the input — nothing is dropped or reordered.
+ * concatenates back to exactly the input. Nothing is dropped or reordered.
  */
 export function tokenizeLine(line: string, state: ScanState): Token[] {
   const tokens: Token[] = [];

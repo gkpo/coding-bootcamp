@@ -1,7 +1,7 @@
 import type { ConceptCard } from './types';
 
 /**
- * Concept cards — the plain-words layer. Every exercise links to one, and the
+ * Concept cards: the plain-words layer. Every exercise links to one, and the
  * rule from docs/00 is absolute: someone who has never heard the term must be
  * able to read the card and then answer the exercise. Analogy first, formal
  * term second, never the other way round.
@@ -33,7 +33,7 @@ for (const item of items) {
     },
     exampleCaption: 'One pass over the list: double the items, double the work.',
     sayThis: [
-      'It grows linearly — double the input, double the work.',
+      'It grows linearly. Double the input, double the work.',
       'This is O(n): the work is proportional to the size of the list.',
     ],
     related: ['log-n', 'hidden-loops', 'space-time', 'perf-script'],
@@ -63,7 +63,7 @@ for (const item of items) {
     },
     exampleCaption: 'Each pass discards half the range, so the range collapses fast.',
     sayThis: [
-      "It's O(log n) — each step halves what's left, so a million items takes about twenty steps.",
+      "It's O(log n). Each step halves what's left, so a million items takes about twenty steps.",
       'Since the input is sorted, I can binary search instead of scanning.',
     ],
     related: ['big-o', 'sort-cost'],
@@ -74,10 +74,10 @@ for (const item of items) {
     emoji: '🔤',
     trackIds: ['t1'],
     plainWords:
-      'Sorting is not free — the usual cost is O(n log n). If your solution sorts first and then walks the list once, the sort is the expensive part and the walk barely registers.',
+      'Sorting is not free. The usual cost is O(n log n). If your solution sorts first and then walks the list once, the sort is the expensive part and the walk barely registers.',
     analogy:
       'Alphabetising a shoebox of index cards takes real effort. Once they are in order, finding any single card is quick. But you paid for that speed up front, and the cost of ordering the box is bigger than the cost of pulling one card out of it.',
-    interviewerSays: ['what does the sort cost you?', "you sorted — what's the complexity now?"],
+    interviewerSays: ['what does the sort cost you?', "you sorted. What's the complexity now?"],
     example: {
       lang: 'js',
       source: `const sorted = [...nums].sort((a, b) => a - b); // O(n log n)
@@ -87,8 +87,8 @@ for (const n of sorted) {                        // O(n)
     },
     exampleCaption: 'The sort dominates: O(n log n) + O(n) is just O(n log n).',
     sayThis: [
-      "Sorting dominates here — it's O(n log n), and the scan afterwards is only O(n), so overall it's O(n log n).",
-      'When you add two costs, the bigger one wins — the small one disappears.',
+      "Sorting dominates here. It's O(n log n), and the scan afterwards is only O(n), so overall it's O(n log n).",
+      'When you add two costs, the bigger one wins. The small one disappears.',
     ],
     related: ['big-o', 'log-n'],
   },
@@ -116,7 +116,7 @@ for (const name of guests) {
     exampleCaption: '`includes` scans `banned` every time, so this is O(n·m), not O(n).',
     sayThis: [
       '`includes` is itself O(n), so calling it inside a loop makes this quadratic.',
-      "There's a hidden loop — `indexOf` re-scans the array on every iteration.",
+      "There's a hidden loop: `indexOf` re-scans the array on every iteration.",
     ],
     related: ['big-o', 'hash-lookup', 'perf-script'],
   },
@@ -128,7 +128,7 @@ for (const name of guests) {
     plainWords:
       'A Set or a Map finds something in one step, no matter how much is stored in it. Instead of searching, it computes where the item must be and looks straight there.',
     analogy:
-      'A coat check at a theatre. You do not search the racks for your coat — the number on your ticket tells you exactly which hook to go to. A thousand coats is no slower than ten, because you never look at the coats you do not want.',
+      'A coat check at a theatre. You do not search the racks for your coat. The number on your ticket tells you exactly which hook to go to. A thousand coats is no slower than ten, because you never look at the coats you do not want.',
     interviewerSays: [
       'instant lookup',
       'trade memory for speed',
@@ -164,7 +164,7 @@ for (const name of guests) {
     ],
     sayThis: [
       'I traded O(n) extra memory for the Set to get lookups from O(n) down to O(1).',
-      "It's faster, but it now holds a second copy of the data — worth naming if memory is tight.",
+      "It's faster, but it now holds a second copy of the data. Worth naming if memory is tight.",
     ],
     related: ['hash-lookup', 'memoization', 'big-o'],
   },
@@ -176,7 +176,7 @@ for (const name of guests) {
     plainWords:
       'Some operations are almost always cheap but occasionally expensive. Amortized cost is the average across many operations, which is why we say "O(1) amortized" instead of pretending the expensive case never happens.',
     analogy:
-      'A minibus picks people up instantly while it has seats. When it fills, everyone has to move to a bigger bus, which is slow. That swap is rare enough that the average wait stays short — but it would be dishonest to say it never happens.',
+      'A minibus picks people up instantly while it has seats. When it fills, everyone has to move to a bigger bus, which is slow. That swap is rare enough that the average wait stays short, but it would be dishonest to say it never happens.',
     interviewerSays: ['why is push O(1)?', "isn't it sometimes slower than that?"],
     example: {
       lang: 'js',
@@ -187,7 +187,7 @@ for (const x of items) {
     },
     exampleCaption: 'Growing happens rarely, and the cost spreads across all the cheap pushes.',
     sayThis: [
-      'Push is O(1) amortized — it occasionally has to grow the array, but that cost spreads across all the cheap pushes.',
+      'Push is O(1) amortized. It occasionally has to grow the array, but that cost spreads across all the cheap pushes.',
     ],
     related: ['big-o'],
   },
@@ -199,7 +199,7 @@ for (const x of items) {
     plainWords:
       'Big-O only starts to bite when the input gets big. An O(n²) loop over 100 items finishes before you blink; the same loop over a million items will not finish today.',
     analogy:
-      'Walking is a perfectly good way to cross a room and a hopeless way to cross a country. The method did not get worse — the distance changed. Asking "how big does this get?" is what tells you which situation you are in.',
+      'Walking is a perfectly good way to cross a room and a hopeless way to cross a country. The method did not get worse. The distance changed. Asking "how big does this get?" is what tells you which situation you are in.',
     interviewerSays: [
       'is this fast enough?',
       'premature optimization',
@@ -207,7 +207,7 @@ for (const x of items) {
       'how big does n get?',
     ],
     sayThis: [
-      "It's O(n²), but n is around 100 here, so it's fine — I'd keep it readable unless we expect the input to grow.",
+      "It's O(n²), but n is around 100 here, so it's fine. I'd keep it readable unless we expect the input to grow.",
       "Before optimizing I'd want to know how big n actually gets in practice.",
     ],
     related: ['big-o', 'perf-script'],
@@ -220,7 +220,7 @@ for (const x of items) {
     plainWords:
       'Memoizing means remembering an answer the first time you work it out, so that the next time the same question comes up you just look it up instead of redoing the work.',
     analogy:
-      'You work out a hard sum on paper, then write the answer on a sticky note. When someone asks you the same sum an hour later, you read the note. The sum has not got easier — you just stopped doing it twice.',
+      'You work out a hard sum on paper, then write the answer on a sticky note. When someone asks you the same sum an hour later, you read the note. The sum has not got easier. You just stopped doing it twice.',
     interviewerSays: ['only computed once', 'cache the result', "don't repeat that call"],
     example: {
       lang: 'js',
@@ -234,7 +234,7 @@ const fib = (n) => {
     },
     exampleCaption: 'Without the cache this recomputes the same values an absurd number of times.',
     sayThis: [
-      "I'd memoize it — cache each result so we never recompute the same input twice.",
+      "I'd memoize it. Cache each result so we never recompute the same input twice.",
       'That takes it from exponential down to linear.',
     ],
     related: ['hash-lookup', 'space-time'],
@@ -254,13 +254,13 @@ const fib = (n) => {
       'how would you speed this up?',
     ],
     sayThis: [
-      "Right now it's O(n²) — for every item we scan the whole list again.",
+      "Right now it's O(n²). For every item we scan the whole list again.",
       'The bottleneck is the inner `includes`. If I put those values in a Set, lookups become O(1) and the whole thing drops to O(n).',
     ],
     related: ['big-o', 'pragmatic-perf', 'hidden-loops'],
   },
   // ---------------------------------------------------------------------
-  // Track 2 — Algorithm patterns
+  // Track 2, Algorithm patterns
   // ---------------------------------------------------------------------
   {
     id: 'greedy',
@@ -270,7 +270,7 @@ const fib = (n) => {
     plainWords:
       'A greedy method makes the choice that looks best right now and never looks back. It is fast and simple, and it is correct only when local best choices happen to add up to the overall best.',
     analogy:
-      'Making change from a till: you reach for the biggest coin that still fits, then the next biggest, and so on. With ordinary coins that always gives the fewest coins. With an odd set of denominations it can leave you stuck — which is exactly why interviewers ask about it.',
+      'Making change from a till: you reach for the biggest coin that still fits, then the next biggest, and so on. With ordinary coins that always gives the fewest coins. With an odd set of denominations it can leave you stuck, which is exactly why interviewers ask about it.',
     interviewerSays: ['fewest coins', 'locally best choice', 'can you do it greedily?'],
     example: {
       lang: 'js',
@@ -283,7 +283,7 @@ const fib = (n) => {
     },
     exampleCaption: 'Take the largest coin that fits, repeat. No backtracking.',
     sayThis: [
-      'This looks greedy — take the biggest coin that fits and repeat.',
+      'This looks greedy. Take the biggest coin that fits and repeat.',
       "Greedy is not always safe here: with denominations like 1, 3 and 4 it misses the best answer, so I'd reach for dynamic programming.",
     ],
     related: ['pattern-map', 'edge-cases'],
@@ -294,7 +294,7 @@ const fib = (n) => {
     emoji: '🪟',
     trackIds: ['t2'],
     plainWords:
-      'Keep a stretch of the input — a window — and move its edges instead of starting over. Grow it from the right, shrink it from the left, and each item is looked at about twice instead of once per possible stretch.',
+      'Keep a stretch of the input, a window, and move its edges instead of starting over. Grow it from the right, shrink it from the left, and each item is looked at about twice instead of once per possible stretch.',
     analogy:
       'Reading a long sentence through a cardboard slot. Rather than lifting the card and repositioning it for every possible phrase, you slide it along: the right edge moves forward to take in a new word, and the left edge follows to drop one off the back.',
     interviewerSays: [
@@ -312,9 +312,9 @@ for (let end = 0; end < s.length; end++) {
   best = Math.max(best, end - start + 1);
 }`,
     },
-    exampleCaption: 'The window grows at `end` and shrinks at `start` — one pass, O(n).',
+    exampleCaption: 'The window grows at `end` and shrinks at `start`, one pass, O(n).',
     sayThis: [
-      "The word contiguous points at a sliding window — I'd grow the right edge and pull the left edge in when the window breaks the rule.",
+      "The word contiguous points at a sliding window. I'd grow the right edge and pull the left edge in when the window breaks the rule.",
     ],
     related: ['pattern-map', 'two-pointers', 'frequency-map'],
   },
@@ -324,7 +324,7 @@ for (let end = 0; end < s.length; end++) {
     emoji: '✂️',
     trackIds: ['t2'],
     plainWords:
-      'Splitting a long piece of text into pieces no bigger than some limit. The interesting part is never the splitting — it is what you do when a cut would land in the middle of a word.',
+      'Splitting a long piece of text into pieces no bigger than some limit. The interesting part is never the splitting. It is what you do when a cut would land in the middle of a word.',
     analogy:
       'Cutting a long ribbon into lengths that fit a box. Measuring the length is trivial; the care is in not cutting through the printed pattern, so you step back to the last clean gap and cut there instead.',
     interviewerSays: [
@@ -339,10 +339,10 @@ if (cut <= 0) cut = limit;   // one very long word
 chunks.push(text.slice(0, cut));
 text = text.slice(cut).trimStart();`,
     },
-    exampleCaption: 'Walk back to the last space — unless there is no space to walk back to.',
+    exampleCaption: 'Walk back to the last space, unless there is no space to walk back to.',
     sayThis: [
       "I'd cut at the limit, then walk back to the last space so words stay whole.",
-      'The edge case is a single word longer than the limit — then I have to cut it hard, or the loop never advances.',
+      'The edge case is a single word longer than the limit, then I have to cut it hard, or the loop never advances.',
     ],
     related: ['edge-cases', 'pattern-map'],
   },
@@ -352,7 +352,7 @@ text = text.slice(cut).trimStart();`,
     emoji: '👉',
     trackIds: ['t2'],
     plainWords:
-      'Walk two positions through the data at once — often one from each end, sometimes both from the front at different speeds. It replaces a nested loop with a single pass.',
+      'Walk two positions through the data at once. Often one from each end, sometimes both from the front at different speeds. It replaces a nested loop with a single pass.',
     analogy:
       'Checking whether a word reads the same backwards by putting a finger on the first letter and another on the last, then walking them toward each other. You compare as you go and stop when your fingers meet.',
     interviewerSays: ['the array is sorted', 'from both ends', 'in place', 'without extra memory'],
@@ -395,7 +395,7 @@ return true;`,
     },
     exampleCaption: 'The `?? 0` is the whole trick: the first sighting starts at zero.',
     sayThis: [
-      "I'd build a frequency map in one pass, then answer from the map in a second pass — O(n) overall.",
+      "I'd build a frequency map in one pass, then answer from the map in a second pass, O(n) overall.",
     ],
     related: ['hash-lookup', 'pattern-map'],
   },
@@ -405,12 +405,12 @@ return true;`,
     emoji: '🗺️',
     trackIds: ['t2'],
     plainWords:
-      'Two ways to explore options. Breadth-first checks everything one step away, then everything two steps away — so the first time it reaches the goal, that path is the shortest. Depth-first follows one path all the way down before trying the next.',
+      'Two ways to explore options. Breadth-first checks everything one step away, then everything two steps away, so the first time it reaches the goal, that path is the shortest. Depth-first follows one path all the way down before trying the next.',
     analogy:
       'Looking for a friend in a building. Breadth-first is checking every room on this floor before going upstairs. Depth-first is following one corridor to its very end, then backing up and taking the next turning.',
     interviewerSays: ['shortest path', 'explore all options', 'minimum number of steps'],
     sayThis: [
-      'Minimum number of steps points at breadth-first search — the first time it reaches the goal, that is the shortest route.',
+      'Minimum number of steps points at breadth-first search. The first time it reaches the goal, that is the shortest route.',
       "Depth-first is fine when I just need *a* path rather than the shortest one, and it's easier to write recursively.",
     ],
     related: ['recursion', 'pattern-map'],
@@ -423,7 +423,7 @@ return true;`,
     plainWords:
       'A function that calls itself on a smaller piece of the problem until the piece is small enough to answer outright. Every call in progress is remembered on a stack, and that stack has a limit.',
     analogy:
-      'Russian dolls. To count them you open the outer one and ask the same question of what is inside, and the answer comes back out layer by layer. Each doll you have opened is sitting on the table waiting — that pile is the call stack.',
+      'Russian dolls. To count them you open the outer one and ask the same question of what is inside, and the answer comes back out layer by layer. Each doll you have opened is sitting on the table waiting. That pile is the call stack.',
     interviewerSays: [
       'what happens on very deep input?',
       'could you do it iteratively?',
@@ -434,8 +434,7 @@ return true;`,
       source: `const depth = (node) =>
   node === null ? 0 : 1 + Math.max(depth(node.left), depth(node.right));`,
     },
-    exampleCaption:
-      'The base case is what stops it — without one it recurses until the stack dies.',
+    exampleCaption: 'The base case is what stops it. Without one it recurses until the stack dies.',
     sayThis: [
       'Recursion is the natural fit for a tree, but on very deep input it can blow the call stack, so an explicit stack or a loop is the safe version.',
     ],
@@ -449,14 +448,14 @@ return true;`,
     plainWords:
       'Most interview problems are a handful of shapes wearing different costumes. Recognising the shape in the first minute is worth more than any clever coding afterwards.',
     analogy:
-      'A doctor hearing "sharp pain, left side, worse when breathing in" and immediately narrowing to a short list. They are not guessing — they have heard the pattern before and know which questions separate the possibilities.',
+      'A doctor hearing "sharp pain, left side, worse when breathing in" and immediately narrowing to a short list. They are not guessing. They have heard the pattern before and know which questions separate the possibilities.',
     interviewerSays: [
       'how would you approach this?',
       'what does this remind you of?',
       "what's the pattern here?",
     ],
     sayThis: [
-      '"Have I seen this before?" is the first question — sorted input suggests two pointers or binary search, contiguous suggests a sliding window, counting suggests a frequency map, and "seen before" suggests a Set.',
+      '"Have I seen this before?" is the first question. Sorted input suggests two pointers or binary search, contiguous suggests a sliding window, counting suggests a frequency map, and "seen before" suggests a Set.',
     ],
     related: ['greedy', 'sliding-window', 'two-pointers', 'frequency-map', 'hash-lookup'],
   },
@@ -492,12 +491,12 @@ return true;`,
     ],
     sayThis: [
       'Let me restate it to check I have it right, then try a small example.',
-      "The brute force would be to check every pair — that's O(n²). Let me see whether a Set gets it down.",
+      "The brute force would be to check every pair. That's O(n²). Let me see whether a Set gets it down.",
     ],
     related: ['edge-cases', 'pattern-map', 'stuck-script'],
   },
   // ---------------------------------------------------------------------
-  // Track 3 — JS/TS language concepts
+  // Track 3, JS/TS language concepts
   // ---------------------------------------------------------------------
   {
     id: 'closure',
@@ -542,9 +541,9 @@ next(); // 2`,
     interviewerSays: ['why triple equals?', "what does '' == 0 give you?", 'type coercion'],
     example: {
       lang: 'js',
-      source: `'' == 0            // true  — '' converts to 0
-'0' == 0           // true  — '0' converts to 0
-null == undefined  // true  — a special case
+      source: `'' == 0            // true: '' converts to 0
+'0' == 0           // true: '0' converts to 0
+null == undefined  // true, a special case
 null === undefined // false`,
     },
     exampleCaption: 'Every one of these is false with `===`, which is why it is the default.',
@@ -573,7 +572,7 @@ console.log('d');
     },
     exampleCaption: 'Synchronous first, then promises (microtasks), then timers.',
     sayThis: [
-      'Synchronous code runs first, then promise callbacks, then timers — so it prints a, d, c, b.',
+      'Synchronous code runs first, then promise callbacks, then timers, so it prints a, d, c, b.',
       "setTimeout with 0 doesn't mean now, it means as soon as the current work and all pending promise callbacks are done.",
     ],
     related: ['async-await'],
@@ -584,7 +583,7 @@ console.log('d');
     emoji: '👇',
     trackIds: ['t3'],
     plainWords:
-      'In a normal function, `this` is decided by how the function is called. An arrow function has no `this` of its own — it uses the one from where it was written.',
+      'In a normal function, `this` is decided by how the function is called. An arrow function has no `this` of its own. It uses the one from where it was written.',
     analogy:
       'A normal function is a hired hand who works for whoever picks up the phone that day. An arrow function is a family member: no matter who calls, they still belong to the household they grew up in.',
     interviewerSays: [
@@ -596,7 +595,7 @@ console.log('d');
       lang: 'js',
       source: `const timer = {
   label: 'tick',
-  arrow: () => this.label,        // outer this — not timer
+  arrow: () => this.label,        // outer this, not timer
   method() { return this.label; } // timer
 };`,
     },
@@ -614,7 +613,7 @@ console.log('d');
     plainWords:
       '`await` pauses the function until a promise settles. The classic mistakes are awaiting inside `forEach` (which ignores it entirely) and awaiting in a loop when the work could run at the same time.',
     analogy:
-      'Sending letters. Awaiting in a loop is posting one and waiting for the reply before writing the next. `Promise.all` is posting all of them, then waiting once for the pile of replies. Both are right sometimes — the second is usually what people mean.',
+      'Sending letters. Awaiting in a loop is posting one and waiting for the reply before writing the next. `Promise.all` is posting all of them, then waiting once for the pile of replies. Both are right sometimes. The second is usually what people mean.',
     interviewerSays: [
       'these should run in parallel',
       'why is this so slow?',
@@ -622,15 +621,15 @@ console.log('d');
     ],
     example: {
       lang: 'js',
-      source: `// sequential — each waits for the last
+      source: `// sequential, each waits for the last
 for (const url of urls) results.push(await fetch(url));
 
-// parallel — all in flight, one wait
+// parallel, all in flight, one wait
 const results = await Promise.all(urls.map(fetch));`,
     },
     exampleCaption: '`forEach` with `await` inside does neither: it starts them and ignores them.',
     sayThis: [
-      "forEach ignores the promise you return, so nothing is actually awaited — I'd use for…of for sequential, or Promise.all to run them at once.",
+      "forEach ignores the promise you return, so nothing is actually awaited. I'd use for…of for sequential, or Promise.all to run them at once.",
     ],
     related: ['event-loop'],
   },
@@ -660,7 +659,7 @@ const results = await Promise.all(urls.map(fetch));`,
     },
     exampleCaption: 'The timer id lives in a closure, which is why each call can cancel the last.',
     sayThis: [
-      'Debounce for a search box — wait until they stop typing. Throttle for scroll or resize — act at a steady rate.',
+      'Debounce for a search box: wait until they stop typing. Throttle for scroll or resize: act at a steady rate.',
     ],
     related: ['closure'],
   },
@@ -670,7 +669,7 @@ const results = await Promise.all(urls.map(fetch));`,
     emoji: '🔗',
     trackIds: ['t3'],
     plainWords:
-      'Numbers and strings are copied when you pass them around. Objects and arrays are not — you pass a pointer to the same thing, so changing it inside a function changes it everywhere.',
+      'Numbers and strings are copied when you pass them around. Objects and arrays are not. You pass a pointer to the same thing, so changing it inside a function changes it everywhere.',
     analogy:
       'Giving someone a photocopy of a page versus giving them the address of the filing cabinet. Scribbling on the photocopy is harmless. Anyone with the address can rearrange the originals.',
     interviewerSays: ['why did the original change?', 'is this a deep copy?', 'any side effects?'],
@@ -682,7 +681,7 @@ copy.address.city = 'Berlin';    // ALSO changes user.address`,
     },
     exampleCaption: 'Spread is shallow: nested objects are still shared.',
     sayThis: [
-      'Spread copies the top layer only, so nested objects are still shared — I would use structuredClone or copy the nested part explicitly.',
+      'Spread copies the top layer only, so nested objects are still shared. I would use structuredClone or copy the nested part explicitly.',
     ],
     related: ['pure-functions', 'equality'],
   },
@@ -694,7 +693,7 @@ copy.address.city = 'Berlin';    // ALSO changes user.address`,
     plainWords:
       'Types describe what a value is allowed to be, checked before the code ever runs. Most interview questions want parameter and return types on a function, and an opinion on `interface` versus `type`.',
     analogy:
-      'Labels on kitchen containers. They do not change what is inside, but they stop you tipping salt into the coffee — and they tell the next person what to expect without opening the lid.',
+      'Labels on kitchen containers. They do not change what is inside, but they stop you tipping salt into the coffee, and they tell the next person what to expect without opening the lid.',
     interviewerSays: ['add types to this', 'interface or type?', 'why not use any?'],
     example: {
       lang: 'ts',
@@ -702,7 +701,7 @@ copy.address.city = 'Berlin';    // ALSO changes user.address`,
   return [];
 }`,
     },
-    exampleCaption: 'Parameters and return type — the annotation interviewers actually ask for.',
+    exampleCaption: 'Parameters and return type. The annotation interviewers actually ask for.',
     sayThis: [
       'I use interface for object shapes that might be extended, and type for unions and aliases. In practice either is fine if the codebase is consistent.',
       "unknown forces me to check before using the value; any switches type checking off. I'd reach for unknown.",
@@ -717,7 +716,7 @@ copy.address.city = 'Berlin';    // ALSO changes user.address`,
     plainWords:
       'A generic is a type left blank for the caller to fill in. It lets one function work with any type while still remembering which type it was given.',
     analogy:
-      'A pair of tongs. They are not built for chips or for ice specifically — but whatever you pick up with them, that is what comes back. They do not turn your ice into chips on the way.',
+      'A pair of tongs. They are not built for chips or for ice specifically, but whatever you pick up with them, that is what comes back. They do not turn your ice into chips on the way.',
     interviewerSays: ['make it work for any type', 'without using any', 'what is T here?'],
     example: {
       lang: 'ts',
@@ -729,12 +728,12 @@ first(['a', 'b']);     // string | undefined`,
     },
     exampleCaption: 'The caller decides what T is, and the return type follows automatically.',
     sayThis: [
-      "I'd make it generic so the return type follows the input — that keeps type safety without resorting to any.",
+      "I'd make it generic so the return type follows the input. That keeps type safety without resorting to any.",
     ],
     related: ['ts-annotations'],
   },
   // ---------------------------------------------------------------------
-  // Track 4 — Refactoring & code quality
+  // Track 4. Refactoring & code quality
   // ---------------------------------------------------------------------
   {
     id: 'refactor-ladder',
@@ -751,7 +750,7 @@ first(['a', 'b']);     // string | undefined`,
       'how would you make this better?',
     ],
     sayThis: [
-      "It works, so the next thing I'd do is make it correct on the edge cases — then look at performance once I trust it.",
+      "It works, so the next thing I'd do is make it correct on the edge cases, then look at performance once I trust it.",
       "I'd optimise after it's correct, not before.",
     ],
     related: ['guard-clause', 'naming', 'review-script'],
@@ -786,10 +785,10 @@ return user.profile;    // the real work, unnested`,
     plainWords:
       'Do not repeat yourself: the same logic in two places will eventually be fixed in only one of them. But two pieces of code that merely look alike are not duplication, and merging them can make things worse.',
     analogy:
-      'Two recipes both saying "preheat to 180". That is not worth extracting. Two recipes both using the same secret sauce is — because when the sauce changes you want to change it once, not remember every dish it appears in.',
+      'Two recipes both saying "preheat to 180". That is not worth extracting. Two recipes both using the same secret sauce is, because when the sauce changes you want to change it once, not remember every dish it appears in.',
     interviewerSays: ['I see duplication', 'could you extract that?', 'this looks repetitive'],
     sayThis: [
-      "That's the same logic twice, so I'd extract it — a bug fixed in one copy would otherwise survive in the other.",
+      "That's the same logic twice, so I'd extract it. A bug fixed in one copy would otherwise survive in the other.",
       "These only look similar; they change for different reasons, so I'd leave them apart.",
     ],
     related: ['single-responsibility', 'refactor-ladder'],
@@ -814,9 +813,9 @@ return user.profile;    // the real work, unnested`,
 const ONE_DAY_MS = 86_400_000;
 if (elapsed > ONE_DAY_MS) { }             // now it reads`,
     },
-    exampleCaption: 'The constant is not faster — it is readable, which is the point.',
+    exampleCaption: 'The constant is not faster. It is readable, which is the point.',
     sayThis: [
-      "First thing I'd do is name that magic number — right now the reader has to do arithmetic to understand the condition.",
+      "First thing I'd do is name that magic number. Right now the reader has to do arithmetic to understand the condition.",
     ],
     related: ['refactor-ladder', 'dry'],
   },
@@ -826,7 +825,7 @@ if (elapsed > ONE_DAY_MS) { }             // now it reads`,
     emoji: '🎯',
     trackIds: ['t4'],
     plainWords:
-      'A function should do one thing. If you need the word "and" to describe it — validates and saves and emails — it is doing several, and each one is harder to test and reuse.',
+      'A function should do one thing. If you need the word "and" to describe it (validates and saves and emails), it is doing several, and each one is harder to test and reuse.',
     analogy:
       'A kitchen gadget that chops, boils and toasts. Impressive until the toaster part breaks and you can no longer chop anything. Separate tools fail separately.',
     interviewerSays: [
@@ -835,7 +834,7 @@ if (elapsed > ONE_DAY_MS) { }             // now it reads`,
       "what's this function's job?",
     ],
     sayThis: [
-      "This does three things — validate, save and notify. I'd split them so each can be tested on its own.",
+      "This does three things. Validate, save and notify. I'd split them so each can be tested on its own.",
     ],
     related: ['guard-clause', 'dry', 'pure-functions'],
   },
@@ -856,7 +855,7 @@ const addItemBad = (cart, item) => { cart.push(item); }; // mutates`,
     },
     exampleCaption: "The pure version hands back a new cart and leaves the caller's alone.",
     sayThis: [
-      "I'd return a new array rather than mutating the argument — the caller probably doesn't expect their data to change under them.",
+      "I'd return a new array rather than mutating the argument. The caller probably doesn't expect their data to change under them.",
     ],
     related: ['reference-value', 'single-responsibility'],
   },
@@ -871,13 +870,13 @@ const addItemBad = (cart, item) => { cart.push(item); }; // mutates`,
       'A driving instructor does not open with "your mirror is smudged". They note you checked the junction properly, then mention you missed a blind spot, and only later mention the smudge. Order signals what actually matters.',
     interviewerSays: ['review this code for me', 'what would you comment on?'],
     sayThis: [
-      'I can see what this is going for. The one thing that worries me is correctness on empty input — after that it is mostly readability.',
+      'I can see what this is going for. The one thing that worries me is correctness on empty input. After that it is mostly readability.',
       'Style points I would leave to the linter.',
     ],
     related: ['refactor-ladder', 'naming'],
   },
   // ---------------------------------------------------------------------
-  // Track 5 — System design foundations
+  // Track 5, System design foundations
   // ---------------------------------------------------------------------
   {
     id: 'design-script',
@@ -887,10 +886,10 @@ const addItemBad = (cart, item) => { cart.push(item); }; // mutates`,
     plainWords:
       'Design rounds have a running order: clarify what is actually being asked, estimate the scale, sketch the boxes, go deep on one of them, then talk about the trade-offs you made.',
     analogy:
-      'An architect handed "design me a house" does not start drawing. They ask how many people live there and what the budget is, sketch the footprint, then go deep on the one bit that matters — the kitchen — and explain what they gave up for it.',
+      'An architect handed "design me a house" does not start drawing. They ask how many people live there and what the budget is, sketch the footprint, then go deep on the one bit that matters. The kitchen, and explain what they gave up for it.',
     interviewerSays: ['design me a…', 'how would you build…', 'sketch the architecture'],
     sayThis: [
-      'Before I draw anything — how many users, and is this read-heavy or write-heavy?',
+      'Before I draw anything. How many users, and is this read-heavy or write-heavy?',
       "I'll sketch the high level first, then go deep wherever you're most interested.",
     ],
     related: ['lb-cache-queue', 'scaling'],
@@ -920,7 +919,7 @@ const addItemBad = (cart, item) => { cart.push(item); }; // mutates`,
     emoji: '🗄️',
     trackIds: ['t5'],
     plainWords:
-      'Keep a copy of an expensive answer somewhere fast, so the next person asking gets it immediately. The hard part is never storing it — it is deciding when the copy has gone stale.',
+      'Keep a copy of an expensive answer somewhere fast, so the next person asking gets it immediately. The hard part is never storing it. It is deciding when the copy has gone stale.',
     analogy:
       'A pinned note by the phone with the opening hours on it. Saves ringing every time. The trouble starts when the hours change and nobody remembers to update the note.',
     interviewerSays: [
@@ -942,10 +941,10 @@ const addItemBad = (cart, item) => { cart.push(item); }; // mutates`,
     plainWords:
       'When a request triggers slow work, write down that the work needs doing, answer straight away, and let a separate worker get through the list. The user stops waiting for something they do not need to watch.',
     analogy:
-      'Dropping off dry cleaning. They do not make you stand there while it is cleaned — they take it, hand you a ticket, and get on with it. The ticket is how you check later.',
+      'Dropping off dry cleaning. They do not make you stand there while it is cleaned. They take it, hand you a ticket, and get on with it. The ticket is how you check later.',
     interviewerSays: ['this endpoint is slow', 'do it in the background', 'the request times out'],
     sayThis: [
-      "I'd accept the upload, put a job on a queue and return a job id immediately — raising the timeout just moves the problem.",
+      "I'd accept the upload, put a job on a queue and return a job id immediately. Raising the timeout just moves the problem.",
       'The worker retries on failure, and anything that keeps failing goes to a dead letter queue for a human to look at.',
     ],
     related: ['lb-cache-queue', 'resilience', 'idempotency'],
@@ -961,7 +960,7 @@ const addItemBad = (cart, item) => { cart.push(item); }; // mutates`,
       'A filing cabinet with cross-references versus a shelf of ring binders. If you constantly need "everything connected to this customer", the cross-references earn their keep. If you always grab one binder and read it cover to cover, the shelf is simpler.',
     interviewerSays: ['SQL or NoSQL?', 'which database would you pick?', 'why not Postgres?'],
     sayThis: [
-      "It depends on the access patterns. If the data is relational and I need transactions, I'd start with Postgres — it scales further than people expect.",
+      "It depends on the access patterns. If the data is relational and I need transactions, I'd start with Postgres. It scales further than people expect.",
       "I'd reach for a document store when records are self-contained and read whole, or when the schema genuinely varies.",
     ],
     related: ['scaling', 'pagination'],
@@ -972,12 +971,12 @@ const addItemBad = (cart, item) => { cart.push(item); }; // mutates`,
     emoji: '📶',
     trackIds: ['t5'],
     plainWords:
-      'Vertical scaling is a bigger machine — easy until you cannot buy a bigger one. Horizontal scaling is more machines, which only works if any machine can serve any request, meaning they hold no session state of their own.',
+      'Vertical scaling is a bigger machine. Easy until you cannot buy a bigger one. Horizontal scaling is more machines, which only works if any machine can serve any request, meaning they hold no session state of their own.',
     analogy:
       'One till with a faster cashier versus more tills. More tills only helps if any till can serve any customer. If your receipt only works at the till you started at, the queue rebuilds itself.',
     interviewerSays: ['10x the users tomorrow', 'how would you scale this?', 'sticky sessions'],
     sayThis: [
-      "First I'd measure — I want to know whether we're limited by CPU, database or network before adding machines.",
+      "First I'd measure. I want to know whether we're limited by CPU, database or network before adding machines.",
       'Horizontal scaling needs the services to be stateless, so sessions go in Redis or a signed token rather than in memory on one box.',
     ],
     related: ['lb-cache-queue', 'design-script', 'sql-vs-nosql'],
@@ -1018,7 +1017,7 @@ if (await seen(idempotencyKey)) return existingResult;`,
       'Finding your place in a book by counting pages from the front every time, versus using a bookmark. The bookmark also survives someone inserting a page earlier in the book.',
     interviewerSays: ['the feed gets slow on page 100', 'how do you paginate?', 'why cursors?'],
     sayThis: [
-      "Offset gets slower the deeper you go, and items shift if something is inserted. I'd use a cursor — the id or timestamp of the last item seen.",
+      "Offset gets slower the deeper you go, and items shift if something is inserted. I'd use a cursor. The id or timestamp of the last item seen.",
     ],
     related: ['sql-vs-nosql', 'scaling'],
   },
@@ -1037,7 +1036,7 @@ if (await seen(idempotencyKey)) return existingResult;`,
       'token bucket',
     ],
     sayThis: [
-      "I'd rate limit at the gateway with a token bucket — it allows short bursts while capping the sustained rate, and returns 429 with a Retry-After.",
+      "I'd rate limit at the gateway with a token bucket. It allows short bursts while capping the sustained rate, and returns 429 with a Retry-After.",
     ],
     related: ['resilience', 'scaling'],
   },
@@ -1049,7 +1048,7 @@ if (await seen(idempotencyKey)) return existingResult;`,
     plainWords:
       'Things fail, so systems are designed to fail small. Retry with random delays so clients do not stampede together, spread hot data across shards, stop calling a dead service, and keep failed jobs rather than losing them.',
     analogy:
-      'A power cut. Everyone switching their heating back on at the same instant trips the grid again — so devices restart at slightly different times. That deliberate raggedness is jitter.',
+      'A power cut. Everyone switching their heating back on at the same instant trips the grid again, so devices restart at slightly different times. That deliberate raggedness is jitter.',
     interviewerSays: ['what if this component dies?', 'thundering herd', 'how does it degrade?'],
     sayThis: [
       "I'd add retries with exponential backoff and jitter so clients don't all come back at once.",
@@ -1059,7 +1058,7 @@ if (await seen(idempotencyKey)) return existingResult;`,
   },
 
   // ---------------------------------------------------------------------
-  // Track 6 — Interview decoder & communication
+  // Track 6. Interview decoder & communication
   // ---------------------------------------------------------------------
   {
     id: 'decoder',
@@ -1078,7 +1077,7 @@ if (await seen(idempotencyKey)) return existingResult;`,
     ],
     sayThis: [
       '"A function that remembers" is a closure. "Grows linearly" is O(n). "Instant lookup" is a hash map. "Only computed once" is memoization.',
-      'When you hear the riddle, say the term back — that is the thing being scored.',
+      'When you hear the riddle, say the term back. That is the thing being scored.',
     ],
     related: ['stuck-script', 'hints', 'whiteboard-script'],
   },
@@ -1105,7 +1104,7 @@ if (await seen(idempotencyKey)) return existingResult;`,
     emoji: '🎁',
     trackIds: ['t6'],
     plainWords:
-      'When an interviewer drops a detail — "what if the array were sorted?" — they are not making conversation. They are steering you toward the intended approach, and taking the hint is rewarded, not penalised.',
+      'When an interviewer drops a detail ("what if the array were sorted?"), they are not making conversation. They are steering you toward the intended approach, and taking the hint is rewarded, not penalised.',
     analogy:
       'A friend watching you struggle with a jar says "try running it under hot water". They are not judging your grip. Ignoring them and carrying on is the only wrong response.',
     interviewerSays: [
@@ -1114,7 +1113,7 @@ if (await seen(idempotencyKey)) return existingResult;`,
       'do you need to check that twice?',
     ],
     sayThis: [
-      'That is a good hint — if it is sorted I can use two pointers instead of the nested loop.',
+      'That is a good hint. If it is sorted I can use two pointers instead of the nested loop.',
       'Say the hint back and name what it unlocks. That shows you heard it and understood why it matters.',
     ],
     related: ['stuck-script', 'decoder', 'pattern-map'],

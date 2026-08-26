@@ -1,12 +1,12 @@
 /**
- * Builds the daily session — docs/01 §The daily session.
+ * Builds the daily session: docs/01 §The daily session.
  *
  * Target is ~8 exercises: up to 3 due reviews, ~4 from the frontier of the
  * least-advanced tracks (round-robin so tracks progress together), and one
  * decoder item because that track is fast and high-leverage.
  *
  * Deterministic given (progress, today, seed) so a session can be rebuilt
- * exactly — which is what makes it testable and resumable.
+ * exactly, which is what makes it testable and resumable.
  */
 
 import { dueExercises, isMastered, masteryRatio, type ExerciseProgress } from './leitner';
@@ -70,7 +70,7 @@ function orderTracks(
  * The frontier of a track: the exercises not yet mastered, in authored order,
  * because teaching order matters and this must never jump ahead.
  *
- * Two tiers. Fresh material comes first — anything new, or in progress but not
+ * Two tiers. Fresh material comes first: anything new, or in progress but not
  * currently due. Overdue items come last, even though they are unmastered too:
  * the review stage already capped how much backlog a session may carry, and
  * without this split a large due pile would refill the frontier and the whole
@@ -102,7 +102,7 @@ export function composeSession(input: ComposeInput): string[] {
     picked.push(id);
   };
 
-  // 1. Due reviews first — the pile should visibly shrink.
+  // 1. Due reviews first. The pile should visibly shrink.
   for (const id of dueExercises(progress, today)) {
     if (picked.length >= MAX_REVIEWS) break;
     // Only surface reviews for content that still exists.
@@ -128,7 +128,7 @@ export function composeSession(input: ComposeInput): string[] {
     }
   }
 
-  // 3. Always one decoder item when the track exists — it is fast and it is
+  // 3. Always one decoder item when the track exists, it is fast and it is
   //    the highest-leverage gap (docs/01).
   const decoderCandidates = decoderPool.filter(
     (id) => !taken.has(id) && isUnmastered(id, progress),

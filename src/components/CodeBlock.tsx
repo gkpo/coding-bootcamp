@@ -5,7 +5,7 @@ import './CodeBlock.css';
 
 interface Props {
   code: CodeBlockData;
-  /** Makes each line tappable — used by the `spot-bug` renderer. */
+  /** Makes each line tappable. Used by the `spot-bug` renderer. */
   onLineTap?: (index: number) => void;
   lineState?: (index: number) => 'idle' | 'wrong' | 'correct';
 }
@@ -31,7 +31,7 @@ function Highlighted({ tokens }: { tokens: Token[] }) {
  * letting the page scroll sideways (docs/02).
  *
  * Highlighting is per-line so the tappable and plain modes share one source of
- * truth — a whole-block highlighter would have to be cut apart at every line
+ * truth. A whole-block highlighter would have to be cut apart at every line
  * boundary for spot-bug, which is where nested spans break.
  */
 export function CodeBlock({ code, onLineTap, lineState }: Props) {

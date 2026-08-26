@@ -93,7 +93,7 @@ export function ProfileScreen() {
         </div>
         {streak.freezes > 0 && (
           <p className="profile__hint">
-            {streak.freezes} streak {streak.freezes === 1 ? 'freeze' : 'freezes'} banked — a missed
+            {streak.freezes} streak {streak.freezes === 1 ? 'freeze' : 'freezes'} banked, a missed
             day spends one automatically.
           </p>
         )}
@@ -149,7 +149,7 @@ export function ProfileScreen() {
         <p className="profile__hint">
           {confirmingReset === 0 && 'Clears every streak, all XP and all review progress.'}
           {confirmingReset === 1 && 'This cannot be undone. Tap again to confirm.'}
-          {confirmingReset === 2 && 'Last chance — tap once more to erase everything.'}
+          {confirmingReset === 2 && 'Last chance. Tap once more to erase everything.'}
         </p>
         <div className="profile__reset">
           <Button variant="secondary" onClick={onReset}>

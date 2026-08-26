@@ -1,9 +1,9 @@
 import type { Exercise, Track } from '../types';
 
 /**
- * Track 5 — System design foundations.
+ * Track 5: System design foundations.
  *
- * Goal: the full stack design round at senior-generalist depth — the standard
+ * Goal: the full stack design round at senior-generalist depth, the standard
  * vocabulary and the walkthrough script, not distributed-systems research.
  */
 
@@ -17,7 +17,7 @@ export const t5Exercises: Exercise[] = [
     prompt: '**"Design me a URL shortener."** Put the first ten minutes in order.',
     steps: [
       'Clarify the requirements and what is explicitly out of scope',
-      'Estimate the scale — reads per second, writes per second, storage',
+      'Estimate the scale. Reads per second, writes per second, storage',
       'Sketch the high-level boxes and how a request flows through them',
       'Go deep on the one component that matters most here',
       'Talk through the trade-offs you made and what you would change at 10x',
@@ -40,7 +40,7 @@ export const t5Exercises: Exercise[] = [
       { left: 'The source of truth', right: 'Database' },
     ],
     explanation:
-      'Almost every design you will be asked for is assembled from these five. Knowing what each one is *for* — in one sentence, without jargon — is what lets you place them confidently rather than sprinkling boxes and hoping.',
+      'Almost every design you will be asked for is assembled from these five. Knowing what each one is *for*, in one sentence and without jargon, is what lets you place them confidently rather than sprinkling boxes and hoping.',
   },
   {
     id: 't5-03',
@@ -52,7 +52,7 @@ export const t5Exercises: Exercise[] = [
       'A feed page is slow. It is **read constantly and written rarely**. What is the first lever?',
     options: [
       {
-        text: 'Cache the computed feed — check the cache, and on a miss build it and store it',
+        text: 'Cache the computed feed. Check the cache, and on a miss build it and store it',
         correct: true,
       },
       {
@@ -72,7 +72,7 @@ export const t5Exercises: Exercise[] = [
       },
     ],
     explanation:
-      'Read-heavy plus rarely-changing is the textbook cache case. The usual pattern is cache-aside: look in the cache, and on a miss do the real work and put the result back. Saying the pattern by name — and that the application owns the logic rather than the cache — is what is being scored.',
+      'Read-heavy plus rarely-changing is the textbook cache case. The usual pattern is cache-aside: look in the cache, and on a miss do the real work and put the result back. Saying the pattern by name, and that the application owns the logic rather than the cache. Is what is being scored.',
   },
   {
     id: 't5-04',
@@ -88,14 +88,14 @@ export const t5Exercises: Exercise[] = [
         correct: true,
       },
       {
-        text: 'Write-through is always better — stale data is a bug',
+        text: 'Write-through is always better, stale data is a bug',
         whyWrong:
           'Staleness is a product decision, not automatically a bug. Plenty of feeds are perfectly usable a minute behind, and write-through adds a failure mode on the write path.',
       },
       {
         text: 'TTL is always better because it is simpler',
         whyWrong:
-          'Simplicity is a real advantage, but not unconditional. Where staleness is unacceptable — a balance, a permission check — a TTL is the wrong tool.',
+          'Simplicity is a real advantage, but not unconditional. Where staleness is unacceptable (a balance, a permission check), a TTL is the wrong tool.',
       },
       {
         text: 'They do the same thing with different names',
@@ -116,7 +116,7 @@ export const t5Exercises: Exercise[] = [
       'An image-upload endpoint times out because it resizes images inline. **Why not just raise the timeout?**',
     options: [
       {
-        text: 'It only moves the limit — accept the upload, queue the resize, and return a job id straight away',
+        text: 'It only moves the limit. Accept the upload, queue the resize, and return a job id straight away',
         correct: true,
       },
       {
@@ -136,7 +136,7 @@ export const t5Exercises: Exercise[] = [
       },
     ],
     explanation:
-      'A long timeout keeps a connection and a worker occupied, holds the user on a spinner, and still fails on a big enough image. Accepting the upload, putting a job on a queue and returning an id makes the endpoint fast and the work retryable. The follow-up is always "how does the user find out it finished?" — polling, a webhook, or a push.',
+      'A long timeout keeps a connection and a worker occupied, holds the user on a spinner, and still fails on a big enough image. Accepting the upload, putting a job on a queue and returning an id makes the endpoint fast and the work retryable. The follow-up is always "how does the user find out it finished?". Polling, a webhook, or a push.',
   },
   {
     id: 't5-06',
@@ -147,7 +147,7 @@ export const t5Exercises: Exercise[] = [
     prompt: '**"SQL or NoSQL?"** What is the balanced senior answer?',
     options: [
       {
-        text: 'It depends on the data shape and the queries — relational when things relate and you need transactions, document when records are self-contained',
+        text: 'It depends on the data shape and the queries. Relational when things relate and you need transactions, document when records are self-contained',
         correct: true,
       },
       {
@@ -158,7 +158,7 @@ export const t5Exercises: Exercise[] = [
       {
         text: 'SQL, because you can always add indexes',
         whyWrong:
-          'Right instinct, wrong reason. Indexes are not the deciding factor — the shape of the data and the access patterns are.',
+          'Right instinct, wrong reason. Indexes are not the deciding factor. The shape of the data and the access patterns are.',
       },
       {
         text: 'Whichever the team already knows',
@@ -175,7 +175,7 @@ export const t5Exercises: Exercise[] = [
     type: 'mcq',
     difficulty: 2,
     conceptId: 'scaling',
-    prompt: 'Explain **horizontal versus vertical scaling** — and where each stops working.',
+    prompt: 'Explain **horizontal versus vertical scaling**, and where each stops working.',
     options: [
       {
         text: 'Vertical is a bigger machine and runs out at the biggest machine; horizontal is more machines and needs them to be stateless',
@@ -198,7 +198,7 @@ export const t5Exercises: Exercise[] = [
       },
     ],
     explanation:
-      'Vertical is simplest and works until you hit the largest instance available — or the price curve. Horizontal is effectively unbounded but requires that any machine can serve any request, which means no session state in memory. Naming the statelessness requirement is what separates a real answer from a definition.',
+      'Vertical is simplest and works until you hit the largest instance available, or the price curve. Horizontal is effectively unbounded but requires that any machine can serve any request, which means no session state in memory. Naming the statelessness requirement is what separates a real answer from a definition.',
   },
   {
     id: 't5-08',
@@ -216,7 +216,7 @@ export const t5Exercises: Exercise[] = [
       {
         text: 'Turn on sticky sessions so each user always reaches the same server',
         whyWrong:
-          'It does stop the logouts, which is why it is tempting. But it unbalances the load and every deploy or crash still logs those users out — it hides the statelessness problem rather than fixing it.',
+          'It does stop the logouts, which is why it is tempting. But it unbalances the load and every deploy or crash still logs those users out. It hides the statelessness problem rather than fixing it.',
       },
       {
         text: 'The load balancer is misconfigured',
@@ -226,7 +226,7 @@ export const t5Exercises: Exercise[] = [
       {
         text: 'The database cannot handle five servers connecting',
         whyWrong:
-          'Connection limits are a real concern at scale, but they cause errors and timeouts — not users being silently logged out.',
+          'Connection limits are a real concern at scale, but they cause errors and timeouts, not users being silently logged out.',
       },
     ],
     explanation:
@@ -242,7 +242,7 @@ export const t5Exercises: Exercise[] = [
       'A user double-taps **Pay** on a flaky connection. **What stops them being charged twice?**',
     options: [
       {
-        text: 'An idempotency key sent with the request — the same key returns the original result instead of charging again',
+        text: 'An idempotency key sent with the request. The same key returns the original result instead of charging again',
         correct: true,
       },
       {
@@ -262,7 +262,7 @@ export const t5Exercises: Exercise[] = [
       },
     ],
     explanation:
-      'The client generates a key once per payment attempt and sends it with every retry. The server records the key with the result; if it sees that key again it returns the stored result rather than charging. The word to say is "idempotent" — doing it twice has the same effect as doing it once.',
+      'The client generates a key once per payment attempt and sends it with every retry. The server records the key with the result; if it sees that key again it returns the stored result rather than charging. The word to say is "idempotent". Doing it twice has the same effect as doing it once.',
   },
   {
     id: 't5-10',
@@ -311,7 +311,7 @@ export const t5Exercises: Exercise[] = [
       },
     ],
     explanation:
-      '`OFFSET 2000` means the database produces and discards 2000 rows before returning anything — so cost grows with depth. A cursor says "give me the twenty after this id", which an index can seek to directly. Cursors also survive insertions, where offsets shift and can show or skip an item.',
+      '`OFFSET 2000` means the database produces and discards 2000 rows before returning anything, so cost grows with depth. A cursor says "give me the twenty after this id", which an index can seek to directly. Cursors also survive insertions, where offsets shift and can show or skip an item.',
   },
   {
     id: 't5-12',
@@ -323,7 +323,7 @@ export const t5Exercises: Exercise[] = [
       'One client is hammering your API. **Where does rate limiting live, and how does a token bucket work?**',
     options: [
       {
-        text: 'At the edge, before your code runs — a bucket refills at a steady rate and each request spends a token',
+        text: 'At the edge, before your code runs. A bucket refills at a steady rate and each request spends a token',
         correct: true,
       },
       {
@@ -334,7 +334,7 @@ export const t5Exercises: Exercise[] = [
       {
         text: 'In the database, with a counter row per user',
         whyWrong:
-          'It makes every request write to the database — turning your protection into an extra load source at exactly the wrong moment.',
+          'It makes every request write to the database. Turning your protection into an extra load source at exactly the wrong moment.',
       },
       {
         text: 'A token bucket blocks all requests once the limit is reached, until the next hour',
@@ -370,7 +370,7 @@ export const t5Exercises: Exercise[] = [
     prompt:
       '**"How would you scale this to 10x users?"** What is the first thing out of your mouth?',
     options: [
-      { text: '"Measure first — I want to know what is actually the bottleneck"', correct: true },
+      { text: '"Measure first. I want to know what is actually the bottleneck"', correct: true },
       {
         text: '"Add caching and more servers"',
         whyWrong:
@@ -388,7 +388,7 @@ export const t5Exercises: Exercise[] = [
       },
     ],
     explanation:
-      'Leading with measurement is the senior signal. The order of levers goes roughly: measure, cache the hot reads, add indexes and fix the slow queries, scale out the stateless tier, then move slow work to queues — and only then consider sharding or a rewrite. Naming the *order* matters more than naming any single lever.',
+      'Leading with measurement is the senior signal. The order of levers goes roughly: measure, cache the hot reads, add indexes and fix the slow queries, scale out the stateless tier, then move slow work to queues, and only then consider sharding or a rewrite. Naming the *order* matters more than naming any single lever.',
   },
 ];
 

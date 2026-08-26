@@ -16,7 +16,7 @@ import { debounce, load, save, type Persisted, type Settings } from './persisten
 
 /**
  * The single app store. Persisted state mirrors the `Persisted` document; the
- * rest is derived on demand (docs/04 — track mastery, due lists and session
+ * rest is derived on demand (docs/04. Track mastery, due lists and session
  * composition are never written to disk).
  */
 
@@ -70,7 +70,7 @@ export const useStore = create<StoreState>((set, get) => {
       const before = state.exercises[exerciseId] ?? newProgress(today);
       const after = applyResult(before, result, today);
 
-      // Called once per exercise per session, on its *first* attempt — the
+      // Called once per exercise per session, on its *first* attempt, the
       // session player owns the re-queue loop and does not re-record retries.
       const earned = xpForResult(result);
 

@@ -31,7 +31,7 @@ describe('vibrate', () => {
     expect(new Set([a, b, c]).size).toBe(3);
   });
 
-  it('is a no-op where the platform has no vibrate — iOS has none at all', () => {
+  it('is a no-op where the platform has no vibrate. IOS has none at all', () => {
     vi.stubGlobal('navigator', {});
     expect(() => vibrate('right', true)).not.toThrow();
   });

@@ -2,7 +2,7 @@
  * Haptics and sound for answer feedback.
  *
  * Both are behind settings toggles and both must be silent no-ops where the
- * platform lacks support — `navigator.vibrate` does not exist on desktop
+ * platform lacks support: `navigator.vibrate` does not exist on desktop
  * Safari or iOS at all, so this can never assume it is there.
  *
  * Kept free of React; the DOM/BOM touch here is deliberate and contained.

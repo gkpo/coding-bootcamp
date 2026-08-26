@@ -1,4 +1,4 @@
-/* Self-hosted faces — no CDN, so the PWA works offline. */
+/* Self-hosted faces, no CDN, so the PWA works offline. */
 @font-face {
   font-family: 'Inter';
   font-style: normal;
@@ -70,7 +70,7 @@ pre {
    interviewer expects you to type, so the code has to look like code.
 
    Applied with a wildcard rather than a list of mono roots because these
-   settings do not survive `button { font: inherit }` — the `font` shorthand
+   settings do not survive `button { font: inherit }`, the `font` shorthand
    resets font-variant-ligatures and font-feature-settings to their initial
    values, so the tappable spot-bug block, built from buttons, silently kept
    its ligatures while the <pre> blocks lost theirs. */

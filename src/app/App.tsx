@@ -29,7 +29,7 @@ const router = createHashRouter([
       { path: 'me', element: <ProfileScreen /> },
     ],
   },
-  // The session is a full-screen flow on top of the shell — no tab bar while
+  // The session is a full-screen flow on top of the shell, no tab bar while
   // you are answering (docs/01 §Screen map).
   { path: '/onboarding', element: <OnboardingScreen /> },
   { path: '/session', element: <SessionScreen /> },

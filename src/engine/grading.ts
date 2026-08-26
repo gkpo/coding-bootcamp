@@ -110,7 +110,7 @@ export function gradeMatch(
  * Types whose correct answer cannot be shown in place on reveal.
  *
  * mcq and complexity highlight the winning option, spot-bug highlights the
- * line, and match cannot complete while a pair is missing — the ordered types
+ * line, and match cannot complete while a pair is missing, the ordered types
  * have nowhere to put the answer, so the feedback panel shows it instead.
  */
 export function needsExplicitReveal(type: ExerciseType): boolean {

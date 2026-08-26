@@ -1,7 +1,7 @@
 interface PlaceholderProps {
   title: string;
   lede: string;
-  /** Which roadmap milestone fills this screen in — keeps the scaffold honest. */
+  /** Which roadmap milestone fills this screen in. Keeps the scaffold honest. */
   milestone: string;
 }
 

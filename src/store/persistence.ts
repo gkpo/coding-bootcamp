@@ -1,5 +1,5 @@
 /**
- * localStorage load/save — docs/04 §Progress & persistence.
+ * localStorage load/save. Docs/04 §Progress & persistence.
  *
  * One key, one JSON document, read once at startup and written debounced.
  * Every read is defensive: a user's saved progress is the only thing in this
@@ -96,7 +96,7 @@ export function load(): Persisted {
     if (raw === null) return defaultPersisted();
     return reconcile(JSON.parse(raw));
   } catch {
-    // Private browsing, quota errors, hand-edited JSON — start fresh rather
+    // Private browsing, quota errors, hand-edited JSON, start fresh rather
     // than leaving the user staring at a blank screen.
     return defaultPersisted();
   }

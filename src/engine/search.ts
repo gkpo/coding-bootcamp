@@ -3,7 +3,7 @@
  *
  * Searches the "interviewer says" phrases as well as titles and plain words,
  * because the whole point of the Sheets tab is looking up the riddle you just
- * heard — "a function that remembers" has to find the closure card.
+ * heard: "a function that remembers" has to find the closure card.
  */
 
 export interface Searchable {

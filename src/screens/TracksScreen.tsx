@@ -3,7 +3,7 @@ import { tracks, trackExerciseIds } from '../content';
 import { useStore } from '../store/useStore';
 import './TracksScreen.css';
 
-/** Nothing is gated — everything is available from day one (docs/03). */
+/** Nothing is gated. Everything is available from day one (docs/03). */
 export function TracksScreen() {
   const trackMastery = useStore((s) => s.trackMastery);
 

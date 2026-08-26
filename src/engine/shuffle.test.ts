@@ -44,7 +44,7 @@ describe('shuffle', () => {
     expect(shuffle(['only'], 1)).toEqual(['only']);
   });
 
-  it('actually reorders across seeds — answers must not be learnable by position', () => {
+  it('actually reorders across seeds. Answers must not be learnable by position', () => {
     const orders = new Set(Array.from({ length: 40 }, (_, i) => shuffle(items, i).join('')));
     expect(orders.size).toBeGreaterThan(10);
   });

@@ -1,7 +1,7 @@
 import type { Exercise, Track } from '../types';
 
 /**
- * Track 2 — Algorithm patterns.
+ * Track 2: Algorithm patterns.
  *
  * Goal: read a problem statement and name the pattern inside a minute. The
  * statement-to-pattern exercises deliberately repeat the same shape with
@@ -25,12 +25,12 @@ export const t2Exercises: Exercise[] = [
       {
         text: 'Two nested loops over every pair',
         whyWrong:
-          'That is the brute force, and it is a fine thing to *mention* — but it is O(n²) and the question is asking for the improvement.',
+          'That is the brute force, and it is a fine thing to *mention*, but it is O(n²) and the question is asking for the improvement.',
       },
       {
         text: 'Sort the list first, then binary search for each partner',
         whyWrong:
-          'This genuinely works and is O(n log n) — better than brute force, worse than the Set, and it loses the original positions if the answer needs indexes.',
+          'This genuinely works and is O(n log n). Better than brute force, worse than the Set, and it loses the original positions if the answer needs indexes.',
       },
       {
         text: 'A sliding window over the list',
@@ -39,7 +39,7 @@ export const t2Exercises: Exercise[] = [
       },
     ],
     explanation:
-      'As you walk the list, the partner you need for the current number is target minus that number. A Set answers "have I already seen that partner?" in one step, so one pass is enough — O(n) time for O(n) memory.',
+      'As you walk the list, the partner you need for the current number is target minus that number. A Set answers "have I already seen that partner?" in one step, so one pass is enough. O(n) time for O(n) memory.',
   },
   {
     id: 't2-02',
@@ -50,7 +50,7 @@ export const t2Exercises: Exercise[] = [
     prompt:
       '**"Make change for an amount using the fewest coins."** With ordinary coin sizes, what is this problem called?',
     options: [
-      { text: 'Greedy — repeatedly take the largest coin that still fits', correct: true },
+      { text: 'Greedy. Repeatedly take the largest coin that still fits', correct: true },
       {
         text: 'A one-off loop you invent on the spot',
         whyWrong:
@@ -64,11 +64,11 @@ export const t2Exercises: Exercise[] = [
       {
         text: 'A frequency map of the coins',
         whyWrong:
-          'Counting the coins you were given is not the question — the question is which coins to hand back.',
+          'Counting the coins you were given is not the question. The question is which coins to hand back.',
       },
     ],
     explanation:
-      'This is the classic greedy problem: at each step take the biggest coin that still fits, then repeat. Saying the word "greedy" in the first minute is worth more than the code — it tells the interviewer you recognise the shape, and it opens the conversation about when greedy fails.',
+      'This is the classic greedy problem: at each step take the biggest coin that still fits, then repeat. Saying the word "greedy" in the first minute is worth more than the code. It tells the interviewer you recognise the shape, and it opens the conversation about when greedy fails.',
   },
   {
     id: 't2-03',
@@ -90,7 +90,7 @@ export const t2Exercises: Exercise[] = [
       { code: 'if (amount >= coin) {', indent: 1, distractor: true },
     ],
     explanation:
-      'Walk the coins from largest to smallest, taking each one as many times as it fits. The `while` matters: `if` would take each coin at most once, so 30 from 25s and 5s would fail. And `amount =- coin` is not subtraction — it assigns negative coin, which silently loops forever.',
+      'Walk the coins from largest to smallest, taking each one as many times as it fits. The `while` matters: `if` would take each coin at most once, so 30 from 25s and 5s would fail. And `amount =- coin` is not subtraction. It assigns negative coin, which silently loops forever.',
   },
   {
     id: 't2-04',
@@ -99,7 +99,7 @@ export const t2Exercises: Exercise[] = [
     difficulty: 2,
     conceptId: 'greedy',
     prompt:
-      'Coins are **1, 3 and 4**. The amount is **6**. Greedy takes 4, then 1, then 1 — three coins. What does that tell you?',
+      'Coins are **1, 3 and 4**. The amount is **6**. Greedy takes 4, then 1, then 1. Three coins. What does that tell you?',
     options: [
       {
         text: 'Greedy is not always optimal: 3 + 3 is two coins, so this needs dynamic programming',
@@ -108,7 +108,7 @@ export const t2Exercises: Exercise[] = [
       {
         text: 'The coins should have been sorted the other way',
         whyWrong:
-          'Sorting smallest first makes greedy worse, not better — it would take six 1s. The order is not the problem; the strategy is.',
+          'Sorting smallest first makes greedy worse, not better. It would take six 1s. The order is not the problem; the strategy is.',
       },
       {
         text: 'Greedy is broken and should never be used for coin change',
@@ -118,7 +118,7 @@ export const t2Exercises: Exercise[] = [
       {
         text: 'The amount is too small for greedy to work properly',
         whyWrong:
-          'Size is not the issue — greedy fails here because taking the locally biggest coin steps past a better combination, and that can happen at any size.',
+          'Size is not the issue. Greedy fails here because taking the locally biggest coin steps past a better combination, and that can happen at any size.',
       },
     ],
     explanation:
@@ -133,7 +133,7 @@ export const t2Exercises: Exercise[] = [
     prompt: '**"Find the longest stretch of a string with no repeated characters."** Pattern?',
     options: [
       {
-        text: 'Sliding window — grow from the right, shrink from the left on a repeat',
+        text: 'Sliding window. Grow from the right, shrink from the left on a repeat',
         correct: true,
       },
       {
@@ -149,7 +149,7 @@ export const t2Exercises: Exercise[] = [
       {
         text: 'Two pointers from both ends',
         whyWrong:
-          'Close — it is two pointers, but both move forward from the left rather than inward from the ends. That specific variant is the sliding window.',
+          'Close. It is two pointers, but both move forward from the left rather than inward from the ends. That specific variant is the sliding window.',
       },
     ],
     explanation:
@@ -172,7 +172,7 @@ export const t2Exercises: Exercise[] = [
       { code: 'chunks.push(text.slice(i, limit));', indent: 1, distractor: true },
     ],
     explanation:
-      'Step forward `limit` characters at a time and take a slice each step. The distractor uses `slice(i, limit)` instead of `slice(i, i + limit)` — an easy slip that returns shorter and shorter chunks and empty strings once `i` passes `limit`.',
+      'Step forward `limit` characters at a time and take a slice each step. The distractor uses `slice(i, limit)` instead of `slice(i, i + limit)`. An easy slip that returns shorter and shorter chunks and empty strings once `i` passes `limit`.',
   },
   {
     id: 't2-07',
@@ -194,7 +194,7 @@ export const t2Exercises: Exercise[] = [
       { code: 'let cut = text.indexOf(" ", limit);', indent: 1, distractor: true },
     ],
     explanation:
-      '`lastIndexOf(" ", limit)` finds the last space at or before the limit — the latest clean place to cut. The `if (cut <= 0)` guard covers a single word longer than the limit; without it the loop makes no progress and hangs forever. The distractor uses `indexOf`, which finds the *next* space after the limit and produces chunks that are too long.',
+      '`lastIndexOf(" ", limit)` finds the last space at or before the limit. The latest clean place to cut. The `if (cut <= 0)` guard covers a single word longer than the limit; without it the loop makes no progress and hangs forever. The distractor uses `indexOf`, which finds the *next* space after the limit and produces chunks that are too long.',
   },
   {
     id: 't2-08',
@@ -217,7 +217,7 @@ export const t2Exercises: Exercise[] = [
       {
         text: 'It silently drops the long word',
         whyWrong:
-          'Nothing removes it — the slice at a bad cut point returns an empty string while the text stays the same length, so it repeats rather than disappears.',
+          'Nothing removes it. The slice at a bad cut point returns an empty string while the text stays the same length, so it repeats rather than disappears.',
       },
       {
         text: 'The word gets split correctly anyway',
@@ -235,9 +235,9 @@ export const t2Exercises: Exercise[] = [
     difficulty: 1,
     conceptId: 'hash-lookup',
     prompt:
-      '**"Have I seen this before?"** — duplicates, membership, "is X in this group". Which structure?',
+      '**"Have I seen this before?"**. Duplicates, membership, "is X in this group". Which structure?',
     options: [
-      { text: 'A Set — membership in one step regardless of size', correct: true },
+      { text: 'A Set. Membership in one step regardless of size', correct: true },
       {
         text: 'An array with `includes`',
         whyWrong:
@@ -286,7 +286,7 @@ export const t2Exercises: Exercise[] = [
     conceptId: 'two-pointers',
     prompt: '**"Merge two already-sorted lists into one sorted list."** Pattern?',
     options: [
-      { text: 'Two pointers — one per list, always take the smaller head', correct: true },
+      { text: 'Two pointers. One per list, always take the smaller head', correct: true },
       {
         text: 'Concatenate them and sort the result',
         whyWrong:
@@ -300,11 +300,11 @@ export const t2Exercises: Exercise[] = [
       {
         text: 'Put both in a Set to deduplicate, then sort',
         whyWrong:
-          'That changes the answer — merging keeps duplicates. And it still sorts, so it inherits the same cost as concatenating.',
+          'That changes the answer. Merging keeps duplicates. And it still sorts, so it inherits the same cost as concatenating.',
       },
     ],
     explanation:
-      'Keep an index into each list, compare the two current items, take the smaller and advance that index. Each item is touched once, so it is O(n + m). The giveaway is "already sorted" — whenever an interviewer says that, they have handed you the constraint that makes the fast solution possible.',
+      'Keep an index into each list, compare the two current items, take the smaller and advance that index. Each item is touched once, so it is O(n + m). The giveaway is "already sorted". Whenever an interviewer says that, they have handed you the constraint that makes the fast solution possible.',
   },
   {
     id: 't2-12',
@@ -333,7 +333,7 @@ for (let end = 0; end < s.length; end++) {
     conceptId: 'frequency-map',
     prompt: '**"Count how many times each word appears."** Pattern?',
     options: [
-      { text: 'A frequency map — one pass, tallying into an object or Map', correct: true },
+      { text: 'A frequency map. One pass, tallying into an object or Map', correct: true },
       {
         text: 'Sort the words, then count runs of the same word',
         whyWrong:
@@ -347,11 +347,11 @@ for (let end = 0; end < s.length; end++) {
       {
         text: 'A Set of the words',
         whyWrong:
-          'A Set tells you *which* words appeared but not how many times — it deliberately discards duplicates, which is the information you need here.',
+          'A Set tells you *which* words appeared but not how many times. It deliberately discards duplicates, which is the information you need here.',
       },
     ],
     explanation:
-      'Counting occurrences is the frequency-map reflex: walk the list once, adding one to the tally for each item. The same structure answers "most common", "first non-repeating" and "is this an anagram" — recognising it once buys you a whole family of problems.',
+      'Counting occurrences is the frequency-map reflex: walk the list once, adding one to the tally for each item. The same structure answers "most common", "first non-repeating" and "is this an anagram". Recognising it once buys you a whole family of problems.',
   },
   {
     id: 't2-14',
@@ -369,7 +369,7 @@ for (let end = 0; end < s.length; end++) {
       { code: '});', indent: 0, distractor: true },
     ],
     explanation:
-      'The `?? 0` handles the first sighting of a word, where the tally does not exist yet. The distractor closes `reduce` without the `{}` starting value — and without it, the first `acc` is the first *word* rather than an empty object, so the whole thing collapses.',
+      'The `?? 0` handles the first sighting of a word, where the tally does not exist yet. The distractor closes `reduce` without the `{}` starting value, and without it, the first `acc` is the first *word* rather than an empty object, so the whole thing collapses.',
   },
   {
     id: 't2-15',
@@ -389,7 +389,7 @@ for (let end = 0; end < s.length; end++) {
     },
     buggyLineIndex: 1,
     lineHints: {
-      2: 'This line is fine — the end is always the start plus one page of items.',
+      2: 'This line is fine. The end is always the start plus one page of items.',
       3: '`slice` is doing exactly what it should here; the values it is given are the problem.',
     },
     explanation:
@@ -410,12 +410,12 @@ for (let end = 0; end < s.length; end++) {
       {
         text: 'One pass, returning the first character whose count is still 1',
         whyWrong:
-          'You cannot know a character never repeats until you have seen the whole string — a later duplicate would prove you wrong after you had already returned.',
+          'You cannot know a character never repeats until you have seen the whole string. A later duplicate would prove you wrong after you had already returned.',
       },
       {
         text: 'Sort the string and look for a lone character',
         whyWrong:
-          'Sorting groups duplicates together, which does find the non-repeating ones — but it destroys the order, and the question asks for the *first*.',
+          'Sorting groups duplicates together, which does find the non-repeating ones, but it destroys the order, and the question asks for the *first*.',
       },
       {
         text: 'A sliding window of size one',
@@ -424,7 +424,7 @@ for (let end = 0; end < s.length; end++) {
       },
     ],
     explanation:
-      'Two passes is the answer, and it is still O(n) — two passes is a constant factor, not a change in growth. Pass one builds the tally; pass two walks the original string in order and returns the first character with a count of one. Going in the original order is what makes it the *first*.',
+      'Two passes is the answer, and it is still O(n). Two passes is a constant factor, not a change in growth. Pass one builds the tally; pass two walks the original string in order and returns the first character with a count of one. Going in the original order is what makes it the *first*.',
   },
   {
     id: 't2-17',
@@ -436,7 +436,7 @@ for (let end = 0; end < s.length; end++) {
       '**"What is the minimum number of moves to reach the end?"** What does "minimum number of moves" point at?',
     options: [
       {
-        text: 'Breadth-first search — the first time it arrives, that route is the shortest',
+        text: 'Breadth-first search. The first time it arrives, that route is the shortest',
         correct: true,
       },
       {
@@ -445,14 +445,14 @@ for (let end = 0; end < s.length; end++) {
           'Depth-first will find *a* route, but it may find a long one first, so you would have to explore everything and compare. Breadth-first gets the shortest for free.',
       },
       {
-        text: 'Greedy — always take the biggest jump available',
+        text: 'Greedy. Always take the biggest jump available',
         whyWrong:
           'Sometimes right, often not. A big jump can land somewhere with no good continuation, and greedy never reconsiders. Some jump problems do have a greedy solution, but "minimum" alone does not guarantee it.',
       },
       {
         text: 'Sort the moves and binary search',
         whyWrong:
-          'There is no sorted structure to search — the answer is a sequence of moves through states, not a value hiding in a list.',
+          'There is no sorted structure to search. The answer is a sequence of moves through states, not a value hiding in a list.',
       },
     ],
     explanation:
@@ -495,7 +495,7 @@ for (let end = 0; end < s.length; end++) {
       { code: 'if (arr[mid] < target) lo = mid;', indent: 1, distractor: true },
     ],
     explanation:
-      'Two classic traps, both included as distractors. Without `Math.floor`, `mid` can be 2.5 and the index lookup returns undefined. And `lo = mid` rather than `lo = mid + 1` means that when `hi` is `lo + 1` the range stops shrinking — an infinite loop that passes every test where the target happens to be found early.',
+      'Two classic traps, both included as distractors. Without `Math.floor`, `mid` can be 2.5 and the index lookup returns undefined. And `lo = mid` rather than `lo = mid + 1` means that when `hi` is `lo + 1` the range stops shrinking. An infinite loop that passes every test where the target happens to be found early.',
   },
   {
     id: 't2-20',
@@ -518,7 +518,7 @@ for (let end = 0; end < s.length; end++) {
       {
         text: 'That recursion uses more memory per node',
         whyWrong:
-          'Warm — the stack frames are memory. But the concern is not the per-node cost, it is that the stack has a hard ceiling and crashes when it is hit.',
+          'Warm. The stack frames are memory. But the concern is not the per-node cost, it is that the stack has a hard ceiling and crashes when it is hit.',
       },
       {
         text: 'That the tree should have been balanced first',
@@ -527,7 +527,7 @@ for (let end = 0; end < s.length; end++) {
       },
     ],
     explanation:
-      'Every call in progress occupies a frame on the call stack, and the stack is finite — a few thousand frames deep and it throws. A balanced tree of a million nodes is only about twenty deep and fine; a degenerate one-per-level tree is a million deep and fatal. The answer they want is "I would rewrite it with an explicit stack if the depth could get large."',
+      'Every call in progress occupies a frame on the call stack, and the stack is finite. A few thousand frames deep and it throws. A balanced tree of a million nodes is only about twenty deep and fine; a degenerate one-per-level tree is a million deep and fatal. The answer they want is "I would rewrite it with an explicit stack if the depth could get large."',
   },
   {
     id: 't2-21',
@@ -535,7 +535,7 @@ for (let end = 0; end < s.length; end++) {
     type: 'blank',
     difficulty: 3,
     conceptId: 'memoization',
-    prompt: 'Fill in the memoised Fibonacci — the cache check and the cache write.',
+    prompt: 'Fill in the memoised Fibonacci. The cache check and the cache write.',
     template: `const cache = new Map();
 function fib(n) {
   if (n < 2) return n;
@@ -547,7 +547,7 @@ function fib(n) {
     gaps: ['has', 'set'],
     bank: ['has', 'set', 'get', 'add', 'delete'],
     explanation:
-      'Two lines turn an exponential function into a linear one. The check returns early for anything already worked out; the write records each new answer before returning it. Note `set` takes a key and a value — `add` is the Set method, and reaching for it here is the usual slip.',
+      'Two lines turn an exponential function into a linear one. The check returns early for anything already worked out; the write records each new answer before returning it. Note `set` takes a key and a value: `add` is the Set method, and reaching for it here is the usual slip.',
   },
   {
     id: 't2-22',
@@ -558,13 +558,13 @@ function fib(n) {
     prompt: '**"Alert if a user makes more than 100 requests in any rolling minute."** Pattern?',
     options: [
       {
-        text: 'A sliding window over timestamps — drop anything older than a minute',
+        text: 'A sliding window over timestamps. Drop anything older than a minute',
         correct: true,
       },
       {
         text: 'Count requests per calendar minute and check each total',
         whyWrong:
-          'That is a fixed window, and it misses bursts that straddle the boundary — 100 requests at 10:00:59 and 100 more at 10:01:01 never trip it, despite 200 in two seconds.',
+          'That is a fixed window, and it misses bursts that straddle the boundary: 100 requests at 10:00:59 and 100 more at 10:01:01 never trip it, despite 200 in two seconds.',
       },
       {
         text: 'A frequency map keyed by user',
@@ -607,13 +607,13 @@ function fib(n) {
       'Careful with this one. **"Find the shortest stretch of the array containing every distinct value at least once."** Which is it?',
     options: [
       {
-        text: 'Sliding window *and* a frequency map — the window slides, the map tracks what is inside it',
+        text: 'Sliding window *and* a frequency map. The window slides, the map tracks what is inside it',
         correct: true,
       },
       {
         text: 'Sliding window alone',
         whyWrong:
-          'The window is right, but a bare window cannot answer "does this stretch contain everything?" — you need counts of what is currently inside it.',
+          'The window is right, but a bare window cannot answer "does this stretch contain everything?". You need counts of what is currently inside it.',
       },
       {
         text: 'Frequency map alone',

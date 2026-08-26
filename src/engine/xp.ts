@@ -1,7 +1,7 @@
 /**
  * XP rules from docs/01 §Gamification.
  *
- * XP is cosmetic on purpose — a lifetime number and a weekly bar, no leagues,
+ * XP is cosmetic on purpose: a lifetime number and a weekly bar, no leagues,
  * no leaderboards. It exists to make progress *felt*, not to rank anyone.
  */
 
@@ -31,7 +31,7 @@ export interface SessionXp {
 }
 
 /**
- * `results` holds one entry per exercise — its *first* outcome, since a
+ * `results` holds one entry per exercise. Its *first* outcome, since a
  * re-queued item that is finally answered right still only earns retry XP.
  */
 export function xpForSession(results: Result[], streakDays: number): SessionXp {

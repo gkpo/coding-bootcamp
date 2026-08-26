@@ -14,7 +14,7 @@ describe('xpForResult', () => {
     expect(xpForResult('right')).toBe(XP_FIRST_TRY);
   });
 
-  it('pays the retry rate for a miss or an unsure — you still learned something', () => {
+  it('pays the retry rate for a miss or an unsure. You still learned something', () => {
     expect(xpForResult('wrong')).toBe(XP_AFTER_RETRY);
     expect(xpForResult('unsure')).toBe(XP_AFTER_RETRY);
   });

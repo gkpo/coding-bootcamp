@@ -1,5 +1,5 @@
 /**
- * The session queue — Duolingo's rule: you must get an item right once before
+ * The session queue: Duolingo's rule: you must get an item right once before
  * the session completes, so a miss sends it to the back of the queue.
  *
  * Pure logic, kept out of the component so the re-queue rule is testable. The
@@ -12,7 +12,7 @@ import type { Result } from './leitner';
 export interface SessionState {
   /** Ids still to answer, in order. */
   queue: string[];
-  /** First outcome per exercise — what gets recorded. */
+  /** First outcome per exercise, what gets recorded. */
   firstResults: Record<string, Result>;
   /** How many times each item has been presented, for "toughest moment". */
   attempts: Record<string, number>;
@@ -43,7 +43,7 @@ export function answer(state: SessionState, result: Result): SessionState {
 
   const rest = state.queue.slice(1);
   const attempts = { ...state.attempts, [id]: (state.attempts[id] ?? 0) + 1 };
-  // Only the first attempt is recorded — a retry must not overwrite a miss
+  // Only the first attempt is recorded. A retry must not overwrite a miss
   // with a pass, or the Leitner box would never drop.
   const firstResults =
     state.firstResults[id] === undefined
@@ -57,7 +57,7 @@ export function answer(state: SessionState, result: Result): SessionState {
   return { queue: [...rest, id], firstResults, attempts, cleared: state.cleared };
 }
 
-/** The exercise that took the most attempts — the summary's "toughest moment". */
+/** The exercise that took the most attempts. The summary's "toughest moment". */
 export function toughestExerciseId(state: SessionState): string | undefined {
   let toughest: string | undefined;
   let most = 1;

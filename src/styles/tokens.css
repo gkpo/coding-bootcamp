@@ -1,8 +1,8 @@
-/* Design tokens — docs/06-DESIGN-SYSTEM.md is binding. Light theme only in v1.
+/* Design tokens. Docs/06-DESIGN-SYSTEM.md is binding. Light theme only in v1.
  *
  * Three text tokens are a hair darker than the values printed in that doc.
  * The doc's binding rule is "all text/background pairs must pass WCAG AA
- * (the values above do; keep it true if tweaked)" — but measured, they did
+ * (the values above do; keep it true if tweaked)", but measured, they did
  * not: --text-dim on --bg is 4.48:1 against a 4.5:1 threshold, and the same
  * three tokens all fell short on --surface-2. Lighthouse flagged it. The hues
  * are unchanged and the shift is imperceptible; the accessibility rule is
@@ -28,7 +28,7 @@
   /* ---- the one accent (warm amber) ---- */
   --accent: #f59e0b;
   --accent-pressed: #d97706;
-  --accent-text: #b05109; /* amber as text/small glyphs — the fill fails AA */
+  --accent-text: #b05109; /* amber as text/small glyphs, the fill fails AA */
   --on-accent: #33230a;
 
   /* ---- semantic ---- */
@@ -43,14 +43,14 @@
      Drawn from the deep end of the track colours, never neon-on-white
      (docs/06 §Core components). Every one clears WCAG AA on --surface-2,
      where code blocks sit, and on --surface for the concept-card examples. */
-  --tok-keyword: #6d28d9; /* deep violet  — 6.14 on --surface-2 */
-  --tok-string: #0f766e; /* deep teal    — 4.73 */
-  --tok-number: #b05109; /* deep amber   — 4.50 */
-  --tok-function: #2462eb; /* deep blue    — 4.51 */
-  --tok-property: #be185d; /* deep pink    — 5.21 */
+  --tok-keyword: #6d28d9; /* deep violet: 6.14 on --surface-2 */
+  --tok-string: #0f766e; /* deep teal: 4.73 */
+  --tok-number: #b05109; /* deep amber: 4.50 */
+  --tok-function: #2462eb; /* deep blue: 4.51 */
+  --tok-property: #be185d; /* deep pink: 5.21 */
   --tok-literal: #6d28d9;
   --tok-type: #0f766e;
-  --tok-comment: #666c7a; /* --text-dim   — 4.54 */
+  --tok-comment: #666c7a; /* --text-dim: 4.54 */
   --tok-punctuation: #666c7a;
 
   /* ---- track identity ---- */
@@ -119,7 +119,7 @@
   --dur-celebrate: 0ms;
 }
 
-/* The keyframe animations need switching off too — zeroing a duration token
+/* The keyframe animations need switching off too, zeroing a duration token
    does not reach an `animation` shorthand that names its own timing. */
 :root[data-reduce-motion='true'] *,
 :root[data-reduce-motion='true'] *::before,

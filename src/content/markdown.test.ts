@@ -5,7 +5,7 @@ import { cards, exercises } from './index';
 /**
  * Content is authored with a tiny markdown subset (**bold**, *italic*, `code`).
  * Anything the renderer does not understand ships to the user as literal
- * asterisks or backticks — which is exactly what happened with "*more*" on the
+ * asterisks or backticks, which is exactly what happened with "*more*" on the
  * Big-O card. This guard makes that a failing test rather than a screenshot.
  */
 
@@ -61,7 +61,7 @@ describe('authored markdown', () => {
   });
 
   it('actually renders the emphasis the copy relies on', () => {
-    // Regression guard for the "*more*" bug — these must not survive stripping.
+    // Regression guard for the "*more*" bug. These must not survive stripping.
     expect(stripMarkdown('grows with the *square* of the list')).toBe(
       'grows with the square of the list',
     );
@@ -77,12 +77,27 @@ describe('authored markdown', () => {
     expect(stripMarkdown('no markup here at all')).toBe('no markup here at all');
   });
 
-  it('allows an asterisk inside a code span — that is multiplication, not emphasis', () => {
+  it('allows an asterisk inside a code span. That is multiplication, not emphasis', () => {
     expect(hasUnrenderedMarkers('the start is `(page - 1) * size` here')).toBe(false);
   });
 
   it('still catches a marker outside a code span', () => {
     expect(hasUnrenderedMarkers('this *never closes')).toBe(true);
     expect(hasUnrenderedMarkers('a stray ` backtick')).toBe(true);
+  });
+});
+
+describe('house style', () => {
+  it('uses no em-dashes in anything the user reads', () => {
+    // A stated preference, not a nicety: an em-dash is the tell that gives
+    // away machine-written prose, and this content is the whole product.
+    const offenders = userVisibleStrings()
+      .filter(({ text }) => text.includes('—'))
+      .map(({ where, text }) => `${where}: ${text.slice(0, 70)}`);
+    expect(offenders.join('\n')).toBe('');
+  });
+
+  it('catches one if it creeps back in', () => {
+    expect('a — b'.includes('—')).toBe(true);
   });
 });

@@ -1,7 +1,7 @@
 import type { Exercise, Track } from '../types';
 
 /**
- * Track 6 — Interview decoder & communication.
+ * Track 6: Interview decoder & communication.
  *
  * Goal: the meta-game itself. Interviewer riddles map to canonical answers,
  * and there is a script for being stuck that beats going quiet.
@@ -22,7 +22,7 @@ export const t6Exercises: Exercise[] = [
       { left: 'First in, first out', right: 'Queue' },
     ],
     explanation:
-      'Interviewers frequently score the word, not the understanding. You can describe exactly how a counter keeps its value between calls and still lose the point by never saying "closure". Learn the mapping in both directions — riddle to term, and term to plain words.',
+      'Interviewers frequently score the word, not the understanding. You can describe exactly how a counter keeps its value between calls and still lose the point by never saying "closure". Learn the mapping in both directions. Riddle to term, and term to plain words.',
   },
   {
     id: 't6-02',
@@ -38,7 +38,7 @@ export const t6Exercises: Exercise[] = [
       { left: 'Copy it, do not touch the original', right: 'Immutability' },
     ],
     explanation:
-      'Each of these is a concept you already use daily under a name you might not reach for under pressure. The gap being closed here is vocabulary, not knowledge — which is precisely why it is trainable in five-minute sessions.',
+      'Each of these is a concept you already use daily under a name you might not reach for under pressure. The gap being closed here is vocabulary, not knowledge, which is precisely why it is trainable in five-minute sessions.',
   },
   {
     id: 't6-03',
@@ -80,11 +80,11 @@ export const t6Exercises: Exercise[] = [
     prompt: 'The interviewer asks **"can you make this cleaner?"**. Decode it.',
     options: [
       {
-        text: 'Readability — naming, nesting, functions doing too much. Not performance.',
+        text: 'Readability. Naming, nesting, functions doing too much. Not performance.',
         correct: true,
       },
       {
-        text: 'Performance — they want it faster',
+        text: 'Performance, they want it faster',
         whyWrong:
           'They would say "can you make this faster?" or "how does this scale?". Optimising when asked for clarity answers a question nobody asked.',
       },
@@ -100,7 +100,7 @@ export const t6Exercises: Exercise[] = [
       },
     ],
     explanation:
-      '"Cleaner" is the readability question: name the magic numbers, flatten the nesting with guard clauses, split a function that does three things. Answering with a performance optimisation is a classic decode failure — you may do good work and still score zero for the question asked.',
+      '"Cleaner" is the readability question: name the magic numbers, flatten the nesting with guard clauses, split a function that does three things. Answering with a performance optimisation is a classic decode failure. You may do good work and still score zero for the question asked.',
   },
   {
     id: 't6-05',
@@ -116,7 +116,7 @@ export const t6Exercises: Exercise[] = [
       'Ask one specific question about the part you are unsure of',
     ],
     explanation:
-      'Being stuck is normal; going silent is what actually loses interviews, because the interviewer cannot tell thinking from panic. Every step here gives them something to work with, and the specific question turns an examiner into a collaborator — which is exactly the dynamic you want.',
+      'Being stuck is normal; going silent is what actually loses interviews, because the interviewer cannot tell thinking from panic. Every step here gives them something to work with, and the specific question turns an examiner into a collaborator, which is exactly the dynamic you want.',
   },
   {
     id: 't6-06',
@@ -133,7 +133,7 @@ export const t6Exercises: Exercise[] = [
       {
         text: '"I can only think of the slow way right now."',
         whyWrong:
-          'Same plan, framed as a failure. You have volunteered a weakness that was not there — the brute force is a legitimate first step, not an admission.',
+          'Same plan, framed as a failure. You have volunteered a weakness that was not there. The brute force is a legitimate first step, not an admission.',
       },
       {
         text: '"This is probably not what you\'re looking for, but…"',
@@ -159,7 +159,7 @@ export const t6Exercises: Exercise[] = [
       'Mid-problem, the interviewer says **"what if the array were sorted?"**. What is happening?',
     options: [
       {
-        text: 'A hint. They are steering you toward binary search or two pointers — take it and say so.',
+        text: 'A hint. They are steering you toward binary search or two pointers, take it and say so.',
         correct: true,
       },
       {
@@ -175,11 +175,11 @@ export const t6Exercises: Exercise[] = [
       {
         text: 'They want you to write the sort first',
         whyWrong:
-          'Backwards — sorting costs O(n log n), which usually undoes the gain. They are telling you it is *already* sorted so you can exploit it.',
+          'Backwards. Sorting costs O(n log n), which usually undoes the gain. They are telling you it is *already* sorted so you can exploit it.',
       },
     ],
     explanation:
-      'Hints are gifts, and taking one is rewarded rather than penalised. Say it back: "if it is sorted, I can use two pointers and drop the nested loop". That shows you heard it, understood what it unlocks, and can act on feedback — all things they are explicitly assessing.',
+      'Hints are gifts, and taking one is rewarded rather than penalised. Say it back: "if it is sorted, I can use two pointers and drop the nested loop". That shows you heard it, understood what it unlocks, and can act on feedback. All things they are explicitly assessing.',
   },
   {
     id: 't6-08',
@@ -210,7 +210,7 @@ export const t6Exercises: Exercise[] = [
       },
     ],
     explanation:
-      'Having a memorised sweep — nothing, one, huge, repeats, weird — means you can answer this instantly and completely, which reads as experience. Run the list against the actual problem: for a chunker, "one word longer than the limit" falls straight out of "unusual input".',
+      'Having a memorised sweep (nothing, one, huge, repeats, weird) means you can answer this instantly and completely, which reads as experience. Run the list against the actual problem: for a chunker, "one word longer than the limit" falls straight out of "unusual input".',
   },
   {
     id: 't6-09',
@@ -241,7 +241,7 @@ export const t6Exercises: Exercise[] = [
         correct: true,
       },
       {
-        text: 'Push on — switching now wastes the work already done',
+        text: 'Push on. Switching now wastes the work already done',
         whyWrong:
           'This is the sunk cost trap, and it is how a single wrong idea consumes a whole interview. The minutes already spent are gone either way.',
       },
@@ -253,7 +253,7 @@ export const t6Exercises: Exercise[] = [
       {
         text: 'Ask them whether your approach is right',
         whyWrong:
-          'Close, but it hands them the decision. "This is not converging, I am going to try X" is stronger than "is this right?" — and often prompts a hint anyway.',
+          'Close, but it hands them the decision. "This is not converging, I am going to try X" is stronger than "is this right?", and often prompts a hint anyway.',
       },
     ],
     explanation:
@@ -265,7 +265,7 @@ export const t6Exercises: Exercise[] = [
     type: 'match',
     difficulty: 2,
     conceptId: 'decoder',
-    prompt: 'Round three — the full stack phrases.',
+    prompt: 'Round three, the full stack phrases.',
     pairs: [
       { left: 'Single source of truth', right: 'State management' },
       { left: 'Do not block the main thread', right: 'Async or worker' },
@@ -273,7 +273,7 @@ export const t6Exercises: Exercise[] = [
       { left: 'It still works offline', right: 'Cache or PWA' },
     ],
     explanation:
-      'These come up in full stack rounds constantly, usually as an aside rather than a question. Recognising the phrase lets you answer the real question behind it — "does it work offline?" is asking about caching strategy, not about whether you have tried aeroplane mode.',
+      'These come up in full stack rounds constantly, usually as an aside rather than a question. Recognising the phrase lets you answer the real question behind it: "does it work offline?" is asking about caching strategy, not about whether you have tried aeroplane mode.',
   },
   {
     id: 't6-12',
@@ -284,7 +284,7 @@ export const t6Exercises: Exercise[] = [
     prompt: '**"Walk me through your thinking."** Which transcript sounds like a strong candidate?',
     options: [
       {
-        text: '"It is asking for the longest stretch with no repeats. Brute force is every substring, so O(n²). Stretch suggests a sliding window — let me try growing right and shrinking left."',
+        text: '"It is asking for the longest stretch with no repeats. Brute force is every substring, so O(n²). Stretch suggests a sliding window. Let me try growing right and shrinking left."',
         correct: true,
       },
       {
@@ -298,13 +298,13 @@ export const t6Exercises: Exercise[] = [
           'This defers exactly what they asked for. Silent coding followed by a summary is the pattern the question exists to interrupt.',
       },
       {
-        text: '"I have seen this one before — it is the classic sliding window problem."',
+        text: '"I have seen this one before. It is the classic sliding window problem."',
         whyWrong:
           'Honest, and fine as an aside. But on its own it answers "do you recognise this?" rather than "how do you think?", and it invites a harder variant.',
       },
     ],
     explanation:
-      'Good thinking-out-loud has a visible shape: restate, name the naive approach with its cost, identify the clue in the wording, then propose the pattern. It shows you can derive an approach rather than recall one — which matters, because the next problem will be one you have not seen.',
+      'Good thinking-out-loud has a visible shape: restate, name the naive approach with its cost, identify the clue in the wording, then propose the pattern. It shows you can derive an approach rather than recall one, which matters, because the next problem will be one you have not seen.',
   },
 ];
 

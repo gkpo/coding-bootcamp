@@ -132,7 +132,11 @@ describe('against the real authored content', () => {
 
   it('finds something to colour in every snippet', () => {
     for (const src of snippets) {
-      const kinds = new Set(tokenize(src).flat().map((t) => t.kind));
+      const kinds = new Set(
+        tokenize(src)
+          .flat()
+          .map((t) => t.kind),
+      );
       kinds.delete('plain');
       kinds.delete('punctuation');
       expect(kinds.size, src.slice(0, 40)).toBeGreaterThan(0);

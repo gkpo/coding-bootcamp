@@ -11,7 +11,7 @@ interface Props {
 
 /**
  * Deliberately *not* shuffled. The option set is fixed and always in growth
- * order so the ladder itself becomes reflex (docs/02 §complexity) — the point
+ * order so the ladder itself becomes reflex (docs/02 §complexity), the point
  * is recognising the shape, and the answers are notation, not positions.
  */
 export function ComplexityRenderer({ exercise, selected, onSelect, revealed }: Props) {

@@ -40,7 +40,7 @@ export function FeedbackPanel({
       ? affirmation
       : outcome === 'unsure'
         ? 'No stress. Here’s how it works:'
-        : 'Not this one — here’s the idea:';
+        : 'Not this one, here’s the idea:';
 
   return (
     <section className={`feedback feedback--${outcome}`} aria-live="polite">

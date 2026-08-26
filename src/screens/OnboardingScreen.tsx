@@ -6,14 +6,14 @@ import { useStore } from '../store/useStore';
 import './OnboardingScreen.css';
 
 /**
- * Three screens, no configuration — docs/01 is explicit that there is nothing
+ * Three screens, no configuration: docs/01 is explicit that there is nothing
  * to choose. It exists to set expectations, then get out of the way.
  */
 const SCREENS = [
   {
     emoji: '🎯',
     title: 'Interviews test a different skill',
-    body: 'You can be good at the job and still lose interviews — on pattern recognition, on vocabulary, on saying the thing out loud. That gap is what this trains.',
+    body: 'You can be good at the job and still lose interviews. On pattern recognition, on vocabulary, on saying the thing out loud. That gap is what this trains.',
   },
   {
     emoji: '⏱️',

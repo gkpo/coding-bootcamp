@@ -96,7 +96,7 @@ describe('due reviews', () => {
 });
 
 describe('frontier', () => {
-  it('respects authored order — never jumps ahead in a track', () => {
+  it('respects authored order, never jumps ahead in a track', () => {
     const session = composeSession(input({ tracks: [{ id: 't1', exerciseIds: ids('t1', 18) }] }));
     expect([...session].sort()).toEqual(ids('t1', 8));
   });

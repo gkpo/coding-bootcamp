@@ -16,7 +16,7 @@ interface Props {
 
 /**
  * Drag lines into order, or tap to move them between the bank and the
- * solution. Indentation is pre-rendered on each pill — v1 never makes the
+ * solution. Indentation is pre-rendered on each pill, v1 never makes the
  * user choose it (docs/02).
  */
 export function ParsonsRenderer({ exercise, seed, revealed, wrongPositions, onCheck }: Props) {

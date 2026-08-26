@@ -6,7 +6,7 @@
  * is explicit rather than implicit so sessions stay reproducible in tests.
  */
 
-/** mulberry32 — small, fast, good enough for shuffling option order. */
+/** mulberry32. Small, fast, good enough for shuffling option order. */
 export function makeRng(seed: number): () => number {
   let a = seed >>> 0;
   return () => {

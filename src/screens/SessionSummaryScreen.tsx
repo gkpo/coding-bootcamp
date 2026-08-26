@@ -20,7 +20,7 @@ export function SessionSummaryScreen() {
   const state = (useLocation().state ?? null) as SummaryState | null;
 
   if (!state) {
-    // Landed here directly (refresh, deep link) — nothing to celebrate.
+    // Landed here directly (refresh, deep link), nothing to celebrate.
     navigate('/', { replace: true });
     return null;
   }

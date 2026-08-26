@@ -12,7 +12,7 @@ export type Outcome = 'right' | 'wrong' | 'unsure';
 
 interface Props {
   exercise: Exercise;
-  /** The answer area — supplied by the per-type renderer. */
+  /** The answer area. Supplied by the per-type renderer. */
   children: ReactNode;
   /** Hidden once the exercise is resolved. */
   onUnsure?: () => void;
@@ -27,7 +27,7 @@ interface Props {
  * the "?" concept chip, the answer area, and "I'm not sure".
  *
  * The "?" chip opens the concept card *without* failing the exercise. Reading
- * before answering is encouraged — this is a learning app, not an exam.
+ * before answering is encouraged. This is a learning app, not an exam.
  */
 export function ExerciseFrame({
   exercise,

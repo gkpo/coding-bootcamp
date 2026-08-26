@@ -1,5 +1,5 @@
 /**
- * Hand-picked inline SVGs (Lucide-derived shapes, copied in) — no icon package.
+ * Hand-picked inline SVGs (Lucide-derived shapes, copied in), no icon package.
  * All icons render at 24px on a 24px grid and inherit `currentColor`.
  */
 type IconProps = { size?: number };

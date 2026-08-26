@@ -91,7 +91,7 @@ describe('the authored concept cards', () => {
     }
   });
 
-  it('is reachable from an exercise — no orphan cards', () => {
+  it('is reachable from an exercise, no orphan cards', () => {
     const linked = new Set(exercises.map((e) => e.conceptId));
     const orphans = cards.filter((c) => !linked.has(c.id)).map((c) => c.id);
     expect(orphans.join(', ')).toBe('');

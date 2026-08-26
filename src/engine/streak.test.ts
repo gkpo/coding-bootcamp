@@ -28,7 +28,7 @@ describe('completeSession', () => {
     expect(completeSession(state(), '2026-08-27').current).toBe(4);
   });
 
-  it('is idempotent within the same day — a second session is not a second day', () => {
+  it('is idempotent within the same day. A second session is not a second day', () => {
     const once = completeSession(state(), '2026-08-27');
     expect(completeSession(once, '2026-08-27')).toEqual(once);
   });
@@ -99,7 +99,7 @@ describe('decayStreak', () => {
     expect(decayStreak(s, '2026-08-26')).toEqual(s);
   });
 
-  it('leaves it alone the very next day — nothing is missed yet', () => {
+  it('leaves it alone the very next day. Nothing is missed yet', () => {
     const s = state();
     expect(decayStreak(s, '2026-08-27')).toEqual(s);
   });

@@ -4,14 +4,14 @@ import './SortableList.css';
 export interface SortableItem {
   id: string;
   content: ReactNode;
-  /** Parsons pills carry their own indent — v1 never asks the user to choose it. */
+  /** Parsons pills carry their own indent. V1 never asks the user to choose it. */
   indent?: number;
 }
 
 interface Props {
   items: SortableItem[];
   onReorder: (ids: string[]) => void;
-  /** Tap (as opposed to drag) — used for tap-to-move between lists. */
+  /** Tap (as opposed to drag). Used for tap-to-move between lists. */
   onTap?: (id: string) => void;
   disabled?: boolean;
   /** Per-item colouring after grading. */
@@ -29,7 +29,7 @@ const TAP_SLOP = 8;
  * budget free, and it lets tap-to-move share the same gesture handler rather
  * than fighting a library's drag sensor.
  *
- * Tap-to-move is not a grudging fallback — on a phone it is often the faster
+ * Tap-to-move is not a grudging fallback: on a phone it is often the faster
  * way in, and it is the accessible one.
  */
 export function SortableList({ items, onReorder, onTap, disabled, stateOf, emptyLabel }: Props) {
