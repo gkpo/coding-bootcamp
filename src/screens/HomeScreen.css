@@ -10,7 +10,22 @@
 
 .streak__flame--idle {
   color: var(--text-dim);
+}
+
+/* Sized against the streak number rather than in fixed pixels, so the two
+   stay in proportion if the type scale ever moves.
+   The 1.5 is not arbitrary: the drawn flame fills only about three quarters
+   of its 24x24 box, so a 1.5em box renders roughly 1.1em of actual flame,
+   which sits just above the cap height of the numerals beside it. */
+.streak__flame {
   display: inline-flex;
+  align-items: center;
+  font-size: var(--fs-display);
+}
+
+.streak__flame svg {
+  width: 1.5em;
+  height: 1.5em;
 }
 
 .streak__count {
