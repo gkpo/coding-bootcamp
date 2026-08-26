@@ -71,6 +71,7 @@ The plan this was built from, in reading order:
 | [docs/05-ARCHITECTURE.md](./docs/05-ARCHITECTURE.md)     | Stack, folder layout, state, persistence, PWA, deploy          |
 | [docs/06-DESIGN-SYSTEM.md](./docs/06-DESIGN-SYSTEM.md)   | Colors, type, spacing, components, motion                      |
 | [docs/07-ROADMAP.md](./docs/07-ROADMAP.md)               | Milestones with acceptance criteria                            |
+| [docs/08-CONTENT-EXPANSION.md](./docs/08-CONTENT-EXPANSION.md) | v1.1 manifest: React, web platform and database tracks   |
 
 ## Decisions already made (do not re-litigate)
 
