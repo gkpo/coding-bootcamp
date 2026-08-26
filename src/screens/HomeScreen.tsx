@@ -1,22 +1,19 @@
 import { Button } from '../components/Button';
 import { FlameIcon } from '../components/icons';
+import { cards, tracks, trackExerciseIds } from '../content';
+import { conceptOfTheDay } from '../engine/conceptOfTheDay';
+import { todayKey } from '../engine/dates';
 import './HomeScreen.css';
 
-const TRACKS = [
-  { id: 't1', emoji: '📈', title: 'Big-O & optimization talk' },
-  { id: 't2', emoji: '🧩', title: 'Algorithm patterns' },
-  { id: 't3', emoji: '⚙️', title: 'JS/TS language concepts' },
-  { id: 't4', emoji: '🪜', title: 'Refactoring & code quality' },
-  { id: 't5', emoji: '🏗️', title: 'System design foundations' },
-  { id: 't6', emoji: '🗣️', title: 'Interview decoder' },
-];
-
 /**
- * M0 placeholder: real streak, session composition and track progress arrive
- * with the store and engine in M1/M2. The layout follows docs/01 §Home so the
- * shell can be judged on-brand today.
+ * M1: track cards and the concept of the day now come from the content
+ * modules rather than being hard-coded here. Streak, XP and real progress
+ * arrive with the store in M2 — the zeroes below are honest placeholders.
  */
 export function HomeScreen() {
+  const today = todayKey();
+  const card = conceptOfTheDay(cards, today);
+
   return (
     <div className="stack home">
       <header className="streak">
@@ -48,14 +45,19 @@ export function HomeScreen() {
       <section>
         <h2 className="home__section-title">Tracks</h2>
         <div className="home__strip">
-          {TRACKS.map((track) => (
+          {tracks.map((track) => (
             <article
               className="home__track"
               key={track.id}
-              style={{ borderColor: `var(--track-${track.id})` }}
+              style={{ borderTopColor: `var(--track-${track.id})` }}
             >
-              <span className="home__track-emoji">{track.emoji}</span>
+              <span className="home__track-emoji" aria-hidden>
+                {track.emoji}
+              </span>
               <span className="home__track-title">{track.title}</span>
+              <span className="home__track-count">
+                {trackExerciseIds(track.id).length} exercises
+              </span>
               <span className="home__track-bar">
                 <span
                   className="home__track-fill"
@@ -67,16 +69,15 @@ export function HomeScreen() {
         </div>
       </section>
 
-      <section className="card home__concept">
-        <p className="home__concept-kicker">Concept of the day</p>
-        <p className="home__concept-title">
-          <span aria-hidden>🎒</span> Closure
-        </p>
-        <p className="home__concept-plain">
-          A function that carries a backpack: it keeps access to the variables that existed where it
-          was created, even after that place is gone.
-        </p>
-      </section>
+      {card && (
+        <section className="card home__concept">
+          <p className="home__concept-kicker">Concept of the day</p>
+          <p className="home__concept-title">
+            <span aria-hidden>{card.emoji}</span> {card.title}
+          </p>
+          <p className="home__concept-plain">{card.plainWords}</p>
+        </section>
+      )}
     </div>
   );
 }

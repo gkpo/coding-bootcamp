@@ -1,0 +1,44 @@
+import { conceptCards } from './concepts';
+import { t1, t1Exercises } from './tracks/t1';
+import { assertContentValid } from './validate';
+import type { ConceptCard, Exercise, Track, TrackId } from './types';
+
+/**
+ * Content assembly. Tracks 2–6 land in M4; the shape here is already the final
+ * one so adding them is an import and two array entries.
+ */
+
+export const tracks: Track[] = [t1];
+export const exercises: Exercise[] = [...t1Exercises];
+export const cards: ConceptCard[] = conceptCards;
+
+// Fail loudly, and fail at startup rather than mid-session. In production this
+// runs once at import; the cost is a few hundred microseconds.
+assertContentValid({ tracks, exercises, cards });
+
+const exerciseById = new Map(exercises.map((e) => [e.id, e]));
+const cardById = new Map(cards.map((c) => [c.id, c]));
+const trackById = new Map(tracks.map((t) => [t.id, t]));
+
+export function getExercise(id: string): Exercise | undefined {
+  return exerciseById.get(id);
+}
+
+export function getCard(id: string): ConceptCard | undefined {
+  return cardById.get(id);
+}
+
+export function getTrack(id: TrackId): Track | undefined {
+  return trackById.get(id);
+}
+
+/** Exercise ids for a track, in the pedagogical order the lessons define. */
+export function trackExerciseIds(id: TrackId): string[] {
+  return getTrack(id)?.lessons.flatMap((l) => l.exerciseIds) ?? [];
+}
+
+export function cardsForTrack(id: TrackId): ConceptCard[] {
+  return cards.filter((c) => c.trackIds.includes(id));
+}
+
+export { type ConceptCard, type Exercise, type Track, type TrackId };

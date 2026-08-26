@@ -61,7 +61,7 @@
 
 .home__track {
   flex: 0 0 auto;
-  width: 150px;
+  width: 168px;
   scroll-snap-align: start;
   display: flex;
   flex-direction: column;
@@ -81,6 +81,11 @@
   font-size: var(--fs-secondary);
   font-weight: 600;
   line-height: 1.35;
+}
+
+.home__track-count {
+  color: var(--text-dim);
+  font-size: 12px;
 }
 
 .home__track-bar {
