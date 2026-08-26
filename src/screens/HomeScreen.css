@@ -53,7 +53,6 @@
   display: flex;
   gap: var(--sp-3);
   overflow-x: auto;
-  scroll-snap-type: x mandatory;
   margin: 0 calc(var(--gutter) * -1);
   padding: var(--sp-1) var(--gutter) var(--sp-3);
   -webkit-overflow-scrolling: touch;
@@ -62,7 +61,6 @@
 .home__track {
   flex: 0 0 auto;
   width: 168px;
-  scroll-snap-align: start;
   display: flex;
   flex-direction: column;
   gap: var(--sp-2);
