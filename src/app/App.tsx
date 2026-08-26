@@ -7,6 +7,7 @@ import { SheetDetailScreen } from '../screens/SheetDetailScreen';
 import { ReviewScreen } from '../screens/ReviewScreen';
 import { SheetsScreen } from '../screens/SheetsScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
+import { OnboardingScreen } from '../screens/OnboardingScreen';
 import { SessionScreen } from '../screens/SessionScreen';
 import { SessionSummaryScreen } from '../screens/SessionSummaryScreen';
 
@@ -30,6 +31,7 @@ const router = createHashRouter([
   },
   // The session is a full-screen flow on top of the shell — no tab bar while
   // you are answering (docs/01 §Screen map).
+  { path: '/onboarding', element: <OnboardingScreen /> },
   { path: '/session', element: <SessionScreen /> },
   { path: '/session/summary', element: <SessionSummaryScreen /> },
   // Dev-only harness for driving each renderer in isolation. The dynamic

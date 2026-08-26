@@ -20,6 +20,7 @@ import {
 import { randomSeed } from '../engine/shuffle';
 import { todayKey } from '../engine/dates';
 import { useStore } from '../store/useStore';
+import { vibrate } from '../engine/feedback';
 import './SessionScreen.css';
 
 type Answered = { outcome: Outcome; whyWrong?: string } | null;
@@ -33,6 +34,7 @@ export function SessionScreen() {
   const exercisesProgress = useStore((s) => s.exercises);
   const lastOpenedTrackId = useStore((s) => s.lastOpenedTrackId);
   const recordAnswer = useStore((s) => s.recordAnswer);
+  const haptics = useStore((s) => s.settings.haptics);
   const finishSession = useStore((s) => s.finishSession);
 
   // Composed once per mount: the session must not reshuffle under the user
@@ -81,9 +83,10 @@ export function SessionScreen() {
       if (session.firstResults[exerciseId] === undefined) {
         recordAnswer(exerciseId, outcome);
       }
+      vibrate(outcome === 'right' ? 'right' : 'wrong', haptics);
       setAnswered({ outcome, whyWrong });
     },
-    [exerciseId, recordAnswer, session.firstResults],
+    [exerciseId, recordAnswer, session.firstResults, haptics],
   );
 
   const onContinue = useCallback(() => {
@@ -138,39 +141,41 @@ export function SessionScreen() {
       </header>
 
       <main className="session__body">
-        <ExerciseFrame
-          exercise={exercise}
-          // spot-bug renders the snippet itself as tappable lines.
-          suppressCode={exercise.type === 'spot-bug'}
-          showUnsure={!revealed}
-          onUnsure={() => resolve('unsure')}
-          feedback={
-            answered && (
-              <FeedbackPanel
-                outcome={answered.outcome}
-                explanation={exercise.explanation}
-                whyWrong={answered.whyWrong}
-                sayIt={exercise.type === 'complexity' ? exercise.sayIt : undefined}
-                reveal={
-                  answered.outcome !== 'right' && needsExplicitReveal(exercise.type) ? (
-                    <RevealedAnswer exercise={exercise} />
-                  ) : undefined
-                }
-                onContinue={onContinue}
-                seed={presentationSeed}
-                isLast={session.queue.length === 1 && answered.outcome === 'right'}
-              />
-            )
-          }
-        >
-          <ExerciseRenderer
-            key={`${exercise.id}-${presentations}`}
+        <div className="session__slide" key={presentations}>
+          <ExerciseFrame
             exercise={exercise}
-            seed={presentationSeed}
-            revealed={revealed}
-            onResolve={resolve}
-          />
-        </ExerciseFrame>
+            // spot-bug renders the snippet itself as tappable lines.
+            suppressCode={exercise.type === 'spot-bug'}
+            showUnsure={!revealed}
+            onUnsure={() => resolve('unsure')}
+            feedback={
+              answered && (
+                <FeedbackPanel
+                  outcome={answered.outcome}
+                  explanation={exercise.explanation}
+                  whyWrong={answered.whyWrong}
+                  sayIt={exercise.type === 'complexity' ? exercise.sayIt : undefined}
+                  reveal={
+                    answered.outcome !== 'right' && needsExplicitReveal(exercise.type) ? (
+                      <RevealedAnswer exercise={exercise} />
+                    ) : undefined
+                  }
+                  onContinue={onContinue}
+                  seed={presentationSeed}
+                  isLast={session.queue.length === 1 && answered.outcome === 'right'}
+                />
+              )
+            }
+          >
+            <ExerciseRenderer
+              key={`${exercise.id}-${presentations}`}
+              exercise={exercise}
+              seed={presentationSeed}
+              revealed={revealed}
+              onResolve={resolve}
+            />
+          </ExerciseFrame>
+        </div>
       </main>
 
       {confirmExit && (

@@ -28,6 +28,7 @@ interface StoreState extends Persisted {
   openConceptCard: (cardId: string) => void;
   setLastOpenedTrack: (trackId: TrackId) => void;
   updateSettings: (patch: Partial<Settings>) => void;
+  completeOnboarding: () => void;
   resetProgress: () => void;
 
   progressFor: (exerciseId: string) => ExerciseProgress | undefined;
@@ -40,6 +41,7 @@ const persist = debounce((state: Persisted) => save(state), 500);
 function persistable(state: StoreState): Persisted {
   return {
     schemaVersion: state.schemaVersion,
+    onboarded: state.onboarded,
     xp: state.xp,
     streak: state.streak,
     exercises: state.exercises,
@@ -109,9 +111,12 @@ export const useStore = create<StoreState>((set, get) => {
 
     updateSettings: (patch) => commit({ settings: { ...get().settings, ...patch } }),
 
+    completeOnboarding: () => commit({ onboarded: true }),
+
     resetProgress: () => {
       const cleared: Persisted = {
         schemaVersion: get().schemaVersion,
+        onboarded: true, // resetting progress should not replay the intro
         xp: { lifetime: 0, byDay: {} },
         streak: { current: 0, best: 0, lastActiveDay: null, freezes: 0 },
         exercises: {},

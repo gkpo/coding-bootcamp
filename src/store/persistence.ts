@@ -26,6 +26,8 @@ export interface Persisted {
   exercises: Record<string, ExerciseProgress>;
   conceptCardsOpened: string[];
   settings: Settings;
+  /** False until the intro has been seen (or skipped) once. */
+  onboarded: boolean;
 }
 
 export function defaultPersisted(): Persisted {
@@ -36,6 +38,7 @@ export function defaultPersisted(): Persisted {
     exercises: {},
     conceptCardsOpened: [],
     settings: { sound: true, haptics: true, reduceMotion: false },
+    onboarded: false,
   };
 }
 
@@ -83,6 +86,7 @@ export function reconcile(parsed: unknown): Persisted {
       haptics: typeof settings.haptics === 'boolean' ? settings.haptics : true,
       reduceMotion: typeof settings.reduceMotion === 'boolean' ? settings.reduceMotion : false,
     },
+    onboarded: typeof parsed.onboarded === 'boolean' ? parsed.onboarded : false,
   });
 }
 

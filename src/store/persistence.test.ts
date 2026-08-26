@@ -22,6 +22,7 @@ describe('reconcile', () => {
       },
       conceptCardsOpened: ['big-o'],
       settings: { sound: false, haptics: true, reduceMotion: true },
+      onboarded: true,
     };
     expect(reconcile(doc)).toEqual(doc);
   });
@@ -55,6 +56,16 @@ describe('reconcile', () => {
     expect(reconcile({ conceptCardsOpened: ['big-o', 7, null] }).conceptCardsOpened).toEqual([
       'big-o',
     ]);
+  });
+
+  it('defaults a document from before onboarding existed to not-onboarded', () => {
+    // An older save has no `onboarded` key; showing the intro once is the
+    // safe fallback, and it is a single tap to skip.
+    expect(reconcile({ xp: { lifetime: 10 } }).onboarded).toBe(false);
+  });
+
+  it('keeps the onboarded flag once it is set', () => {
+    expect(reconcile({ onboarded: true }).onboarded).toBe(true);
   });
 
   it('preserves progress — the one thing that cannot be regenerated', () => {

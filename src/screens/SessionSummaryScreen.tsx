@@ -2,6 +2,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '../components/Button';
 import { RichText } from '../components/RichText';
 import { FlameIcon } from '../components/icons';
+import { Confetti } from '../components/Confetti';
 import { getCard, getExercise } from '../content';
 import type { Result } from '../engine/leitner';
 import './SessionSummaryScreen.css';
@@ -32,6 +33,7 @@ export function SessionSummaryScreen() {
 
   return (
     <div className="summary">
+      <Confetti active />
       <div className="summary__hero">
         <p className="summary__kicker">Session complete</p>
         <p className="summary__xp">+{answerXp + xpEarned} XP</p>
@@ -40,7 +42,9 @@ export function SessionSummaryScreen() {
             <FlameIcon size={20} />
           </span>
           Day {streakDays}
-          {streakDays > 2 && ' · this is becoming a habit'}
+          {streakDays === 7 && ' · a full week'}
+          {streakDays === 30 && ' · thirty days'}
+          {streakDays > 2 && streakDays !== 7 && streakDays !== 30 && ' · this is becoming a habit'}
         </p>
       </div>
 

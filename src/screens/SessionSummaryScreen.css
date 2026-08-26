@@ -118,3 +118,36 @@
   margin-top: auto;
   padding-top: var(--sp-5);
 }
+
+.confetti {
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: 40dvh;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 5;
+}
+
+.confetti__bit {
+  position: absolute;
+  top: -12px;
+  width: 8px;
+  height: 12px;
+  border-radius: 2px;
+  opacity: 0;
+}
+
+.confetti.is-firing .confetti__bit {
+  animation: confetti-fall 900ms var(--ease) forwards;
+}
+
+@keyframes confetti-fall {
+  0% {
+    opacity: 1;
+    transform: translateY(0) rotate(0deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(40dvh) rotate(240deg);
+  }
+}

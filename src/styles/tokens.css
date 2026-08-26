@@ -74,10 +74,28 @@
   --tabbar-height: 56px;
 }
 
+/* Motion is disabled by the OS preference OR the in-app toggle (docs/06). */
 @media (prefers-reduced-motion: reduce) {
   :root {
     --dur-micro: 0ms;
     --dur-standard: 0ms;
     --dur-celebrate: 0ms;
   }
+}
+
+:root[data-reduce-motion='true'] {
+  --dur-micro: 0ms;
+  --dur-standard: 0ms;
+  --dur-celebrate: 0ms;
+}
+
+/* The keyframe animations need switching off too — zeroing a duration token
+   does not reach an `animation` shorthand that names its own timing. */
+:root[data-reduce-motion='true'] *,
+:root[data-reduce-motion='true'] *::before,
+:root[data-reduce-motion='true'] *::after {
+  animation-duration: 1ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 1ms !important;
+  scroll-behavior: auto !important;
 }
