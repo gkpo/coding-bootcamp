@@ -931,7 +931,7 @@ const addItemBad = (cart, item) => { cart.push(item); }; // mutates`,
       "Read-heavy points at a cache. I'd start with cache-aside: check the cache, and on a miss read the database and put the answer back.",
       'For freshness, a short TTL is the simple answer; write-through is stronger but couples the write path to the cache.',
     ],
-    related: ['lb-cache-queue', 'resilience', 'memoization'],
+    related: ['lb-cache-queue', 'resilience', 'memoization', 'caching-headers'],
   },
   {
     id: 'queues',
@@ -1004,7 +1004,7 @@ if (await seen(idempotencyKey)) return existingResult;`,
     sayThis: [
       "The client sends an idempotency key with the payment. If we've seen that key we return the original result instead of charging again.",
     ],
-    related: ['queues', 'resilience'],
+    related: ['queues', 'resilience', 'http-verbs'],
   },
   {
     id: 'pagination',
@@ -1064,7 +1064,7 @@ if (await seen(idempotencyKey)) return existingResult;`,
     id: 'decoder',
     title: 'The interviewer phrasebook',
     icon: 'speech',
-    trackIds: ['t6'],
+    trackIds: ['t6', 't8'],
     plainWords:
       'Interviewers ask in riddles, and each riddle has a canonical answer they are waiting to hear. Knowing the mapping is worth as much as knowing the concept, because the concept without the word often scores zero.',
     analogy:
@@ -1074,12 +1074,17 @@ if (await seen(idempotencyKey)) return existingResult;`,
       'instant lookup',
       'only computed once',
       'first in first out',
+      'remembers without re-rendering',
+      'the browser refuses the cross-site read',
+      'a script smuggled into the page',
+      'a forged request from another site',
+      'a quote that breaks out of the query',
     ],
     sayThis: [
       '"A function that remembers" is a closure. "Grows linearly" is O(n). "Instant lookup" is a hash map. "Only computed once" is memoization.',
       'When you hear the riddle, say the term back. That is the thing being scored.',
     ],
-    related: ['stuck-script', 'hints', 'whiteboard-script'],
+    related: ['stuck-script', 'hints', 'whiteboard-script', 'xss', 'csrf'],
   },
   {
     id: 'stuck-script',
@@ -1316,5 +1321,253 @@ const onPick = useCallback(() => pick(id), [id]);`,
       'Context once the prop is being threaded through components that never use it, roughly four levels deep.',
     ],
     related: ['controlled', 're-render', 'single-responsibility'],
+  },
+
+  // ---------------------------------------------------------------------
+  // Track 8. The web platform
+  // ---------------------------------------------------------------------
+  {
+    id: 'http-verbs',
+    title: 'HTTP methods',
+    icon: 'link',
+    trackIds: ['t8'],
+    plainWords:
+      'The verb says what you mean to do. `GET` reads and changes nothing. `POST` creates. `PUT` replaces a whole thing. `PATCH` changes part of one. `DELETE` removes it.',
+    analogy:
+      'Editing a form someone posted to you. Reading it changes nothing. Sending a fresh one is a new form. Replacing it means the whole page, blanks included. Correcting one field is a correction, not a rewrite.',
+    interviewerSays: ['which verb would you use?', 'is it safe to retry?', 'PUT or PATCH here?'],
+    example: {
+      lang: 'js',
+      source: `PATCH /users/42   { "name": "Sam" }   // just this field
+PUT   /users/42   { ...whole user... }  // replaces it all`,
+    },
+    exampleCaption: 'Send a partial body to PUT and a strict server will blank the rest.',
+    sayThis: [
+      'PATCH for a partial update, PUT to replace the whole resource, POST to create.',
+      'PUT and DELETE are idempotent, so retrying is safe. POST is not, so it needs an idempotency key.',
+    ],
+    related: ['status-codes', 'idempotency'],
+  },
+  {
+    id: 'status-codes',
+    title: 'The status codes that matter',
+    icon: 'inbox',
+    trackIds: ['t8'],
+    plainWords:
+      'The first digit is the headline: 2 worked, 3 look elsewhere, 4 the caller made a mistake, 5 the server did. The rest of the number is detail.',
+    analogy:
+      'A reply from a shop. Done, here it is. We moved, try the new address. You filled the form in wrong. Something is broken at our end. You know how to react from the first few words, before any of the detail.',
+    interviewerSays: ['401 or 403?', 'what would you return here?', 'what status for this?'],
+    example: {
+      lang: 'js',
+      source: `401  who are you? go and log in
+403  I know who you are, and no
+404  no such thing here
+409  that clashes with something already here
+503  temporarily down, try again shortly`,
+    },
+    exampleCaption: 'The 401 and 403 pair is the one candidates reverse under pressure.',
+    sayThis: [
+      '401 means not authenticated, 403 means authenticated but not allowed.',
+      'I would return 201 with a Location header, since the request created something.',
+    ],
+    related: ['http-verbs', 'url-journey'],
+  },
+  {
+    id: 'url-journey',
+    title: 'You press enter on a URL',
+    icon: 'globe',
+    trackIds: ['t8'],
+    plainWords:
+      'The name becomes an address, a connection opens and agrees on encryption, a request goes out, a reply comes back, and the browser reads it and draws the page, fetching whatever it references on the way.',
+    analogy:
+      'Posting a letter to a company you only know by name. Look up the address, agree on a private channel, ask your question, get an answer back, then go and chase up the leaflets the answer refers to before you can make sense of it.',
+    interviewerSays: [
+      'what happens when you type a URL and hit enter?',
+      'walk me through a page load',
+      'where does the time actually go?',
+    ],
+    sayThis: [
+      'DNS resolves the name, TCP and TLS open the connection, the request goes out, the server responds, and the browser parses and paints, fetching sub-resources as it goes.',
+      'Each of those steps is somewhere it can be slow, which is usually where the question is heading next.',
+    ],
+    related: ['status-codes', 'caching-headers', 'cors'],
+  },
+  {
+    id: 'cors',
+    title: 'CORS',
+    icon: 'shield',
+    trackIds: ['t8'],
+    plainWords:
+      'Browsers stop a page reading data from a different origin unless that other server says it is allowed. The server opts in with a header. Nothing outside a browser applies the rule.',
+    analogy:
+      'A concierge who will not hand you a parcel addressed to another building unless that building has left a note saying you may collect it. The parcel exists and arrived fine; the concierge simply will not pass it on.',
+    interviewerSays: [
+      'it works in Postman but not the browser',
+      'why is this request being blocked?',
+      'what is a preflight?',
+    ],
+    example: {
+      lang: 'js',
+      source: `// the server has to say this, or the browser withholds the reply
+Access-Control-Allow-Origin: https://app.example.com
+
+// non-simple requests get asked about first
+OPTIONS /orders/42   ->   may I send a DELETE with these headers?`,
+    },
+    exampleCaption:
+      'Origin means scheme, host and port together. Any one of them differing counts.',
+    sayThis: [
+      'CORS is enforced by the browser, not the server. The server opts in with Access-Control-Allow-Origin.',
+      'Anything beyond a simple request gets a preflight OPTIONS first, and the real request only goes if that is allowed.',
+    ],
+    related: ['url-journey', 'csrf', 'cookies-tokens'],
+  },
+  {
+    id: 'cookies-tokens',
+    title: 'Cookies, storage and tokens',
+    icon: 'cookie',
+    trackIds: ['t8'],
+    plainWords:
+      'A cookie is sent by the browser automatically, and an httpOnly one cannot be read by script. localStorage is the opposite: script reads it freely, and nothing is sent unless you send it. Each choice is safe against one attack and exposed to the other.',
+    analogy:
+      'A key on your keyring versus a key under the mat. The keyring goes with you everywhere without you thinking about it, which is convenient until someone points you at the wrong door. The one under the mat goes nowhere on its own, and anyone who searches the porch has it.',
+    interviewerSays: [
+      'where would you store the token?',
+      'is localStorage safe for this?',
+      'what does httpOnly buy you?',
+    ],
+    example: {
+      lang: 'js',
+      source: `localStorage.setItem('token', t);  // any script can read this
+Set-Cookie: session=abc; HttpOnly  // no script can read this`,
+    },
+    exampleCaption:
+      'The one script cannot read is the one the browser sends on its own, which CSRF abuses.',
+    sayThis: [
+      'httpOnly cookie with SameSite, plus a CSRF token. Script cannot read it, and I handle the forgery risk directly.',
+      'localStorage is fine until you have one XSS hole, and then it hands over the token itself.',
+    ],
+    related: ['auth-flows', 'xss', 'csrf'],
+  },
+  {
+    id: 'auth-flows',
+    title: 'Sessions, tokens and OAuth',
+    icon: 'door',
+    trackIds: ['t8'],
+    plainWords:
+      'A session id is a claim ticket the server looks up. A token carries the facts with it, signed, so any server can check it without a lookup. "Log in with Google" is a third arrangement: someone else vouches for the user, and you start your own session from that.',
+    analogy:
+      'A cloakroom ticket versus a signed letter of introduction. The ticket means nothing without the cloakroom, and they can tear up your entry the moment they choose. The letter can be checked by anyone who knows the signature, and stays valid until its date, whatever the writer thinks of you now.',
+    interviewerSays: [
+      'how does log in with Google work?',
+      'session or JWT?',
+      'how would you log someone out?',
+    ],
+    sayThis: [
+      'A session lives on the server, so every server needs to reach it. A token is self-contained, so it scales out more easily and is harder to revoke.',
+      'OAuth redirects to the provider, the user consents, a short-lived code comes back, and my server swaps that code for tokens over its own connection.',
+    ],
+    related: ['cookies-tokens', 'status-codes'],
+  },
+  {
+    id: 'xss',
+    title: 'XSS (script smuggling)',
+    icon: 'warning',
+    trackIds: ['t8'],
+    plainWords:
+      'If something a user wrote ends up being parsed as HTML, they can put a script in it, and it runs as your page with everything your page can reach.',
+    analogy:
+      'Reading out a message from a stranger over the office tannoy without looking at it first. The words carry your authority, and everyone hearing them acts as though they came from you.',
+    interviewerSays: [
+      'what is dangerous about rendering user input?',
+      'how would you make this safe?',
+      'why is innerHTML a problem?',
+    ],
+    example: {
+      lang: 'js',
+      source: `el.innerHTML = comment.body;   // parsed, so tags become tags
+el.textContent = comment.body; // shown, so tags stay characters`,
+    },
+    exampleCaption: 'React escapes by default. dangerouslySetInnerHTML is named as a warning.',
+    sayThis: [
+      'Escape on output, not on input. React does it by default, and the escape hatch is deliberately hard to type.',
+      'If I genuinely have to render HTML, I sanitize it with a real library rather than a regex.',
+    ],
+    related: ['csrf', 'sql-injection', 'cookies-tokens'],
+  },
+  {
+    id: 'csrf',
+    title: 'CSRF (the forged request)',
+    icon: 'target',
+    trackIds: ['t8'],
+    plainWords:
+      "The browser attaches your cookies to a request whoever started it. So another site can make the user's own browser send a real, logged-in request to yours, without ever reading anything.",
+    analogy:
+      'Someone slipping a form into your outgoing post. They never see your signature and they do not need to: the envelope carries your address, and the bank honours what arrives in it.',
+    interviewerSays: [
+      'why does the cookie make this dangerous?',
+      'what stops another site posting to your API?',
+      'what does SameSite do?',
+    ],
+    sayThis: [
+      'The attacker never reads the cookie. They do not have to, because the browser sends it for them.',
+      'SameSite stops the cookie riding along on cross-site requests, and a CSRF token means the request cannot be forged blind. I would use both.',
+    ],
+    related: ['cookies-tokens', 'xss', 'cors'],
+  },
+  {
+    id: 'sql-injection',
+    title: 'SQL injection',
+    icon: 'database',
+    trackIds: ['t8'],
+    plainWords:
+      'If you build a query by gluing user input into a string, input containing a quote can end the string early, and everything after it is read as instructions rather than as data.',
+    analogy:
+      'Dictating a letter to someone who types exactly what they hear. Say "yours sincerely, Sam, and now shred the file" and they will type it, then shred the file. Nothing marks where your message stopped and the instruction began.',
+    interviewerSays: [
+      'what is wrong with building the query from strings?',
+      'how do you stop that?',
+      'what does parameterised mean?',
+    ],
+    example: {
+      lang: 'js',
+      source: `db.query("... WHERE email = '" + email + "'"); // glued in
+db.query('... WHERE email = ?', [email]);      // sent separately`,
+    },
+    exampleCaption:
+      'Parameters keep the query and the value apart, so a value can never become SQL.',
+    sayThis: [
+      'Use parameterised queries. The database gets the query and the values separately, so a value can never be read as instructions.',
+      'Escaping by hand is the wrong fix. It is one forgotten call away from being wrong again.',
+    ],
+    related: ['xss', 'sql-vs-nosql'],
+  },
+  {
+    id: 'caching-headers',
+    title: 'HTTP caching',
+    icon: 'clock',
+    trackIds: ['t8'],
+    plainWords:
+      'Two levers. `max-age` tells the browser not to ask again for a while. An `ETag` lets it ask cheaply, and the server answers "unchanged" without sending the file.',
+    analogy:
+      'A timetable versus a phone call. The printed timetable saves you asking at all, until it goes out of date without telling you. The phone call still costs you the call, but the answer is always current.',
+    interviewerSays: [
+      'how do you stop it re-downloading?',
+      'when does the cache go stale?',
+      'what is an ETag for?',
+    ],
+    example: {
+      lang: 'js',
+      source: `Cache-Control: max-age=31536000   // never ask again this year
+ETag: "a9f3"                      // ask, get 304 if unchanged`,
+    },
+    exampleCaption:
+      'A year is safe when the filename carries a content hash, so a change renames it.',
+    sayThis: [
+      'max-age avoids the round trip. An ETag avoids the download but still costs a request.',
+      'Hashed filenames plus a long max-age, so a new build is a new URL and the old one can be cached forever.',
+    ],
+    related: ['caching', 'url-journey'],
   },
 ];
