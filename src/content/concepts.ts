@@ -22,6 +22,8 @@ export const conceptCards: ConceptCard[] = [
       "what's the complexity?",
       'how does this scale?',
       'it grows linearly',
+      'it scales with the input',
+      'double the input, double the time',
       "what's the Big-O of this?",
     ],
     example: {
@@ -131,6 +133,7 @@ for (const name of guests) {
       'A coat check at a theatre. You do not search the racks for your coat. The number on your ticket tells you exactly which hook to go to. A thousand coats is no slower than ten, because you never look at the coats you do not want.',
     interviewerSays: [
       'instant lookup',
+      'you pay memory to make lookups instant',
       'trade memory for speed',
       'is there a data structure that would help?',
     ],
@@ -268,10 +271,16 @@ const fib = (n) => {
     icon: 'coins',
     trackIds: ['t2'],
     plainWords:
-      'A greedy method makes the choice that looks best right now and never looks back. It is fast and simple, and it is correct only when local best choices happen to add up to the overall best.',
+      'A greedy method makes the choice that looks best right now and never looks back. It is fast and simple, and it is correct only when local best choices happen to add up to the overall best. It turns up far from money too: to attend the most meetings in a day, sort them by finishing time and take every one that starts after the last one you took.',
     analogy:
       'Making change from a till: you reach for the biggest coin that still fits, then the next biggest, and so on. With ordinary coins that always gives the fewest coins. With an odd set of denominations it can leave you stuck, which is exactly why interviewers ask about it.',
-    interviewerSays: ['fewest coins', 'locally best choice', 'can you do it greedily?'],
+    interviewerSays: [
+      'fewest coins',
+      'pay out with the fewest notes',
+      'the most meetings you can attend',
+      'locally best choice',
+      'can you do it greedily?',
+    ],
     example: {
       lang: 'js',
       source: `for (const coin of coins) {      // biggest first
@@ -285,6 +294,7 @@ const fib = (n) => {
     sayThis: [
       'This looks greedy. Take the biggest coin that fits and repeat.',
       "Greedy is not always safe here: with denominations like 1, 3 and 4 it misses the best answer, so I'd reach for dynamic programming.",
+      'For meetings, the greedy move is to take whichever one frees me earliest, so I sort by end time.',
     ],
     related: ['pattern-map', 'edge-cases'],
   },
@@ -320,29 +330,31 @@ for (let end = 0; end < s.length; end++) {
   },
   {
     id: 'chunking',
-    title: 'Chunking text',
+    title: 'Splitting text at a limit',
     icon: 'halve',
     trackIds: ['t2'],
     plainWords:
-      'Splitting a long piece of text into pieces no bigger than some limit. The interesting part is never the splitting. It is what you do when a cut would land in the middle of a word.',
+      'Splitting a long piece of text into pieces no bigger than some limit. The same shape covers SMS segments, wrapping a log line to the terminal width, and paging a long export into fixed-size files. The interesting part is never the splitting. It is what you do when a cut would land in the middle of a word.',
     analogy:
       'Cutting a long ribbon into lengths that fit a box. Measuring the length is trivial; the care is in not cutting through the printed pattern, so you step back to the last clean gap and cut there instead.',
     interviewerSays: [
       'split into pieces of at most N',
       'without breaking words',
+      'fit it into fixed-size messages',
       'chunk this text',
     ],
     example: {
       lang: 'js',
-      source: `let cut = text.lastIndexOf(' ', limit);
-if (cut <= 0) cut = limit;   // one very long word
-chunks.push(text.slice(0, cut));
-text = text.slice(cut).trimStart();`,
+      source: `let cut = message.lastIndexOf(' ', 160);
+if (cut <= 0) cut = 160;     // a link with no spaces
+segments.push(message.slice(0, cut));
+message = message.slice(cut).trimStart();`,
     },
-    exampleCaption: 'Walk back to the last space, unless there is no space to walk back to.',
+    exampleCaption:
+      'An SMS at 160 characters a segment: walk back to the last space, unless there is no space to walk back to.',
     sayThis: [
       "I'd cut at the limit, then walk back to the last space so words stay whole.",
-      'The edge case is a single word longer than the limit, then I have to cut it hard, or the loop never advances.',
+      'The edge case is a single word longer than the limit, a long link say, then I have to cut it hard, or the loop never advances.',
     ],
     related: ['edge-cases', 'pattern-map'],
   },
@@ -509,6 +521,8 @@ return true;`,
       'You are handed a locker key when you leave a building. The building closes, everyone goes home, but your key still opens your locker and only yours. The function is the key; the locker is the variables it grew up with.',
     interviewerSays: [
       'a function that remembers',
+      'it survives the function that created it',
+      'where does that variable live now?',
       'how would you keep this private?',
       'why does it still have access?',
     ],
@@ -846,7 +860,7 @@ if (elapsed > ONE_DAY_MS) { }             // now it reads`,
     plainWords:
       'A pure function returns the same answer for the same input and changes nothing outside itself. It is trivially testable, because there is no setup and nothing to clean up.',
     analogy:
-      'A calculator versus a vending machine. Ask the calculator for 2 + 2 a hundred times and you get the same answer with nothing else changed. The vending machine gives you a drink and quietly has one fewer.',
+      'A calculator versus a hole punch. Ask the calculator for 2 + 2 a hundred times and you get the same answer, and nothing in the room has changed. Punch the same sheet of paper a hundred times and all you have left is confetti.',
     interviewerSays: ['any side effects?', 'does this mutate the input?', 'is this function pure?'],
     example: {
       lang: 'js',
@@ -989,7 +1003,7 @@ const addItemBad = (cart, item) => { cart.push(item); }; // mutates`,
     plainWords:
       'An operation is idempotent if doing it twice has the same effect as doing it once. It matters because networks retry, and users double-tap.',
     analogy:
-      'A lift call button. Pressing it five times does not summon five lifts. Compare that with a vending machine, where pressing twice costs you twice.',
+      'A lift call button. Pressing it five times does not summon five lifts. Compare that with a ticket barrier, where every push through takes another fare off your card.',
     interviewerSays: [
       'the user double-clicked pay',
       'what if the request is retried?',
@@ -1069,20 +1083,51 @@ if (await seen(idempotencyKey)) return existingResult;`,
       'Interviewers ask in riddles, and each riddle has a canonical answer they are waiting to hear. Knowing the mapping is worth as much as knowing the concept, because the concept without the word often scores zero.',
     analogy:
       'Ordering coffee abroad. You know exactly what you want, and the barista knows exactly how to make it, but until you say the local word for it you both stand there. The gap is vocabulary, not competence.',
+    // Two phrasings per concept, deliberately (docs/09): a candidate who only
+    // ever hears one sentence learns the sentence, not the mapping.
     interviewerSays: [
       'a function that remembers',
+      'it survives its parent function',
+      'it grows linearly',
+      'double the input, double the time',
       'instant lookup',
-      'only computed once',
+      'you pay memory to make lookups instant',
       'first in first out',
+      'handled in the order they arrived',
+      'only computed once',
+      'the second call is free',
+      'at most once per second',
+      'cap how often the handler fires',
+      "the browser's to-do list",
+      'what runs first, and what waits its turn',
+      'copy it, do not touch the original',
+      'never change what you were handed',
+      'single source of truth',
+      'one place that owns the value',
+      'do not block the main thread',
+      'keep the long job off the main thread',
+      'the contract between front and back',
+      'what shape does the response come back in',
+      'it still works offline',
+      'it keeps working with no network',
       'remembers without re-rendering',
+      'a value that survives a render',
       'the browser refuses the cross-site read',
+      'blocked by the browser, not by the server',
       'a script smuggled into the page',
+      'user text that ends up running',
       'a forged request from another site',
+      'the browser sends the cookie anyway',
       'a quote that breaks out of the query',
+      'user text that changes the query',
       'the index at the back of the book',
+      'a lookup that skips the full scan',
       'all of it, or none of it',
+      'either every step lands or nothing does',
       'one query per row',
+      'a query inside the loop',
       'only the rows that matched on both sides',
+      'drop the rows with no partner',
     ],
     sayThis: [
       '"A function that remembers" is a closure. "Grows linearly" is O(n). "Instant lookup" is a hash map. "Only computed once" is memoization.',

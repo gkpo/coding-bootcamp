@@ -183,3 +183,35 @@ describe('the daily session over the real content', () => {
     for (const id of ['t7', 't8', 't9']) expect(reached, id).toContain(id);
   });
 });
+
+describe('one concept, several skins (docs/09)', () => {
+  // The rule exists because drilling one surface story per concept teaches the
+  // story rather than the mapping, and the v1 content had exactly that shape.
+  it('gives the commonly-asked concepts more than one phrasing to recognise', () => {
+    for (const id of ['closure', 'big-o', 'hash-lookup', 'greedy', 'chunking']) {
+      expect(getCard(id)?.interviewerSays.length ?? 0, id).toBeGreaterThanOrEqual(3);
+    }
+  });
+
+  it('never makes a match pair the card its own canonical phrase back', () => {
+    const offenders: string[] = [];
+    for (const exercise of exercises) {
+      if (exercise.type !== 'match') continue;
+      const canonical = getCard(exercise.conceptId)?.interviewerSays[0]?.toLowerCase();
+      for (const pair of exercise.pairs) {
+        if (canonical && pair.left.toLowerCase() === canonical) {
+          offenders.push(`${exercise.id}: "${pair.left}"`);
+        }
+      }
+    }
+    expect(offenders.join('\n')).toBe('');
+  });
+
+  it('spreads the greedy lesson over three surface stories', () => {
+    const greedy = exercises.filter((e) => e.conceptId === 'greedy');
+    expect(greedy.map((e) => e.id)).toEqual(['t2-02', 't2-03', 't2-04']);
+    // Making change is canon and stays, but in exactly one of the three.
+    const change = greedy.filter((e) => /banknote|coin/i.test(e.prompt));
+    expect(change.map((e) => e.id)).toEqual(['t2-02']);
+  });
+});

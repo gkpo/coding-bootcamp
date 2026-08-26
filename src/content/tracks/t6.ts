@@ -16,10 +16,13 @@ export const t6Exercises: Exercise[] = [
     conceptId: 'decoder',
     prompt: 'Pair each interviewer phrase with the term they are waiting to hear.',
     pairs: [
-      { left: 'A function that remembers', right: 'Closure' },
-      { left: 'It grows linearly', right: 'O(n)' },
-      { left: 'Instant lookup', right: 'Hash map' },
-      { left: 'First in, first out', right: 'Queue' },
+      {
+        left: 'It keeps access to its variables after the outer function is gone',
+        right: 'Closure',
+      },
+      { left: 'Double the input, double the time', right: 'O(n)' },
+      { left: 'You pay memory to make lookups instant', right: 'Hash map' },
+      { left: 'Handled in the order they arrived', right: 'Queue' },
     ],
     explanation:
       'Interviewers frequently score the word, not the understanding. You can describe exactly how a counter keeps its value between calls and still lose the point by never saying "closure". Learn the mapping in both directions. Riddle to term, and term to plain words.',
@@ -32,10 +35,10 @@ export const t6Exercises: Exercise[] = [
     conceptId: 'decoder',
     prompt: 'Round two. Pair the phrase with the term.',
     pairs: [
-      { left: 'Only computed once', right: 'Memoization' },
-      { left: 'At most once per second', right: 'Throttle' },
-      { left: "The browser's to-do list", right: 'Event loop' },
-      { left: 'Copy it, do not touch the original', right: 'Immutability' },
+      { left: 'The second call is free', right: 'Memoization' },
+      { left: 'Cap how often the handler is allowed to fire', right: 'Throttle' },
+      { left: 'What runs first, and what waits its turn', right: 'Event loop' },
+      { left: 'Never change what you were handed', right: 'Immutability' },
     ],
     explanation:
       'Each of these is a concept you already use daily under a name you might not reach for under pressure. The gap being closed here is vocabulary, not knowledge, which is precisely why it is trainable in five-minute sessions.',
@@ -267,10 +270,10 @@ export const t6Exercises: Exercise[] = [
     conceptId: 'decoder',
     prompt: 'Round three, the full stack phrases.',
     pairs: [
-      { left: 'Single source of truth', right: 'State management' },
-      { left: 'Do not block the main thread', right: 'Async or worker' },
-      { left: 'The contract between front and back', right: 'API schema' },
-      { left: 'It still works offline', right: 'Cache or PWA' },
+      { left: 'One place that owns the value', right: 'State management' },
+      { left: 'Keep the long job off the main thread', right: 'Async or worker' },
+      { left: 'What shape does the response come back in', right: 'API schema' },
+      { left: 'It keeps working with no network', right: 'Cache or PWA' },
     ],
     explanation:
       'These come up in full stack rounds constantly, usually as an aside rather than a question. Recognising the phrase lets you answer the real question behind it: "does it work offline?" is asking about caching strategy, not about whether you have tried aeroplane mode.',

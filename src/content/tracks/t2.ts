@@ -48,27 +48,27 @@ export const t2Exercises: Exercise[] = [
     difficulty: 1,
     conceptId: 'greedy',
     prompt:
-      '**"Make change for an amount using the fewest coins."** With ordinary coin sizes, what is this problem called?',
+      '**"An ATM must pay out an amount using the fewest banknotes."** With ordinary note values, what is this problem called?',
     options: [
-      { text: 'Greedy. Repeatedly take the largest coin that still fits', correct: true },
+      { text: 'Greedy. Repeatedly hand out the largest note that still fits', correct: true },
       {
         text: 'A one-off loop you invent on the spot',
         whyWrong:
           'This is the trap. It often produces working code, but the interviewer is listening for the *name*, and without it you cannot discuss when the approach breaks.',
       },
       {
-        text: 'Binary search over the coin list',
+        text: 'Binary search over the note values',
         whyWrong:
-          'Binary search finds a value in sorted data. Here you are not looking for a coin, you are choosing how many of each to use.',
+          'Binary search finds a value in sorted data. Here you are not looking for a note, you are choosing how many of each to dispense.',
       },
       {
-        text: 'A frequency map of the coins',
+        text: 'A frequency map of the notes in the machine',
         whyWrong:
-          'Counting the coins you were given is not the question. The question is which coins to hand back.',
+          'Counting what is loaded in the cassettes is a different question. This one asks which notes to hand out.',
       },
     ],
     explanation:
-      'This is the classic greedy problem: at each step take the biggest coin that still fits, then repeat. Saying the word "greedy" in the first minute is worth more than the code. It tells the interviewer you recognise the shape, and it opens the conversation about when greedy fails.',
+      'This is the classic greedy problem, the one usually taught as making change: at each step take the biggest note that still fits, then repeat. Saying the word "greedy" in the first minute is worth more than the code. It tells the interviewer you recognise the shape, and it opens the conversation about when greedy fails.',
   },
   {
     id: 't2-03',
@@ -76,21 +76,23 @@ export const t2Exercises: Exercise[] = [
     type: 'parsons',
     difficulty: 2,
     conceptId: 'greedy',
-    prompt: 'Build greedy coin change. `coins` is already sorted largest first.',
+    prompt:
+      'Attend as many meetings as you can. `meetings` is already sorted by finishing time, and each one has a `start` and an `end` in minutes from midnight.',
     lines: [
-      { code: 'const out = [];', indent: 0 },
-      { code: 'for (const coin of coins) {', indent: 0 },
-      { code: 'while (amount >= coin) {', indent: 1 },
-      { code: 'amount -= coin;', indent: 2 },
-      { code: 'out.push(coin);', indent: 2 },
+      { code: 'const chosen = [];', indent: 0 },
+      { code: 'let freeFrom = 0;', indent: 0 },
+      { code: 'for (const meeting of meetings) {', indent: 0 },
+      { code: 'if (meeting.start >= freeFrom) {', indent: 1 },
+      { code: 'chosen.push(meeting);', indent: 2 },
+      { code: 'freeFrom = meeting.end;', indent: 2 },
       { code: '}', indent: 1 },
       { code: '}', indent: 0 },
-      { code: 'return out;', indent: 0 },
-      { code: 'amount =- coin;', indent: 2, distractor: true },
-      { code: 'if (amount >= coin) {', indent: 1, distractor: true },
+      { code: 'return chosen;', indent: 0 },
+      { code: 'meetings.sort(byStartTime);', indent: 0, distractor: true },
+      { code: 'if (meeting.start > freeFrom) {', indent: 1, distractor: true },
     ],
     explanation:
-      'Walk the coins from largest to smallest, taking each one as many times as it fits. The `while` matters: `if` would take each coin at most once, so 30 from 25s and 5s would fail. And `amount =- coin` is not subtraction. It assigns negative coin, which silently loops forever.',
+      'The greedy insight in plain words: always take the meeting that frees you earliest, because it leaves the most room for everything after it. That is why the list is sorted by finishing time, and why the sort-by-start line is a trap: starting earliest is no use if the meeting runs all afternoon. The other trap is `>` instead of `>=`, which throws away a meeting that begins exactly as the last one ends.',
   },
   {
     id: 't2-04',
@@ -99,26 +101,26 @@ export const t2Exercises: Exercise[] = [
     difficulty: 2,
     conceptId: 'greedy',
     prompt:
-      'Coins are **1, 3 and 4**. The amount is **6**. Greedy takes 4, then 1, then 1. Three coins. What does that tell you?',
+      'Your stamps come in **1, 3 and 4**. The postage you need is **6**. Greedy takes 4, then 1, then 1. Three stamps. What does that tell you?',
     options: [
       {
-        text: 'Greedy is not always optimal: 3 + 3 is two coins, so this needs dynamic programming',
+        text: 'Greedy is not always optimal: 3 + 3 is two stamps, so this needs dynamic programming',
         correct: true,
       },
       {
-        text: 'The coins should have been sorted the other way',
+        text: 'The stamp values should have been sorted the other way',
         whyWrong:
           'Sorting smallest first makes greedy worse, not better. It would take six 1s. The order is not the problem; the strategy is.',
       },
       {
-        text: 'Greedy is broken and should never be used for coin change',
+        text: 'Greedy is broken and should never be used for this shape of problem',
         whyWrong:
-          'Too strong. With real-world denominations greedy is optimal and much simpler. It is the *arbitrary* denominations that break it.',
+          'Too strong. With everyday denominations, banknotes for instance, greedy is optimal and much simpler. It is the *arbitrary* values that break it.',
       },
       {
-        text: 'The amount is too small for greedy to work properly',
+        text: 'The amount of postage is too small for greedy to work properly',
         whyWrong:
-          'Size is not the issue. Greedy fails here because taking the locally biggest coin steps past a better combination, and that can happen at any size.',
+          'Size is not the issue. Greedy fails here because taking the locally biggest stamp steps past a better combination, and that can happen at any size.',
       },
     ],
     explanation:
@@ -162,17 +164,17 @@ export const t2Exercises: Exercise[] = [
     difficulty: 2,
     conceptId: 'chunking',
     prompt:
-      'Split `text` into chunks of at most `limit` characters. Cuts anywhere are fine for now.',
+      'A long alert has to go out over SMS, so it must be split into segments of at most `limit` characters (160 for a plain text message). Cuts can land anywhere for now.',
     lines: [
-      { code: 'const chunks = [];', indent: 0 },
+      { code: 'const segments = [];', indent: 0 },
       { code: 'for (let i = 0; i < text.length; i += limit) {', indent: 0 },
-      { code: 'chunks.push(text.slice(i, i + limit));', indent: 1 },
+      { code: 'segments.push(text.slice(i, i + limit));', indent: 1 },
       { code: '}', indent: 0 },
-      { code: 'return chunks;', indent: 0 },
-      { code: 'chunks.push(text.slice(i, limit));', indent: 1, distractor: true },
+      { code: 'return segments;', indent: 0 },
+      { code: 'segments.push(text.slice(i, limit));', indent: 1, distractor: true },
     ],
     explanation:
-      'Step forward `limit` characters at a time and take a slice each step. The distractor uses `slice(i, limit)` instead of `slice(i, i + limit)`. An easy slip that returns shorter and shorter chunks and empty strings once `i` passes `limit`.',
+      'Step forward `limit` characters at a time and take a slice each step. The distractor uses `slice(i, limit)` instead of `slice(i, i + limit)`. An easy slip that returns shorter and shorter segments and empty strings once `i` passes `limit`.',
   },
   {
     id: 't2-07',
@@ -181,20 +183,20 @@ export const t2Exercises: Exercise[] = [
     difficulty: 3,
     conceptId: 'chunking',
     prompt:
-      'Now **do not cut words in half**. Walk back to the last space when the cut would land mid-word.',
+      'Same alert, but now **no word may be split across two messages**. Walk back to the last space when the cut would land mid-word.',
     lines: [
-      { code: 'const chunks = [];', indent: 0 },
+      { code: 'const segments = [];', indent: 0 },
       { code: 'while (text.length > limit) {', indent: 0 },
       { code: 'let cut = text.lastIndexOf(" ", limit);', indent: 1 },
       { code: 'if (cut <= 0) cut = limit;', indent: 1 },
-      { code: 'chunks.push(text.slice(0, cut));', indent: 1 },
+      { code: 'segments.push(text.slice(0, cut));', indent: 1 },
       { code: 'text = text.slice(cut).trimStart();', indent: 1 },
       { code: '}', indent: 0 },
-      { code: 'return [...chunks, text];', indent: 0 },
+      { code: 'return [...segments, text];', indent: 0 },
       { code: 'let cut = text.indexOf(" ", limit);', indent: 1, distractor: true },
     ],
     explanation:
-      '`lastIndexOf(" ", limit)` finds the last space at or before the limit. The latest clean place to cut. The `if (cut <= 0)` guard covers a single word longer than the limit; without it the loop makes no progress and hangs forever. The distractor uses `indexOf`, which finds the *next* space after the limit and produces chunks that are too long.',
+      '`lastIndexOf(" ", limit)` finds the last space at or before the limit. The latest clean place to cut. The `if (cut <= 0)` guard covers a single word longer than the limit; without it the loop makes no progress and hangs forever. The distractor uses `indexOf`, which finds the *next* space after the limit and produces segments that are too long.',
   },
   {
     id: 't2-08',
@@ -203,7 +205,7 @@ export const t2Exercises: Exercise[] = [
     difficulty: 2,
     conceptId: 'edge-cases',
     prompt:
-      'Your word-safe chunker meets a single word **longer than the limit**. What happens if you have not handled it?',
+      'Your word-safe splitter meets an alert containing a tracking link **longer than the 160-character limit**, with no space anywhere inside it. What happens if you have not handled it?',
     options: [
       {
         text: 'There is no space to cut at, so the loop makes no progress and hangs',
@@ -215,18 +217,18 @@ export const t2Exercises: Exercise[] = [
           'It would be kinder if it did. `lastIndexOf` returns -1 rather than throwing, so the code carries on with a nonsense cut point instead of failing loudly.',
       },
       {
-        text: 'It silently drops the long word',
+        text: 'It silently drops the long link',
         whyWrong:
-          'Nothing removes it. The slice at a bad cut point returns an empty string while the text stays the same length, so it repeats rather than disappears.',
+          'Nothing removes it. The slice at a bad cut point returns an empty string while the message stays the same length, so it repeats rather than disappears.',
       },
       {
-        text: 'The word gets split correctly anyway',
+        text: 'The link gets split across two messages anyway',
         whyWrong:
           'Only if you wrote the fallback. Without it there is no valid cut point at all, which is exactly what makes this the interesting case.',
       },
     ],
     explanation:
-      'A 300-character URL with the limit at 200 has no space to walk back to, so `lastIndexOf` returns -1. Slicing to -1 yields nothing, the text never shrinks, and the loop spins. The fix is a guard: if there is no space, cut hard at the limit. Naming this case before being asked is the reflex worth training.',
+      'A 180-character link with the limit at 160 has no space to walk back to, so `lastIndexOf` returns -1. Slicing to -1 yields nothing, the message never shrinks, and the loop spins. The fix is a guard: if there is no space, cut hard at the limit. Naming this case before being asked is the reflex worth training.',
   },
   {
     id: 't2-09',
@@ -639,12 +641,12 @@ export const t2: Track = {
   lessons: [
     {
       id: 't2-l1',
-      title: 'The vending machine',
+      title: 'Greedy, and where it breaks',
       exerciseIds: ['t2-01', 't2-02', 't2-03', 't2-04'],
     },
     {
       id: 't2-l2',
-      title: 'Chunking, three ways',
+      title: 'Splitting a message',
       exerciseIds: ['t2-05', 't2-06', 't2-07', 't2-08'],
     },
     { id: 't2-l3', title: 'Windows & pointers', exerciseIds: ['t2-09', 't2-10', 't2-11', 't2-12'] },

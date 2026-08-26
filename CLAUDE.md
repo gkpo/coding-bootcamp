@@ -12,8 +12,9 @@ You are implementing a mobile-first interview-training web app that is fully spe
 6. **Nothing that reads as generated.** This is a standing rule, not a one-off cleanup. No emoji anywhere, in the UI, content, comments, docs or commit messages; draw an icon instead (`src/components/ConceptIcon.tsx`, or the tab-bar set in `icons.tsx`). No literal glyph characters standing in for icons either, no bare arrows, ticks, crosses or bullet characters used as UI. Tests enforce the emoji and em-dash rules; the rest is judgement, so apply it.
 7. **No em-dashes.** Not in exercise text, concept cards, comments, docs or commit messages. Use a comma, a colon, a semicolon, brackets, or two sentences. A test enforces this for all user-visible content. (En-dashes in numeric ranges like `3-5` are fine.)
 8. **Plain words everywhere.** Every explanation and concept card must be understandable by someone who has never heard the term before. Define jargon on first use. Prefer "how fast the work grows when the input grows" over "asymptotic complexity", then introduce the formal term.
-9. **Mobile first, literally.** Develop and test at 390×844 (iPhone-ish) viewport. Desktop is a centered ~480px column. Touch targets ≥ 44px. No hover-dependent interactions.
-10. **Verify before committing:** `npm run build` and `npm run lint` must pass; test the interaction you just built in the browser at mobile viewport.
+9. **One concept, several skins:** do not let a single example or phrasing become the only way a concept appears; see docs/09-CONTENT-RESKIN.md.
+10. **Mobile first, literally.** Develop and test at 390×844 (iPhone-ish) viewport. Desktop is a centered ~480px column. Touch targets ≥ 44px. No hover-dependent interactions.
+11. **Verify before committing:** `npm run build` and `npm run lint` must pass; test the interaction you just built in the browser at mobile viewport.
 
 ## Repo conventions
 

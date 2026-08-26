@@ -379,7 +379,7 @@ export const t1Exercises: Exercise[] = [
     pairs: [
       { left: 'The size makes no difference', right: 'O(1)' },
       { left: 'It halves each step', right: 'O(log n)' },
-      { left: 'It grows linearly', right: 'O(n)' },
+      { left: 'It scales with the input', right: 'O(n)' },
       { left: 'It checks every pair', right: 'O(n²)' },
     ],
     explanation:

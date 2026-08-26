@@ -9,6 +9,7 @@ Authoring quality bar (applies to everything):
 - Code snippets: modern JS/TS (const, arrow functions, template literals), ≤ 18 lines, self-contained, no imports unless the import is the point.
 - `complexity` exercises must fill the mandatory "say it like this" phrase.
 - Difficulty 1 items must be answerable straight from the linked concept card.
+- **One concept, several skins** (docs/09). No concept card's exercises may all share a single surface story, and no riddle phrase may be the only phrasing an exercise ever shows for its concept. Cards keep at least three `interviewerSays` phrasings where the concept is commonly asked. When authoring new content, prefer a surface story that concept has not used yet.
 
 ---
 
@@ -39,18 +40,18 @@ Goal: see code → name its growth → _say it_ the way interviewers expect. Dir
 
 ## Track 2. Algorithm patterns (24 exercises)
 
-Goal: read a problem statement → name the pattern in under a minute. Includes two problems that show up in real interviews (coin change, text chunking) as flagship lessons.
+Goal: read a problem statement → name the pattern in under a minute. Includes two problems that show up in real interviews (making change, splitting text at a limit) as flagship lessons. Per docs/09, the greedy lesson spans three different surface stories and making change appears in exactly one of them.
 
 | ID    | Type     | Diff | Exercise                                                                                                   | Concept card      |
 | ----- | -------- | ---- | ---------------------------------------------------------------------------------------------------------- | ----------------- |
 | t2-01 | mcq      | 1    | Problem statement → which pattern? (find pair summing to X → hash map)                                     | hash-lookup       |
-| t2-02 | mcq      | 1    | "Fewest coins for an amount" → greedy (the vending machine problem, named and demystified)                 | greedy            |
-| t2-03 | parsons  | 2    | Build greedy coin change (sorted denominations, `while amount >= coin`)                                    | greedy            |
-| t2-04 | mcq      | 2    | When greedy coin change _fails_ (denominations 1,3,4 for amount 6) → why DP exists                         | greedy            |
+| t2-02 | mcq      | 1    | "An ATM pays out with the fewest banknotes" → greedy (making change, named and demystified)                | greedy            |
+| t2-03 | parsons  | 2    | Build greedy interval scheduling (meetings sorted by end time, `if start >= freeFrom`)                     | greedy            |
+| t2-04 | mcq      | 2    | When greedy _fails_ (postage stamps 1,3,4 for 6) → why DP exists                                           | greedy            |
 | t2-05 | mcq      | 2    | Statement → pattern: "longest substring without repeats" → sliding window                                  | sliding-window    |
-| t2-06 | parsons  | 2    | Build fixed-size chunking: split text every 200 chars (stage 1 of the classic staged ramp)                 | chunking          |
-| t2-07 | parsons  | 3    | Chunking stage 2: don't cut words. Walk back to last space (distractor: off-by-one slice)                  | chunking          |
-| t2-08 | mcq      | 2    | Chunking stage 3 concept: what if a single word exceeds the limit? (edge-case reflex)                      | edge-cases        |
+| t2-06 | parsons  | 2    | Build fixed-size splitting: an alert into 160-character SMS segments (stage 1 of the staged ramp)          | chunking          |
+| t2-07 | parsons  | 3    | Stage 2: don't split a word across two messages. Walk back to the last space (distractor: `indexOf`)       | chunking          |
+| t2-08 | mcq      | 2    | Stage 3 concept: what if a link is longer than the limit, with no space in it? (edge-case reflex)          | edge-cases        |
 | t2-09 | mcq      | 1    | Statement → pattern: "is X a subset/duplicate/seen before" → Set                                           | hash-lookup       |
 | t2-10 | parsons  | 2    | Build two-pointer palindrome check                                                                         | two-pointers      |
 | t2-11 | mcq      | 2    | Statement → pattern: "merge two sorted lists" → two pointers                                               | two-pointers      |
@@ -139,20 +140,20 @@ Goal: the full stack system design round: vocabulary + the walkthrough script, a
 
 Goal: the meta-game itself. Interviewer riddles → canonical answers; what to say when stuck; how to not spiral (a lost interview is usually a spiral, not a knowledge gap).
 
-| ID    | Type  | Diff | Exercise                                                                                                                                                                        | Concept card      |
-| ----- | ----- | ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------- |
-| t6-01 | match | 1    | Riddles: "a function that remembers"↔closure, "grows linearly"↔O(n), "instant lookup"↔hash map, "first in first out"↔queue                                                      | decoder           |
-| t6-02 | match | 1    | Riddles 2: "only computed once"↔memoization, "fires at most once per second"↔throttle, "the browser's to-do list"↔event loop, "copy, don't touch the original"↔immutability     | decoder           |
-| t6-03 | mcq   | 1    | Interviewer: "How does this scale?". What are they actually asking for? (complexity + bottleneck, in words)                                                                     | decoder           |
-| t6-04 | mcq   | 2    | Interviewer: "Can you make this cleaner?". Decode (readability refactor, not perf)                                                                                              | decoder           |
-| t6-05 | steps | 1    | You're stuck. Order the unstick script: say what you know → restate goal → propose brute force → ask one targeted question                                                      | stuck-script      |
-| t6-06 | mcq   | 1    | The magic sentence when choosing brute force first ("I'll start simple so we have something working, then optimize"). Pick the best phrasing                                    | stuck-script      |
-| t6-07 | mcq   | 2    | Interviewer hints ("what if the array was sorted?"). Hints are gifts: decode what pattern they're steering to                                                                   | hints             |
-| t6-08 | mcq   | 2    | "Any edge cases?". The canonical checklist answer (empty, one, huge, duplicates, negative/unicode)                                                                              | edge-cases        |
-| t6-09 | steps | 2    | Order the complexity answer: name it → plain words → the bottleneck line → the improvement                                                                                      | perf-script       |
-| t6-10 | mcq   | 2    | When to abandon an approach: the 3-minute rule (the coin-change lesson, made explicit and kind)                                                                                 | stuck-script      |
-| t6-11 | match | 2    | Riddles 3: "single source of truth"↔state management, "don't block the main thread"↔async/worker, "contract between front and back"↔API schema/types, "works offline"↔PWA/cache | decoder           |
-| t6-12 | mcq   | 2    | "Walk me through your thinking". What good thinking-out-loud sounds like (pick the best transcript)                                                                             | whiteboard-script |
+| ID    | Type  | Diff | Exercise                                                                                                                                                                                                                   | Concept card      |
+| ----- | ----- | ---- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------- |
+| t6-01 | match | 1    | Riddles: "keeps access after the outer function is gone"↔closure, "double the input, double the time"↔O(n), "pay memory for instant lookups"↔hash map, "handled in the order they arrived"↔queue                           | decoder           |
+| t6-02 | match | 1    | Riddles 2: "the second call is free"↔memoization, "cap how often the handler fires"↔throttle, "what runs first, what waits"↔event loop, "never change what you were handed"↔immutability                                   | decoder           |
+| t6-03 | mcq   | 1    | Interviewer: "How does this scale?". What are they actually asking for? (complexity + bottleneck, in words)                                                                                                                | decoder           |
+| t6-04 | mcq   | 2    | Interviewer: "Can you make this cleaner?". Decode (readability refactor, not perf)                                                                                                                                         | decoder           |
+| t6-05 | steps | 1    | You're stuck. Order the unstick script: say what you know → restate goal → propose brute force → ask one targeted question                                                                                                 | stuck-script      |
+| t6-06 | mcq   | 1    | The magic sentence when choosing brute force first ("I'll start simple so we have something working, then optimize"). Pick the best phrasing                                                                               | stuck-script      |
+| t6-07 | mcq   | 2    | Interviewer hints ("what if the array was sorted?"). Hints are gifts: decode what pattern they're steering to                                                                                                              | hints             |
+| t6-08 | mcq   | 2    | "Any edge cases?". The canonical checklist answer (empty, one, huge, duplicates, negative/unicode)                                                                                                                         | edge-cases        |
+| t6-09 | steps | 2    | Order the complexity answer: name it → plain words → the bottleneck line → the improvement                                                                                                                                 | perf-script       |
+| t6-10 | mcq   | 2    | When to abandon an approach: the 3-minute rule (the coin-change lesson, made explicit and kind)                                                                                                                            | stuck-script      |
+| t6-11 | match | 2    | Riddles 3: "one place that owns the value"↔state management, "keep the long job off the main thread"↔async/worker, "what shape does the response come back in"↔API schema/types, "keeps working with no network"↔PWA/cache | decoder           |
+| t6-12 | mcq   | 2    | "Walk me through your thinking". What good thinking-out-loud sounds like (pick the best transcript)                                                                                                                        | whiteboard-script |
 
 ---
 
@@ -216,4 +217,4 @@ _(Count note: a few cards serve two tracks; total distinct cards ≈ 45 in this 
 
 ## Lesson grouping
 
-Within each track, group exercises into **lessons of 3–5** in manifest order (the order above is pedagogical). Lesson names are authored freely (e.g. Track 2: "The vending machine", "Chunking, three ways", "Windows & pointers"). Tracks unlock nothing. Everything is available from day one; the daily session just defaults to the frontier. No artificial gating: the user is a senior engineer, not a student.
+Within each track, group exercises into **lessons of 3–5** in manifest order (the order above is pedagogical). Lesson names are authored freely (e.g. Track 2: "Greedy, and where it breaks", "Splitting a message", "Windows & pointers"). Tracks unlock nothing. Everything is available from day one; the daily session just defaults to the frontier. No artificial gating: the user is a senior engineer, not a student.
