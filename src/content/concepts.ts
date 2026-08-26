@@ -237,7 +237,7 @@ const fib = (n) => {
       "I'd memoize it. Cache each result so we never recompute the same input twice.",
       'That takes it from exponential down to linear.',
     ],
-    related: ['hash-lookup', 'space-time'],
+    related: ['hash-lookup', 'space-time', 'memo-hooks'],
   },
   {
     id: 'perf-script',
@@ -527,7 +527,7 @@ next(); // 2`,
       "I'd use a closure so the counter stays private to the function.",
       'The inner function closes over `count`, so it persists between calls without being global.',
     ],
-    related: ['reference-value', 'debounce-throttle', 'memoization'],
+    related: ['reference-value', 'debounce-throttle', 'memoization', 'stale-closure'],
   },
   {
     id: 'equality',
@@ -823,7 +823,7 @@ if (elapsed > ONE_DAY_MS) { }             // now it reads`,
     id: 'single-responsibility',
     title: 'One job per function',
     icon: 'target',
-    trackIds: ['t4'],
+    trackIds: ['t4', 't7'],
     plainWords:
       'A function should do one thing. If you need the word "and" to describe it (validates and saves and emails), it is doing several, and each one is harder to test and reuse.',
     analogy:
@@ -1117,5 +1117,204 @@ if (await seen(idempotencyKey)) return existingResult;`,
       'Say the hint back and name what it unlocks. That shows you heard it and understood why it matters.',
     ],
     related: ['stuck-script', 'decoder', 'pattern-map'],
+  },
+
+  // ---------------------------------------------------------------------
+  // Track 7. React and the frontend
+  // ---------------------------------------------------------------------
+  {
+    id: 're-render',
+    title: 'What makes React re-render',
+    icon: 'loop',
+    trackIds: ['t7'],
+    plainWords:
+      'React puts your component on screen by running the function. It runs it again for exactly two reasons: state changed through a setter, or the parent ran again. Changing an ordinary variable is invisible to it.',
+    analogy:
+      'A shop window. The display only changes when someone goes out and redoes it. You can rewrite the price on the stock list in the back office all afternoon, and the window keeps showing the old price until somebody redresses it.',
+    interviewerSays: [
+      'why does this render twice?',
+      'why does the UI not update?',
+      'what triggers a re-render?',
+    ],
+    example: {
+      lang: 'js',
+      source: `// same array, so React sees no change and skips the render
+items.push(item);
+setItems(items);
+
+// new array, so the check fails and the screen updates
+setItems([...items, item]);`,
+    },
+    exampleCaption: 'React compares old state with new by identity, not by contents.',
+    sayThis: [
+      'A render happens when state changes or the parent re-renders. Nothing else does it.',
+      'It did not update because I handed the setter back the same array. State gets replaced, not edited.',
+    ],
+    related: ['keys', 'memo-hooks', 'reference-value'],
+  },
+  {
+    id: 'keys',
+    title: 'Keys and list identity',
+    icon: 'key',
+    trackIds: ['t7'],
+    plainWords:
+      'When a list renders a second time, React has to work out which item in the new list is which item from the old one. The key is how you tell it. With no key it guesses by position.',
+    analogy:
+      'A cloakroom. With numbered tickets the attendant hands back your coat however much the rail was rearranged. With no tickets all they can do is count along the rail, so the moment someone shuffles the coats you go home in the wrong jacket.',
+    interviewerSays: [
+      'why not use the index as key?',
+      'what does the key actually do?',
+      'why is React warning about keys here?',
+    ],
+    example: {
+      lang: 'js',
+      source: `// position, so moving a row leaves its typed-in text behind
+<Row key={i} />
+
+// identity, so the row and its state travel together
+<Row key={item.id} />`,
+    },
+    exampleCaption: 'The index says where an item sits. The id says which item it is.',
+    sayThis: [
+      'The key tells React which item is which between renders, so it can move a row instead of rebuilding it.',
+      'The index is fine for a list that never reorders, and a bug waiting to happen for one that does.',
+    ],
+    related: ['re-render'],
+  },
+  {
+    id: 'use-effect',
+    title: 'useEffect and cleanup',
+    icon: 'clock',
+    trackIds: ['t7'],
+    plainWords:
+      'An effect holds the work that is not rendering: a subscription, a timer, a fetch. It runs after the render is on screen, and the function you return from it is how the work gets undone.',
+    analogy:
+      'Opening a window to air a room. Every time you open one you need a plan for closing it, or you come back to find eleven windows open and the heating fighting all of them.',
+    interviewerSays: [
+      'when does this effect run?',
+      'what about unmount?',
+      'what goes in the dependency array?',
+    ],
+    example: {
+      lang: 'js',
+      source: `useEffect(() => {
+  const id = setInterval(tick, 1000);
+  return () => clearInterval(id);
+}, [tick]);`,
+    },
+    exampleCaption: 'React runs the returned function before each re-run, and once on unmount.',
+    sayThis: [
+      'No array runs it after every render, an empty array runs it once, and listing a value runs it whenever that value changes.',
+      'Anything that starts something needs a cleanup that stops it.',
+    ],
+    related: ['stale-closure', 're-render', 'event-loop'],
+  },
+  {
+    id: 'stale-closure',
+    title: 'The stale closure',
+    icon: 'braces',
+    trackIds: ['t7'],
+    plainWords:
+      'A function built during one render holds on to the values from that render and keeps them. If it is still running later, after the state has moved on, it is reading numbers that stopped being true.',
+    analogy:
+      'A photograph of a departures board. It was accurate the second it was taken, and if you are still holding it two hours later it will confidently tell you about flights that have already left.',
+    interviewerSays: [
+      'it always logs the old value',
+      'the interval never sees the new state',
+      'why is count always 0 in here?',
+    ],
+    example: {
+      lang: 'js',
+      source: `// built once, so count is 0 on every tick, forever
+setInterval(() => setCount(count + 1), 1000);
+
+// asks React for the latest instead of capturing one
+setInterval(() => setCount((c) => c + 1), 1000);`,
+    },
+    exampleCaption:
+      'The functional form sends a recipe rather than a value, so nothing is captured.',
+    sayThis: [
+      'That is a stale closure. The callback captured count on the first render, and the effect never re-ran.',
+      'I would use the functional update so it asks for the latest value instead of capturing one.',
+    ],
+    related: ['closure', 'use-effect', 'memo-hooks'],
+  },
+  {
+    id: 'controlled',
+    title: 'Controlled inputs',
+    icon: 'cursor',
+    trackIds: ['t7'],
+    plainWords:
+      'A controlled input takes its value from React state, and every keystroke goes through a setter. An uncontrolled one lets the browser keep the value, and you go and read it when you need it.',
+    analogy:
+      'Two ways to run a kitchen. Either the pass keeps the master order and every station copies it, or each station keeps its own scribble and someone walks round collecting them at the end. Both work, and only one lets you see the whole order at a glance.',
+    interviewerSays: [
+      'who owns the value of this field?',
+      'single source of truth for this field',
+      'controlled or uncontrolled?',
+    ],
+    example: {
+      lang: 'js',
+      source: `// controlled: state is the value, the input just shows it
+<input value={query} onChange={(e) => setQuery(e.target.value)} />
+
+// uncontrolled: the DOM keeps it, you read it on submit
+<input ref={inputRef} defaultValue="" />`,
+    },
+    exampleCaption: 'Controlled by default. Uncontrolled only for a field nothing else touches.',
+    sayThis: [
+      'Controlled means state holds the value and the input renders it, so anything else in the app can read or change the field.',
+      'I would go uncontrolled only for a field nothing else needs to know about.',
+    ],
+    related: ['re-render', 'lifting-context'],
+  },
+  {
+    id: 'memo-hooks',
+    title: 'memo, useMemo and useCallback',
+    icon: 'note',
+    trackIds: ['t7'],
+    plainWords:
+      'All three skip work that would otherwise be redone on every render. `memo` skips rendering a child, `useMemo` keeps a computed value, `useCallback` keeps a function. Each one compares first, and comparing is not free.',
+    analogy:
+      'Keeping the receipt so you do not have to price the whole trolley again. Worth it for a big shop, silly for a bottle of milk, and useless if you tear the receipt up on the way home, which is what a fresh arrow function on every render amounts to.',
+    interviewerSays: [
+      'it re-renders even though the props did not change',
+      'would useMemo help here?',
+      'why is useCallback needed?',
+    ],
+    example: {
+      lang: 'js',
+      source: `// memo compares props with ===, and a new arrow fails that every time
+<Row onPick={() => pick(id)} />
+
+// stable identity, so the memo on Row can finally do its job
+const onPick = useCallback(() => pick(id), [id]);`,
+    },
+    exampleCaption: 'A memoised child is only as good as the identity of the props it is given.',
+    sayThis: [
+      'memo compares props shallowly, so an inline arrow defeats it. useCallback gives the handler a stable identity.',
+      'I would measure first. Memoising cheap work adds a comparison and buys nothing.',
+    ],
+    related: ['memoization', 're-render', 'stale-closure', 'pragmatic-perf'],
+  },
+  {
+    id: 'lifting-context',
+    title: 'Lifting state, and context',
+    icon: 'blocks',
+    trackIds: ['t7'],
+    plainWords:
+      'When two components need the same value, move it to the closest component that contains both and pass it down. Context is the escape hatch for when passing it down means threading it through components that do not care about it.',
+    analogy:
+      'Two people in a house needing the same phone number. You write it on the pad in the hallway they both walk through, not on two separate pads you then have to keep matching up. Context is the noticeboard at the front door, for the things everybody needs.',
+    interviewerSays: [
+      'these two components need the same data',
+      'where should this state live?',
+      'would you use context here?',
+    ],
+    sayThis: [
+      'I would lift it to their closest shared parent and pass it to both. One owner, one value.',
+      'Context once the prop is being threaded through components that never use it, roughly four levels deep.',
+    ],
+    related: ['controlled', 're-render', 'single-responsibility'],
   },
 ];

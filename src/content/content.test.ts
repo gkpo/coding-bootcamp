@@ -13,14 +13,15 @@ describe('the authored content', () => {
     expect(findContentProblems({ tracks, exercises, cards })).toEqual([]);
   });
 
-  it('has the full manifest: 100 exercises across 6 tracks', () => {
-    // docs/03-CONTENT-PLAN.md is the authoring contract; these counts are it.
-    expect(tracks.map((t) => t.id)).toEqual(['t1', 't2', 't3', 't4', 't5', 't6']);
-    const perTrack = { t1: 18, t2: 24, t3: 20, t4: 12, t5: 14, t6: 12 };
+  it('has the full manifest: 116 exercises across 7 tracks', () => {
+    // docs/03-CONTENT-PLAN.md is the v1 authoring contract and
+    // docs/08-CONTENT-EXPANSION.md the v1.1 one; these counts are them.
+    expect(tracks.map((t) => t.id)).toEqual(['t1', 't2', 't3', 't4', 't5', 't6', 't7']);
+    const perTrack = { t1: 18, t2: 24, t3: 20, t4: 12, t5: 14, t6: 12, t7: 16 };
     for (const [trackId, expected] of Object.entries(perTrack)) {
       expect(trackExerciseIds(trackId as keyof typeof perTrack).length, trackId).toBe(expected);
     }
-    expect(exercises.length).toBe(100);
+    expect(exercises.length).toBe(116);
   });
 
   it('covers all eight exercise types', () => {

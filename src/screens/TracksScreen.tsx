@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { tracks, trackExerciseIds } from '../content';
+import { exercises, tracks, trackExerciseIds } from '../content';
 import { ConceptIcon } from '../components/ConceptIcon';
 import { useStore } from '../store/useStore';
 import './TracksScreen.css';
@@ -12,7 +12,9 @@ export function TracksScreen() {
     <div className="stack">
       <div>
         <h1 className="screen-title">Tracks</h1>
-        <p className="screen-lede">Six tracks, 100 exercises. Start anywhere.</p>
+        <p className="screen-lede">
+          {tracks.length} tracks, {exercises.length} exercises. Start anywhere.
+        </p>
       </div>
 
       {tracks.map((track) => {
