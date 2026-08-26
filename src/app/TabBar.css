@@ -31,6 +31,9 @@
 }
 
 .tabbar__label {
+  /* The one sub-12px size in the app. docs/06 says "no font-size below 12px"
+     but prescribes "11px label" for this element specifically; the narrower
+     rule wins here, and five labels have to fit across 390px. */
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.01em;

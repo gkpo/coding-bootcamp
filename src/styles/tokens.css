@@ -1,4 +1,20 @@
-/* Design tokens — docs/06-DESIGN-SYSTEM.md is binding. Light theme only in v1. */
+/* Design tokens — docs/06-DESIGN-SYSTEM.md is binding. Light theme only in v1.
+ *
+ * Three text tokens are a hair darker than the values printed in that doc.
+ * The doc's binding rule is "all text/background pairs must pass WCAG AA
+ * (the values above do; keep it true if tweaked)" — but measured, they did
+ * not: --text-dim on --bg is 4.48:1 against a 4.5:1 threshold, and the same
+ * three tokens all fell short on --surface-2. Lighthouse flagged it. The hues
+ * are unchanged and the shift is imperceptible; the accessibility rule is
+ * what the doc actually binds, so it wins over the printed hex.
+ *
+ *   --text-dim    #6B7180 -> #666C7A   (4.48 -> 4.83 on --bg)
+ *   --accent-text #B45309 -> #B05109   (4.34 -> 4.50 on --surface-2)
+ *   --info        #2563EB -> #2462EB   (4.46 -> 4.51 on --surface-2)
+ *
+ * --success and --danger stay as printed: they are only ever borders, tints
+ * and small glyphs, which are UI components needing 3:1, and they clear that.
+ */
 
 :root {
   /* ---- surfaces & text ---- */
@@ -7,18 +23,18 @@
   --surface-2: #f1eee8;
   --border: #e5e1d8;
   --text: #1f2430;
-  --text-dim: #6b7180;
+  --text-dim: #666c7a;
 
   /* ---- the one accent (warm amber) ---- */
   --accent: #f59e0b;
   --accent-pressed: #d97706;
-  --accent-text: #b45309; /* amber as text/small glyphs — the fill fails AA */
+  --accent-text: #b05109; /* amber as text/small glyphs — the fill fails AA */
   --on-accent: #33230a;
 
   /* ---- semantic ---- */
   --success: #059669;
   --danger: #dc2626;
-  --info: #2563eb;
+  --info: #2462eb;
   --success-bg: rgba(5, 150, 105, 0.1);
   --danger-bg: rgba(220, 38, 38, 0.1);
   --info-bg: rgba(37, 99, 235, 0.1);

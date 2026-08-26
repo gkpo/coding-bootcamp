@@ -32,7 +32,7 @@ export function SessionSummaryScreen() {
   const cards = conceptIds.map((id) => getCard(id)).filter((c) => c !== undefined);
 
   return (
-    <div className="summary">
+    <main className="summary">
       <Confetti active />
       <div className="summary__hero">
         <p className="summary__kicker">Session complete</p>
@@ -90,6 +90,6 @@ export function SessionSummaryScreen() {
       <div className="summary__cta">
         <Button onClick={() => navigate('/', { replace: true })}>Done</Button>
       </div>
-    </div>
+    </main>
   );
 }

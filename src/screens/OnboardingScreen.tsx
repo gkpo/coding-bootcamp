@@ -40,7 +40,7 @@ export function OnboardingScreen() {
   };
 
   return (
-    <div className="onboarding">
+    <main className="onboarding">
       <div className="onboarding__body">
         <span className="onboarding__emoji" aria-hidden>
           {screen.emoji}
@@ -71,6 +71,6 @@ export function OnboardingScreen() {
           </button>
         )}
       </div>
-    </div>
+    </main>
   );
 }
