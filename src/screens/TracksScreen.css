@@ -1,0 +1,121 @@
+.track-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  padding: var(--sp-4);
+  background: var(--surface);
+  border-radius: var(--r-card);
+  border-left: 4px solid var(--border);
+  box-shadow: var(--shadow-card);
+  text-decoration: none;
+  color: inherit;
+}
+
+.track-card__head {
+  display: flex;
+  gap: var(--sp-3);
+  align-items: flex-start;
+}
+
+.track-card__emoji {
+  font-size: 24px;
+  line-height: 1.2;
+}
+
+.track-card__title {
+  font-size: var(--fs-heading);
+  font-weight: 600;
+}
+
+.track-card__tagline {
+  margin-top: 2px;
+  color: var(--text-dim);
+  font-size: var(--fs-secondary);
+  line-height: 1.4;
+}
+
+.track-card__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.track-card__bar {
+  flex: 1 1 auto;
+  height: 6px;
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+.track-card__fill {
+  display: block;
+  height: 100%;
+  border-radius: var(--r-pill);
+  transition: width 300ms ease-out;
+}
+
+.track-card__pct {
+  font-size: 12px;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.track-detail__back {
+  align-self: flex-start;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  font-size: var(--fs-secondary);
+  font-weight: 600;
+}
+
+.lesson__title {
+  font-size: var(--fs-heading);
+  font-weight: 600;
+  margin-bottom: var(--sp-3);
+}
+
+.lesson__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.lesson__item {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  min-height: 28px;
+}
+
+.lesson__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  flex: 0 0 auto;
+}
+
+.lesson__dot.is-seen {
+  background: var(--border);
+}
+
+.lesson__dot.is-mastered {
+  border-color: transparent;
+}
+
+.lesson__type {
+  flex: 1 1 auto;
+  font-size: var(--fs-secondary);
+}
+
+.lesson__diff {
+  color: var(--text-dim);
+  font-size: 11px;
+  letter-spacing: 2px;
+}

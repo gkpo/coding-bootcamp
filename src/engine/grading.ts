@@ -5,6 +5,7 @@
  */
 
 import type {
+  ExerciseType,
   BlankExercise,
   ComplexityExercise,
   MatchExercise,
@@ -103,4 +104,15 @@ export function gradeMatch(
     matched.length === exercise.pairs.length &&
     exercise.pairs.every((p) => matched.some((m) => m.left === p.left && m.right === p.right));
   return { correct: allFound };
+}
+
+/**
+ * Types whose correct answer cannot be shown in place on reveal.
+ *
+ * mcq and complexity highlight the winning option, spot-bug highlights the
+ * line, and match cannot complete while a pair is missing — the ordered types
+ * have nowhere to put the answer, so the feedback panel shows it instead.
+ */
+export function needsExplicitReveal(type: ExerciseType): boolean {
+  return type === 'parsons' || type === 'steps' || type === 'blank';
 }

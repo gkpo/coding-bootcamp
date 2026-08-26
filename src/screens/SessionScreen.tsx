@@ -1,10 +1,13 @@
 import { useCallback, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ExerciseFrame, type Outcome } from '../exercises/ExerciseFrame';
 import { FeedbackPanel } from '../exercises/FeedbackPanel';
 import { ExerciseRenderer } from '../exercises/ExerciseRenderer';
+import { RevealedAnswer } from '../exercises/RevealedAnswer';
+import { needsExplicitReveal } from '../engine/grading';
 import { getExercise, tracks, trackExerciseIds } from '../content';
 import { composeSession } from '../engine/sessionComposer';
+import { dueExercises } from '../engine/leitner';
 import {
   answer as answerSession,
   currentExerciseId,
@@ -25,6 +28,8 @@ const DECODER_TRACK = 't6';
 
 export function SessionScreen() {
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const reviewOnly = params.get('mode') === 'review';
   const exercisesProgress = useStore((s) => s.exercises);
   const lastOpenedTrackId = useStore((s) => s.lastOpenedTrackId);
   const recordAnswer = useStore((s) => s.recordAnswer);
@@ -33,14 +38,16 @@ export function SessionScreen() {
   // Composed once per mount: the session must not reshuffle under the user
   // when the store updates after every answer.
   const [plan] = useState(() =>
-    composeSession({
-      tracks: tracks.map((t) => ({ id: t.id, exerciseIds: trackExerciseIds(t.id) })),
-      decoderExerciseIds: trackExerciseIds(DECODER_TRACK),
-      progress: exercisesProgress,
-      today: todayKey(),
-      seed: randomSeed(),
-      lastOpenedTrackId,
-    }),
+    reviewOnly
+      ? dueExercises(exercisesProgress, todayKey()).filter((id) => getExercise(id) !== undefined)
+      : composeSession({
+          tracks: tracks.map((t) => ({ id: t.id, exerciseIds: trackExerciseIds(t.id) })),
+          decoderExerciseIds: trackExerciseIds(DECODER_TRACK),
+          progress: exercisesProgress,
+          today: todayKey(),
+          seed: randomSeed(),
+          lastOpenedTrackId,
+        }),
   );
   const [seed] = useState(() => randomSeed());
   const [session, setSession] = useState<SessionState>(() => startSession(plan));
@@ -144,6 +151,11 @@ export function SessionScreen() {
                 explanation={exercise.explanation}
                 whyWrong={answered.whyWrong}
                 sayIt={exercise.type === 'complexity' ? exercise.sayIt : undefined}
+                reveal={
+                  answered.outcome !== 'right' && needsExplicitReveal(exercise.type) ? (
+                    <RevealedAnswer exercise={exercise} />
+                  ) : undefined
+                }
                 onContinue={onContinue}
                 seed={presentationSeed}
                 isLast={session.queue.length === 1 && answered.outcome === 'right'}

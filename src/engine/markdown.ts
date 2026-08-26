@@ -26,3 +26,17 @@ export function stripMarkdown(text: string): string {
   }
   return out;
 }
+
+const CODE_SPAN = /`[^`]+`/g;
+
+/**
+ * True when a string still contains markers the renderer will not consume, so
+ * they would reach the reader literally.
+ *
+ * Code spans are removed first rather than unwrapped: their contents render
+ * verbatim, so an asterisk inside one is multiplication, not emphasis
+ * (`(pageNumber - 1) * size` is correct content, not a broken marker).
+ */
+export function hasUnrenderedMarkers(text: string): boolean {
+  return /[*`]/.test(stripMarkdown(text.replace(CODE_SPAN, '')));
+}

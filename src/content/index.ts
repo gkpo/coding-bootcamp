@@ -1,5 +1,10 @@
 import { conceptCards } from './concepts';
 import { t1, t1Exercises } from './tracks/t1';
+import { t2, t2Exercises } from './tracks/t2';
+import { t3, t3Exercises } from './tracks/t3';
+import { t4, t4Exercises } from './tracks/t4';
+import { t5, t5Exercises } from './tracks/t5';
+import { t6, t6Exercises } from './tracks/t6';
 import { assertContentValid } from './validate';
 import type { ConceptCard, Exercise, Track, TrackId } from './types';
 
@@ -8,8 +13,15 @@ import type { ConceptCard, Exercise, Track, TrackId } from './types';
  * one so adding them is an import and two array entries.
  */
 
-export const tracks: Track[] = [t1];
-export const exercises: Exercise[] = [...t1Exercises];
+export const tracks: Track[] = [t1, t2, t3, t4, t5, t6];
+export const exercises: Exercise[] = [
+  ...t1Exercises,
+  ...t2Exercises,
+  ...t3Exercises,
+  ...t4Exercises,
+  ...t5Exercises,
+  ...t6Exercises,
+];
 export const cards: ConceptCard[] = conceptCards;
 
 // Fail loudly, and fail at startup rather than mid-session. In production this

@@ -2,6 +2,8 @@ import { createHashRouter, RouterProvider } from 'react-router-dom';
 import { AppShell } from './AppShell';
 import { HomeScreen } from '../screens/HomeScreen';
 import { TracksScreen } from '../screens/TracksScreen';
+import { TrackDetailScreen } from '../screens/TrackDetailScreen';
+import { SheetDetailScreen } from '../screens/SheetDetailScreen';
 import { ReviewScreen } from '../screens/ReviewScreen';
 import { SheetsScreen } from '../screens/SheetsScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
@@ -19,8 +21,10 @@ const router = createHashRouter([
     children: [
       { index: true, element: <HomeScreen /> },
       { path: 'tracks', element: <TracksScreen /> },
+      { path: 'tracks/:trackId', element: <TrackDetailScreen /> },
       { path: 'review', element: <ReviewScreen /> },
       { path: 'sheets', element: <SheetsScreen /> },
+      { path: 'sheets/:cardId', element: <SheetDetailScreen /> },
       { path: 'me', element: <ProfileScreen /> },
     ],
   },

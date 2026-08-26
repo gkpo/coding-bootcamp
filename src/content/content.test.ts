@@ -13,6 +13,30 @@ describe('the authored content', () => {
     expect(findContentProblems({ tracks, exercises, cards })).toEqual([]);
   });
 
+  it('has the full manifest: 100 exercises across 6 tracks', () => {
+    // docs/03-CONTENT-PLAN.md is the authoring contract; these counts are it.
+    expect(tracks.map((t) => t.id)).toEqual(['t1', 't2', 't3', 't4', 't5', 't6']);
+    const perTrack = { t1: 18, t2: 24, t3: 20, t4: 12, t5: 14, t6: 12 };
+    for (const [trackId, expected] of Object.entries(perTrack)) {
+      expect(trackExerciseIds(trackId as keyof typeof perTrack).length, trackId).toBe(expected);
+    }
+    expect(exercises.length).toBe(100);
+  });
+
+  it('covers all eight exercise types', () => {
+    const types = new Set(exercises.map((e) => e.type));
+    expect([...types].sort()).toEqual([
+      'blank',
+      'complexity',
+      'ladder',
+      'match',
+      'mcq',
+      'parsons',
+      'spot-bug',
+      'steps',
+    ]);
+  });
+
   it('has all 18 Track 1 exercises from the manifest', () => {
     const expected = Array.from({ length: 18 }, (_, i) => `t1-${String(i + 1).padStart(2, '0')}`);
     expect(trackExerciseIds('t1')).toEqual(expected);
@@ -61,8 +85,16 @@ describe('the authored content', () => {
 });
 
 describe('the authored concept cards', () => {
-  it('covers Track 1', () => {
-    expect(cardsForTrack('t1').length).toBe(cards.length);
+  it('covers every track that has exercises', () => {
+    for (const track of tracks) {
+      expect(cardsForTrack(track.id).length, track.id).toBeGreaterThan(0);
+    }
+  });
+
+  it('is reachable from an exercise — no orphan cards', () => {
+    const linked = new Set(exercises.map((e) => e.conceptId));
+    const orphans = cards.filter((c) => !linked.has(c.id)).map((c) => c.id);
+    expect(orphans.join(', ')).toBe('');
   });
 
   it('gives every card plain words, an analogy and something to say', () => {

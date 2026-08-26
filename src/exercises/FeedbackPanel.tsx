@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { RichText } from '../components/RichText';
 import { Button } from '../components/Button';
+import type { ReactNode } from 'react';
 import type { Outcome } from './ExerciseFrame';
 import './FeedbackPanel.css';
 
@@ -17,6 +18,8 @@ interface Props {
   onContinue: () => void;
   seed: number;
   isLast: boolean;
+  /** The correct answer, for types that cannot show it in place. */
+  reveal?: ReactNode;
 }
 
 export function FeedbackPanel({
@@ -27,6 +30,7 @@ export function FeedbackPanel({
   onContinue,
   seed,
   isLast,
+  reveal,
 }: Props) {
   const [showWhy, setShowWhy] = useState(outcome !== 'right');
   const affirmation = useMemo(() => AFFIRMATIONS[seed % AFFIRMATIONS.length], [seed]);
@@ -47,6 +51,8 @@ export function FeedbackPanel({
           <RichText text={whyWrong} />
         </p>
       )}
+
+      {reveal}
 
       {sayIt && (
         <p className="feedback__say-it">

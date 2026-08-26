@@ -79,6 +79,7 @@ describe('complexityOptions', () => {
 // ---------------------------------------------------------------------------
 
 import {
+  needsExplicitReveal,
   blankGapCount,
   gradeBlank,
   gradeMatch,
@@ -262,5 +263,23 @@ describe('gradeMatch', () => {
   it('does not accept duplicates standing in for a missing pair', () => {
     const dupes = [match.pairs[0], match.pairs[0], match.pairs[0]];
     expect(gradeMatch(match, dupes).correct).toBe(false);
+  });
+});
+
+describe('needsExplicitReveal', () => {
+  it('is true for the ordered types, which have nowhere to show the answer', () => {
+    expect(needsExplicitReveal('parsons')).toBe(true);
+    expect(needsExplicitReveal('steps')).toBe(true);
+    expect(needsExplicitReveal('blank')).toBe(true);
+  });
+
+  it('is false where the answer is revealed in place', () => {
+    // A session cannot finish until every item is answered right once, so any
+    // type here must show its answer some other way or the user is stuck.
+    expect(needsExplicitReveal('mcq')).toBe(false);
+    expect(needsExplicitReveal('ladder')).toBe(false);
+    expect(needsExplicitReveal('complexity')).toBe(false);
+    expect(needsExplicitReveal('spot-bug')).toBe(false);
+    expect(needsExplicitReveal('match')).toBe(false);
   });
 });

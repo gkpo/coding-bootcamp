@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { stripMarkdown } from '../engine/markdown';
+import { hasUnrenderedMarkers, stripMarkdown } from '../engine/markdown';
 import { cards, exercises } from './index';
 
 /**
@@ -53,9 +53,11 @@ function userVisibleStrings(): { where: string; text: string }[] {
 describe('authored markdown', () => {
   it('leaves no unrendered markers in any user-visible string', () => {
     const offenders = userVisibleStrings()
-      .filter(({ text }) => /[*`]/.test(stripMarkdown(text)))
+      .filter(({ text }) => hasUnrenderedMarkers(text))
       .map(({ where, text }) => `${where}: ${text.slice(0, 70)}`);
-    expect(offenders).toEqual([]);
+    // Joined rather than compared as an array: the failure output has to name
+    // the offending string, and a diff of arrays truncates it.
+    expect(offenders.join('\n')).toBe('');
   });
 
   it('actually renders the emphasis the copy relies on', () => {
@@ -73,5 +75,14 @@ describe('authored markdown', () => {
 
   it('leaves ordinary prose untouched', () => {
     expect(stripMarkdown('no markup here at all')).toBe('no markup here at all');
+  });
+
+  it('allows an asterisk inside a code span — that is multiplication, not emphasis', () => {
+    expect(hasUnrenderedMarkers('the start is `(page - 1) * size` here')).toBe(false);
+  });
+
+  it('still catches a marker outside a code span', () => {
+    expect(hasUnrenderedMarkers('this *never closes')).toBe(true);
+    expect(hasUnrenderedMarkers('a stray ` backtick')).toBe(true);
   });
 });
