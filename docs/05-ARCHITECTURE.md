@@ -37,7 +37,7 @@ src/
 ## Key logic modules (all in `engine/`, all unit-tested)
 
 - **`leitner.ts`**: `applyResult(progress, result, today)` → new box + dueDay per the product spec table; `dueExercises(all, today)`.
-- **`sessionComposer.ts`**. Builds the daily session (≤3 due reviews + ~4 frontier + 1 decoder item; frontier = first unmastered per track, round-robin). Deterministic given (progress, today, seed).
+- **`sessionComposer.ts`**. Builds the daily session (≤3 due reviews + ~4 frontier + 1 decoder item; frontier = first unseen per track, round-robin; the decoder slot prefers unseen, then due, then rotates by day). Deterministic given (progress, today, seed).
 - **`grading.ts`**. Per-type answer checking (parsons order compare ignoring distractors, blank gap compare, match pair compare…). Returns structured result incl. which parts were wrong, for UI highlighting.
 - **`streak.ts` / `xp.ts`**. Day-boundary logic (local time), freeze consumption, XP rules from the product spec.
 - **`shuffle.ts`**. Seeded Fisher-Yates; seed per presentation.

@@ -29,7 +29,7 @@ The screen the user sees every morning. Contents, top to bottom:
 Auto-composed, ~8 exercises:
 
 - Up to 3 **due review items** (spaced repetition, any track).
-- ~4 **new or in-progress exercises** from the user's least-advanced tracks (round-robin so tracks progress together; slight bias toward the track the user last opened).
+- ~4 **exercises the user has never seen** from their least-advanced tracks (round-robin so tracks progress together; slight bias toward the track the user last opened). The frontier only ever introduces: anything already presented comes back through the review line above, when spaced repetition says it is due.
 - 1 **vocabulary/decoder item** (Track 6). Always, because decoder items are the highest-leverage gap and they're fast.
 
 Session player behavior:

@@ -5,7 +5,7 @@ import {
   TARGET_SESSION_SIZE,
   type ComposeInput,
 } from './sessionComposer';
-import type { ExerciseProgress } from './leitner';
+import { applyResult, newProgress, type ExerciseProgress } from './leitner';
 
 const ids = (prefix: string, n: number) =>
   Array.from({ length: n }, (_, i) => `${prefix}-${String(i + 1).padStart(2, '0')}`);
@@ -160,5 +160,74 @@ describe('everything mastered', () => {
     const all = [...ids('t1', 18), ...ids('t2', 24)];
     const progress = Object.fromEntries(all.map((id) => [id, progressAt(5, '2026-12-01')]));
     expect(composeSession(input({ progress }))).toHaveLength(TARGET_SESSION_SIZE);
+  });
+});
+
+describe('frontier is unseen only', () => {
+  it('leaves out an item that was seen yesterday and is not due yet', () => {
+    const progress = { 't1-01': progressAt(1, '2026-08-27') };
+    const session = composeSession(
+      input({ tracks: [{ id: 't1', exerciseIds: ids('t1', 18) }], progress }),
+    );
+    expect(session).not.toContain('t1-01');
+    expect(session).toContain('t1-02');
+  });
+
+  it('brings a seen item back through the review stage instead, once it is due', () => {
+    const progress = { 't1-01': progressAt(1, '2026-08-26') };
+    const session = composeSession(
+      input({ tracks: [{ id: 't1', exerciseIds: ids('t1', 18) }], progress }),
+    );
+    expect(session).toContain('t1-01');
+  });
+
+  it('deals a second session of new material on the same day', () => {
+    const today = '2026-08-26';
+    const first = composeSession(input({ today, seed: 1 }));
+    // Answering an exercise is the only thing that changes between the two
+    // sessions: same day, same seed rules, same bank.
+    const progress = Object.fromEntries(
+      first.map((id) => [id, applyResult(newProgress(today), 'right', today)]),
+    );
+    const second = composeSession(input({ today, progress, seed: 1 }));
+    expect(second).toHaveLength(TARGET_SESSION_SIZE);
+    for (const id of second) {
+      expect(first).not.toContain(id);
+    }
+  });
+});
+
+describe('decoder rotation', () => {
+  const seenLongAgo = Object.fromEntries(
+    ids('t6', 12).map((id) => [id, progressAt(5, '2026-12-01')]),
+  );
+
+  it('changes the decoder item across three consecutive days', () => {
+    const pick = (today: string) =>
+      composeSession(
+        input({ today, progress: seenLongAgo, decoderExerciseIds: ids('t6', 12) }),
+      ).find((id) => id.startsWith('t6'));
+
+    const picks = ['2026-08-26', '2026-08-27', '2026-08-28'].map(pick);
+    expect(picks.every((id) => id !== undefined)).toBe(true);
+    expect(new Set(picks).size).toBe(3);
+  });
+
+  it('still prefers a due decoder item over the daily rotation', () => {
+    const progress = { ...seenLongAgo, 't6-07': progressAt(2, '2026-08-01') };
+    const session = composeSession(
+      input({ today: '2026-08-26', progress, decoderExerciseIds: ids('t6', 12) }),
+    );
+    expect(session).toContain('t6-07');
+  });
+});
+
+describe('everything seen', () => {
+  it('fills the session from the due pile once nothing is unseen', () => {
+    const all = [...ids('t1', 18), ...ids('t2', 24)];
+    const progress = Object.fromEntries(all.map((id) => [id, progressAt(2, '2026-08-01')]));
+    const session = composeSession(input({ progress }));
+    expect(session).toHaveLength(TARGET_SESSION_SIZE);
+    expect(session.every((id) => all.includes(id))).toBe(true);
   });
 });
