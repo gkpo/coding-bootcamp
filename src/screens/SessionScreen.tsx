@@ -5,7 +5,7 @@ import { FeedbackPanel } from '../exercises/FeedbackPanel';
 import { ExerciseRenderer } from '../exercises/ExerciseRenderer';
 import { RevealedAnswer } from '../exercises/RevealedAnswer';
 import { needsExplicitReveal } from '../engine/grading';
-import { getExercise, tracks, trackExerciseIds } from '../content';
+import { exercises as allExercises, getExercise, tracks, trackExerciseIds } from '../content';
 import { composeSession } from '../engine/sessionComposer';
 import { dueExercises } from '../engine/leitner';
 import {
@@ -17,7 +17,7 @@ import {
   toughestExerciseId,
   type SessionState,
 } from '../engine/sessionRunner';
-import { randomSeed } from '../engine/shuffle';
+import { randomSeed, shuffle } from '../engine/shuffle';
 import { todayKey } from '../engine/dates';
 import { useStore } from '../store/useStore';
 import { playTone, vibrate } from '../engine/feedback';
@@ -28,10 +28,29 @@ type Answered = { outcome: Outcome; whyWrong?: string } | null;
 
 const DECODER_TRACK = 't6';
 
+/** How many items a `?type=` drill runs before the summary. */
+const DRILL_LENGTH = 8;
+
+/**
+ * Every exercise of one mechanic, shuffled.
+ *
+ * `#/session?type=mcq` exists so one mechanic can be tried on a real phone
+ * without tapping through a composed session hoping it turns up. Like the
+ * sound studio it ships rather than hiding behind a dev flag, because the
+ * point is to reach it from the device with the problem, and it is linked
+ * from nowhere. Unknown or misspelled types give an empty plan, which the
+ * screen already reports.
+ */
+function drillPlan(type: string, seed: number): string[] {
+  const matching = allExercises.filter((e) => e.type === type).map((e) => e.id);
+  return shuffle(matching, seed).slice(0, DRILL_LENGTH);
+}
+
 export function SessionScreen() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const reviewOnly = params.get('mode') === 'review';
+  const drillType = params.get('type');
   const exercisesProgress = useStore((s) => s.exercises);
   const lastOpenedTrackId = useStore((s) => s.lastOpenedTrackId);
   const recordAnswer = useStore((s) => s.recordAnswer);
@@ -42,16 +61,18 @@ export function SessionScreen() {
   // Composed once per mount: the session must not reshuffle under the user
   // when the store updates after every answer.
   const [plan] = useState(() =>
-    reviewOnly
-      ? dueExercises(exercisesProgress, todayKey()).filter((id) => getExercise(id) !== undefined)
-      : composeSession({
-          tracks: tracks.map((t) => ({ id: t.id, exerciseIds: trackExerciseIds(t.id) })),
-          decoderExerciseIds: trackExerciseIds(DECODER_TRACK),
-          progress: exercisesProgress,
-          today: todayKey(),
-          seed: randomSeed(),
-          lastOpenedTrackId,
-        }),
+    drillType
+      ? drillPlan(drillType, randomSeed())
+      : reviewOnly
+        ? dueExercises(exercisesProgress, todayKey()).filter((id) => getExercise(id) !== undefined)
+        : composeSession({
+            tracks: tracks.map((t) => ({ id: t.id, exerciseIds: trackExerciseIds(t.id) })),
+            decoderExerciseIds: trackExerciseIds(DECODER_TRACK),
+            progress: exercisesProgress,
+            today: todayKey(),
+            seed: randomSeed(),
+            lastOpenedTrackId,
+          }),
   );
   const [seed] = useState(() => randomSeed());
   const [session, setSession] = useState<SessionState>(() => startSession(plan));
