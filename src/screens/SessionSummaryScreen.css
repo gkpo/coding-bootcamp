@@ -29,7 +29,7 @@
   margin: -140px 0 0 -140px;
   border-radius: 50%;
   pointer-events: none;
-  background: radial-gradient(circle, var(--accent) 0%, transparent 68%);
+  background: radial-gradient(circle, var(--accent-bright) 0%, transparent 68%);
   opacity: 0;
   animation: bloom-breathe calc(var(--dur-celebrate) * 2.6) var(--ease) both;
 }

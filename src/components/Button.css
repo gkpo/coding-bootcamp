@@ -1,4 +1,14 @@
+/* Buttons sit on a solid underside and travel down into it when pressed,
+   rather than scaling. A scale-down reads as the button shrinking away from
+   the finger; travelling into its own shadow reads as the button being
+   depressed, which is what actually happened. The underside is a second
+   colour stop rather than a blur, so the shape stays crisp at any size.
+
+   --btn-drop is the travel distance. It lives on .btn so the pressed rule
+   can move by exactly the shadow it removes, and so reduced-motion can flatten
+   the whole effect by zeroing one value. */
 .btn {
+  --btn-drop: 4px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -8,14 +18,20 @@
   padding: 0 var(--sp-5);
   border-radius: var(--r-button);
   font-size: var(--fs-heading);
-  font-weight: 700;
+  font-weight: 800;
+  letter-spacing: 0.005em;
+  transform: translateY(0);
   transition:
     transform var(--dur-micro) var(--ease),
+    box-shadow var(--dur-micro) var(--ease),
     background-color var(--dur-micro) var(--ease);
 }
 
-.btn:active {
-  transform: scale(0.98);
+/* The press: travel the full drop, and drop the underside by the same amount
+   so the button's bottom edge lands exactly where the shadow's did. */
+.btn:active:not(:disabled) {
+  transform: translateY(var(--btn-drop));
+  box-shadow: none;
 }
 
 .btn:disabled {
@@ -27,21 +43,37 @@
 .btn--primary {
   background: var(--accent);
   color: var(--on-accent);
+  box-shadow: 0 var(--btn-drop) 0 var(--accent-pressed);
 }
 
-.btn--primary:active {
+.btn--primary:active:not(:disabled) {
   background: var(--accent-pressed);
 }
 
 .btn--secondary {
-  background: var(--surface-2);
+  background: var(--surface);
   color: var(--text);
   border: 1px solid var(--border);
+  box-shadow: 0 var(--btn-drop) 0 var(--border);
 }
 
+/* The ghost button is text, so it has no underside to travel into. */
 .btn--ghost {
+  --btn-drop: 0px;
   min-height: 44px;
   background: none;
   color: var(--info);
   font-weight: 600;
+}
+
+/* Reduced motion keeps the underside (that is shape, not motion) but removes
+   the travel, so a press still recolours without anything sliding. */
+@media (prefers-reduced-motion: reduce) {
+  .btn:active:not(:disabled) {
+    transform: none;
+  }
+}
+
+:root[data-reduce-motion='true'] .btn:active:not(:disabled) {
+  transform: none;
 }

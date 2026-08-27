@@ -21,8 +21,8 @@ export default defineConfig({
         scope: '.',
         display: 'standalone',
         orientation: 'portrait',
-        background_color: '#F7F5F1',
-        theme_color: '#F7F5F1',
+        background_color: '#F6F8F1',
+        theme_color: '#F6F8F1',
         icons: [
           { src: 'pwa-192.png', sizes: '192x192', type: 'image/png', purpose: 'maskable any' },
           { src: 'pwa-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable any' },
@@ -58,5 +58,9 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['src/**/*.test.ts'],
+    // Vitest stubs CSS imports to empty strings by default, which silently
+    // turns tokens.test.ts into a suite that asserts nothing. It reads
+    // tokens.css through `?raw` to check the palette's contrast ratios.
+    css: true,
   },
 });
