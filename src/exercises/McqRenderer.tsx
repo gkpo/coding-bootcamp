@@ -17,6 +17,12 @@ interface Props {
  * Tap to select and it grades immediately: no confirm step, because fewer
  * taps matters more than undo on a phone (docs/02). Nothing is coloured until
  * the user commits.
+ *
+ * Each option carries a radio marker and the list carries a "Pick one" label,
+ * so the answer area reads as a set of choices rather than as a list of
+ * statements. Without them a stack of full-width sentences gives the eye no
+ * clue that it is meant to be tapped, and a tap that lands looks the same as
+ * one that did not.
  */
 export function McqRenderer({ exercise, seed, selected, onSelect, revealed }: Props) {
   const order = useMemo(
@@ -30,6 +36,7 @@ export function McqRenderer({ exercise, seed, selected, onSelect, revealed }: Pr
 
   return (
     <>
+      <p className="options__label">Pick one</p>
       {order.map((authoredIndex) => {
         const option = exercise.options[authoredIndex];
         const isSelected = selected === authoredIndex;
@@ -48,7 +55,10 @@ export function McqRenderer({ exercise, seed, selected, onSelect, revealed }: Pr
             disabled={revealed}
             aria-pressed={isSelected}
           >
-            <RichText text={option.text} />
+            <span className="option__marker" aria-hidden />
+            <span className="option__text">
+              <RichText text={option.text} />
+            </span>
           </button>
         );
       })}
