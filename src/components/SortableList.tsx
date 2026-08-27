@@ -192,8 +192,6 @@ interface ZoneProps {
   items: SortableItem[];
   /** Tap (as opposed to drag). Used for tap-to-move between lists. */
   onTap?: (id: string) => void;
-  /** Item lifted by a tap and waiting for its destination, if any. */
-  pickedId?: string | null;
   disabled?: boolean;
   /** Per-item colouring after grading. */
   stateOf?: (id: string, index: number) => 'idle' | 'correct' | 'wrong';
@@ -209,15 +207,7 @@ interface ZoneProps {
  * budget free, and it lets tap-to-move share the same gesture handler rather
  * than fighting a library's drag sensor.
  */
-export function SortableZone({
-  zone,
-  items,
-  onTap,
-  pickedId,
-  disabled,
-  stateOf,
-  emptyLabel,
-}: ZoneProps) {
+export function SortableZone({ zone, items, onTap, disabled, stateOf, emptyLabel }: ZoneProps) {
   const group = useContext(GroupCtx);
   const drag = group?.drag ?? null;
   const registerZone = group?.registerZone;
@@ -261,14 +251,9 @@ export function SortableZone({
           <li
             key={item.id}
             data-sortable-id={item.id}
-            className={[
-              'sortable__item',
-              `sortable__item--${stateOf?.(item.id, index) ?? 'idle'}`,
-              isDragging && active ? 'is-dragging' : '',
-              item.id === pickedId ? 'is-picked' : '',
-            ]
-              .filter(Boolean)
-              .join(' ')}
+            className={`sortable__item sortable__item--${stateOf?.(item.id, index) ?? 'idle'} ${
+              isDragging && active ? 'is-dragging' : ''
+            }`}
             style={{
               transform: `translateY(${offset}px)`,
               marginLeft: `${(item.indent ?? 0) * 16}px`,
