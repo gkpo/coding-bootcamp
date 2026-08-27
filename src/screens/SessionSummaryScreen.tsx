@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '../components/Button';
 import { RichText } from '../components/RichText';
@@ -6,6 +7,8 @@ import { Confetti } from '../components/Confetti';
 import { ConceptIcon } from '../components/ConceptIcon';
 import { getCard, getExercise } from '../content';
 import type { Result } from '../engine/leitner';
+import { playTone, vibrate } from '../engine/feedback';
+import { useStore } from '../store/useStore';
 import './SessionSummaryScreen.css';
 
 interface SummaryState {
@@ -19,6 +22,23 @@ interface SummaryState {
 export function SessionSummaryScreen() {
   const navigate = useNavigate();
   const state = (useLocation().state ?? null) as SummaryState | null;
+  const sound = useStore((s) => s.settings.sound);
+  const haptics = useStore((s) => s.settings.haptics);
+
+  // The confetti had been landing in silence. This is the one moment in the
+  // app that has earned the full cue, so it gets it, once, on arrival. The ref
+  // is what keeps it to once: StrictMode runs effects twice in development,
+  // and two copies of a five note chord an instant apart is not the sound.
+  const celebrated = useRef(false);
+  useEffect(() => {
+    if (!state || celebrated.current) return;
+    celebrated.current = true;
+    playTone('complete', sound);
+    vibrate('complete', haptics);
+    // Deliberately arrival-only: re-firing when a setting is toggled from
+    // another tab would replay the fanfare at nothing.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (!state) {
     // Landed here directly (refresh, deep link), nothing to celebrate.

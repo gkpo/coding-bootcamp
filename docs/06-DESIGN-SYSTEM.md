@@ -67,6 +67,17 @@ Contrast: all text/background pairs must pass WCAG AA (the values above do; keep
 - Streak milestone (7/30): flame pulse + count-up animation on the number.
 - All motion behind `prefers-reduced-motion` + the in-app toggle → fades only.
 
+## Sound
+
+Synthesised at runtime in `src/engine/feedback.ts`, so there is nothing to ship or cache. Behind the Sound toggle, and silent wherever the browser lacks a node.
+
+- **Level:** quiet. Peaks sit near 0.09 of full scale for a correct answer and 0.06 for a miss. The cue reads as expensive because of what it is, not how loud it is. A `tanh` soft clip on the master catches stacked peaks. Not a `DynamicsCompressor`: Chrome's costs around 7dB even on material far below its threshold.
+- **Correct:** E5 into A5, the rising interval the app has always used. Under it a quiet A3 for body, over it an A6 for sparkle, and a short room behind all of it. About 0.65s to silence.
+- **Wrong:** one low A, a small fall in pitch, mostly dry, gone in 0.2s. A shrug, never a buzzer.
+- **Session complete:** C major arpeggio up to C6 over a low C, the longest tail in the app at roughly 0.9s. The only place it plays is the summary screen, once on arrival.
+- **Width:** notes above a whisper are stacked as two oscillators detuned a few cents apart and panned to opposite sides, and the room's two channels carry independent noise. That is where the size comes from. Where `StereoPannerNode` or `ConvolverNode` is missing the cue degrades to plain centred tones.
+- **Envelope:** 12ms in, exponential out. A bell decays, a beep stops.
+
 ## Copy voice
 
 Short, warm, adult. Sound like a sharp friend, not a teacher. Examples. Correct: "That's the one." / "Interviewer nods." Wrong: "Not this one. Here's the idea:" Unsure: "No stress. Here's how it works:" Streak: "Day 12. This is becoming a habit." Never: "Incorrect", "Oops!", "Great job!!!". No emoji anywhere: track and card identity is carried by a drawn icon and the track colour.
