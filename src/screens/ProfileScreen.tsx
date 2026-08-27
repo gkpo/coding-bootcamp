@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Button } from '../components/Button';
 import { FlameIcon } from '../components/icons';
-import { tracks, trackExerciseIds } from '../content';
+import { tracks } from '../content';
 import { ConceptIcon } from '../components/ConceptIcon';
+import { ProgressBar } from '../components/ProgressBar';
 import { addDays, todayKey } from '../engine/dates';
 import { useStore } from '../store/useStore';
 import './ProfileScreen.css';
@@ -16,7 +17,7 @@ export function ProfileScreen() {
   const settings = useStore((s) => s.settings);
   const updateSettings = useStore((s) => s.updateSettings);
   const resetProgress = useStore((s) => s.resetProgress);
-  const trackMastery = useStore((s) => s.trackMastery);
+  const trackTally = useStore((s) => s.trackTally);
 
   const [confirmingReset, setConfirmingReset] = useState(0);
 
@@ -102,9 +103,13 @@ export function ProfileScreen() {
 
       <section className="card">
         <h2 className="profile__section">Mastery</h2>
+        <p className="profile__note">
+          The solid bar is mastered: answered right four times, each time after a longer gap. The
+          pale bar behind it is everything you have seen at least once.
+        </p>
         <div className="profile__mastery">
           {tracks.map((track) => {
-            const mastery = trackMastery(track.id);
+            const tally = trackTally(track.id);
             return (
               <div className="profile__track" key={track.id}>
                 <span className="profile__track-name">
@@ -113,15 +118,9 @@ export function ProfileScreen() {
                   </span>
                   {track.title}
                 </span>
-                <span className="profile__track-bar">
-                  <span
-                    className="profile__track-fill"
-                    style={{ width: `${mastery * 100}%`, background: `var(--track-${track.id})` }}
-                  />
-                </span>
+                <ProgressBar className="profile__track-bar" tally={tally} trackId={track.id} />
                 <span className="profile__track-pct">
-                  {Math.round(mastery * trackExerciseIds(track.id).length)}/
-                  {trackExerciseIds(track.id).length}
+                  {tally.mastered} of {tally.total}
                 </span>
               </div>
             );

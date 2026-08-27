@@ -3,7 +3,8 @@ import { Button } from '../components/Button';
 import { FlameIcon } from '../components/icons';
 import { RichText } from '../components/RichText';
 import { ConceptIcon } from '../components/ConceptIcon';
-import { cards, tracks, trackExerciseIds } from '../content';
+import { ProgressBar } from '../components/ProgressBar';
+import { cards, tracks } from '../content';
 import { conceptOfTheDay } from '../engine/conceptOfTheDay';
 import { addDays, todayKey } from '../engine/dates';
 import { TARGET_SESSION_SIZE } from '../engine/sessionComposer';
@@ -19,7 +20,7 @@ export function HomeScreen() {
   const streak = useStore((s) => s.streak);
   const xpByDay = useStore((s) => s.xp.byDay);
   const dueCount = useStore((s) => s.dueCount());
-  const trackMastery = useStore((s) => s.trackMastery);
+  const trackTally = useStore((s) => s.trackTally);
   const setLastOpenedTrack = useStore((s) => s.setLastOpenedTrack);
 
   const card = conceptOfTheDay(cards, today);
@@ -87,7 +88,7 @@ export function HomeScreen() {
         <h2 className="home__section-title">Tracks</h2>
         <div className="home__strip">
           {tracks.map((track) => {
-            const mastery = trackMastery(track.id);
+            const tally = trackTally(track.id);
             return (
               <Link
                 to="/tracks"
@@ -100,17 +101,9 @@ export function HomeScreen() {
                 </span>
                 <span className="home__track-title">{track.title}</span>
                 <span className="home__track-count">
-                  {Math.round(mastery * 100)}% of {trackExerciseIds(track.id).length}
+                  {tally.seen} of {tally.total} seen
                 </span>
-                <span className="home__track-bar">
-                  <span
-                    className="home__track-fill"
-                    style={{
-                      width: `${mastery * 100}%`,
-                      background: `var(--track-${track.id})`,
-                    }}
-                  />
-                </span>
+                <ProgressBar className="home__track-bar" tally={tally} trackId={track.id} />
               </Link>
             );
           })}

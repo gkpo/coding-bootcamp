@@ -53,19 +53,9 @@
   gap: var(--sp-3);
 }
 
+/* Placement only. Appearance and the two fills live in ProgressBar.css. */
 .track-card__bar {
   flex: 1 1 auto;
-  height: 6px;
-  border-radius: var(--r-pill);
-  background: var(--surface-2);
-  overflow: hidden;
-}
-
-.track-card__fill {
-  display: block;
-  height: 100%;
-  border-radius: var(--r-pill);
-  transition: width 300ms ease-out;
 }
 
 .track-card__pct {

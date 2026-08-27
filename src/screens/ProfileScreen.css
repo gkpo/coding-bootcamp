@@ -98,6 +98,13 @@
   outline-offset: 1px;
 }
 
+.profile__note {
+  color: var(--text-dim);
+  font-size: var(--fs-secondary);
+  line-height: 1.45;
+  margin-bottom: var(--sp-3);
+}
+
 .profile__mastery {
   display: flex;
   flex-direction: column;
@@ -126,20 +133,10 @@
   grid-column: 2;
 }
 
+/* Placement only. Appearance and the two fills live in ProgressBar.css. */
 .profile__track-bar {
   grid-column: 1;
   grid-row: 2;
-  height: 6px;
-  border-radius: var(--r-pill);
-  background: var(--surface-2);
-  overflow: hidden;
-}
-
-.profile__track-fill {
-  display: block;
-  height: 100%;
-  border-radius: var(--r-pill);
-  transition: width var(--dur-standard) ease-out;
 }
 
 /* ---- toggle ---- */

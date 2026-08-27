@@ -2,10 +2,11 @@ import { create } from 'zustand';
 import {
   applyResult,
   dueExercises,
-  masteryRatio,
   newProgress,
+  trackTally,
   type ExerciseProgress,
   type Result,
+  type TrackTally,
 } from '../engine/leitner';
 import { completeSession as advanceStreak, decayStreak } from '../engine/streak';
 import { xpForResult, xpForStreak, XP_SESSION_COMPLETE } from '../engine/xp';
@@ -33,7 +34,7 @@ interface StoreState extends Persisted {
 
   progressFor: (exerciseId: string) => ExerciseProgress | undefined;
   dueCount: () => number;
-  trackMastery: (trackId: TrackId) => number;
+  trackTally: (trackId: TrackId) => TrackTally;
 }
 
 const persist = debounce((state: Persisted) => save(state), 500);
@@ -128,6 +129,6 @@ export const useStore = create<StoreState>((set, get) => {
 
     progressFor: (exerciseId) => get().exercises[exerciseId],
     dueCount: () => dueExercises(get().exercises, todayKey()).length,
-    trackMastery: (trackId) => masteryRatio(trackExerciseIds(trackId), get().exercises),
+    trackTally: (trackId) => trackTally(trackExerciseIds(trackId), get().exercises),
   };
 });
