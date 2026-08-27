@@ -6,6 +6,9 @@
   flex-direction: column;
   gap: 8px;
   touch-action: none; /* the list owns vertical gestures while dragging */
+  /* The zone reserves a pill's worth of room while one is dragged into it, so
+     the growing list pushes what follows down instead of covering it. */
+  transition: margin-bottom var(--dur-micro) var(--ease);
 }
 
 /* Where the pill would land if the finger let go now. */
@@ -49,7 +52,10 @@
   transform-origin: center;
   z-index: 2;
   position: relative;
-  transition: none;
+  /* The pill carries the finger in `translate`, which stays instant, and the
+     room a zone above just made in `transform`, which eases in step with that
+     zone. Splitting them keeps the pill under the finger throughout. */
+  transition: transform var(--dur-micro) var(--ease);
 }
 
 .sortable__item--correct {
@@ -81,6 +87,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .sortable,
   .sortable__item,
   .sortable__empty {
     transition: none;
