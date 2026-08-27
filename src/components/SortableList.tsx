@@ -7,6 +7,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
+import { GripIcon } from './icons';
 import './SortableList.css';
 
 export interface SortableItem {
@@ -262,6 +263,9 @@ export function SortableZone({ zone, items, onTap, disabled, stateOf, emptyLabel
               if (!disabled) begin?.(zone, item.id, e, onTap);
             }}
           >
+            <span className="sortable__grip">
+              <GripIcon size={20} />
+            </span>
             {item.content}
           </li>
         );
