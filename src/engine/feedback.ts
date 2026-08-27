@@ -10,6 +10,12 @@
 
 export type FeedbackKind = 'right' | 'wrong' | 'complete';
 
+/**
+ * Cues include the button tap, which is not an answer outcome: it never
+ * vibrates and never reports anything, it just marks a press.
+ */
+export type CueName = FeedbackKind | 'tap';
+
 const PATTERNS: Record<FeedbackKind, number | number[]> = {
   right: 12,
   wrong: [0, 30, 60, 30],
@@ -122,7 +128,7 @@ export interface Cue {
  * wet, wide and bright; a miss drenched in the same 2.4s hall would read as an
  * event rather than a shrug.
  */
-export const CUES: Record<FeedbackKind, Cue> = {
+export const CUES: Record<CueName, Cue> = {
   // "Warm, lower", chosen by ear: A4 up to E5 through the third, rounded off
   // with triangles, over an E an octave below where the first pass put it.
   // More wood than glass, and heavier underneath.
@@ -136,12 +142,24 @@ export const CUES: Record<FeedbackKind, Cue> = {
     ],
     tuning: { level: 1, width: 0.6, tail: 0.8, tailSeconds: 2.4, sparkle: 2.5 },
   },
-  // Unchanged in character: one low note, quiet, over quickly. The small fall
-  // in pitch is there so it reads as a shrug rather than a buzzer. Kept on the
-  // close, dry treatment on purpose.
+  // "Sigh", chosen by ear: two notes stepping down, the most human of the
+  // options and, at these settings, the wettest cue in the app. Width and
+  // sparkle are recorded as picked but do nothing here, since none of these
+  // notes are spread or flagged as sparkle; the room is what shapes it.
   wrong: {
-    notes: [{ freq: 220, at: 0, dur: 0.3, level: 0.066, bendTo: 196, send: 0.25 }],
-    tuning: DEFAULT_TUNING,
+    notes: [
+      { freq: 329.63, at: 0, dur: 0.16, level: 0.0635, type: 'triangle', send: 0.3 },
+      { freq: 261.63, at: 0.1, dur: 0.34, level: 0.0635, type: 'triangle', send: 0.4 },
+    ],
+    tuning: { level: 1, width: 0.36, tail: 1.4, tailSeconds: 3, sparkle: 3.4 },
+  },
+  // "Tick", chosen by ear. This is the one cue heard on every press, so it is
+  // 35ms long and peaks around a third of a miss. Close and nearly dry: a tap
+  // with a room on it stops sounding like a button and starts sounding like an
+  // event.
+  tap: {
+    notes: [{ freq: 2400, at: 0, dur: 0.035, level: 0.02 }],
+    tuning: { level: 1, width: 0.15, tail: 0.08, tailSeconds: 0.5, sparkle: 1 },
   },
   // "Ascension", chosen by ear: a fast run up the C scale landing on a high
   // held note, in the biggest room in the app. The level carries the studio's
@@ -167,21 +185,18 @@ type AudioCtor = typeof AudioContext;
 
 interface Bus {
   ctx: AudioContext;
-  /** Where every voice lands, dry. */
+  /** Where every voice lands, dry. Fixed gain: see `playVoice`. */
   master: GainNode;
-  /** Input to the tail, or null where convolution is unavailable. */
-  tail: GainNode | null;
-  /** The convolver, kept so a new room length can be swapped in. */
-  room: ConvolverNode | null;
-  /** Length the current room was built at. */
-  roomSeconds: number;
   /**
-   * Impulses already generated, by length. Cues carry different rooms, so
-   * without this every switch between them would build a fresh one: at 48kHz
-   * a 2.4s stereo impulse is a quarter of a million random samples, on the
-   * thread that is trying to play the cue.
+   * One convolver per room length, built on demand and kept.
+   *
+   * Per length rather than one shared convolver whose buffer gets swapped,
+   * because cues carry different rooms and their tails overlap in normal use:
+   * tapping Continue lands well inside the 1.6s the correct cue rings for.
+   * Re-pointing a convolver's buffer resets it, which would cut that tail off
+   * mid-air. A null value means convolution is unavailable at all.
    */
-  rooms: Map<number, AudioBuffer>;
+  rooms: Map<number, ConvolverNode | null>;
 }
 
 let context: AudioContext | null = null;
@@ -226,26 +241,16 @@ function roomImpulse(ctx: AudioContext, seconds: number): AudioBuffer | null {
 }
 
 /**
- * Build the shared output chain once per context, then keep it, re-pointing
- * the two gains at whatever tuning asks for. Only a change of room length
- * costs anything: that one has to be generated again.
+ * Build the shared output chain once per context.
+ *
+ * Nothing on it is mutated per cue: level and room amount are folded into each
+ * note instead (see `playVoice`), so a cue that is still ringing is never
+ * touched by the next one starting.
  */
-function getBus(ctx: AudioContext, tuning: Tuning): Bus | null {
-  if (bus && bus.ctx === ctx) {
-    bus.master.gain.value = tuning.level;
-    if (bus.tail) bus.tail.gain.value = tuning.tail;
-    if (bus.room && bus.roomSeconds !== tuning.tailSeconds) {
-      const next = bus.rooms.get(tuning.tailSeconds) ?? roomImpulse(ctx, tuning.tailSeconds);
-      if (next) {
-        bus.rooms.set(tuning.tailSeconds, next);
-        bus.room.buffer = next;
-        bus.roomSeconds = tuning.tailSeconds;
-      }
-    }
-    return bus;
-  }
+function getBus(ctx: AudioContext): Bus | null {
+  if (bus && bus.ctx === ctx) return bus;
   const master = ctx.createGain();
-  master.gain.value = tuning.level;
+  master.gain.value = 1;
 
   // A safety net, not an effect: several notes plus a tail can stack past full
   // scale, and clipping is the least premium sound there is. This is a soft
@@ -267,23 +272,24 @@ function getBus(ctx: AudioContext, tuning: Tuning): Bus | null {
   }
   out.connect(ctx.destination);
 
-  let tail: GainNode | null = null;
+  bus = { ctx, master, rooms: new Map() };
+  return bus;
+}
+
+/** The convolver for a given room length, generated once and then kept. */
+function roomFor(b: Bus, seconds: number): ConvolverNode | null {
+  const known = b.rooms.get(seconds);
+  if (known !== undefined) return known;
+  const { ctx } = b;
   let room: ConvolverNode | null = null;
-  const impulse =
-    typeof ctx.createConvolver === 'function' ? roomImpulse(ctx, tuning.tailSeconds) : null;
+  const impulse = typeof ctx.createConvolver === 'function' ? roomImpulse(ctx, seconds) : null;
   if (impulse) {
     room = ctx.createConvolver();
     room.buffer = impulse;
-    tail = ctx.createGain();
-    tail.gain.value = tuning.tail;
-    tail.connect(room);
-    room.connect(master);
+    room.connect(b.master);
   }
-
-  const rooms = new Map<number, AudioBuffer>();
-  if (impulse) rooms.set(tuning.tailSeconds, impulse);
-  bus = { ctx, master, tail, room, roomSeconds: tuning.tailSeconds, rooms };
-  return bus;
+  b.rooms.set(seconds, room);
+  return room;
 }
 
 /** One oscillator: a single voice, or half of a spread pair. */
@@ -303,9 +309,11 @@ function playVoice(
   if (note.bendTo) osc.frequency.exponentialRampToValueAtTime(note.bendTo, start + note.dur);
   if (cents) osc.detune.value = cents;
 
-  // Never zero: an exponential ramp cannot reach or leave silence, so the
-  // floor has to stay above it even when a slider is pulled all the way down.
-  const peak = Math.max(0.00011, note.level * (note.sparkle ? tuning.sparkle : 1));
+  // Level is applied here rather than on the shared master, so starting a cue
+  // cannot change the loudness of one still ringing. Never zero: an
+  // exponential ramp cannot reach or leave silence, so the floor has to stay
+  // above it even when a slider is pulled all the way down.
+  const peak = Math.max(0.00011, note.level * (note.sparkle ? tuning.sparkle : 1) * tuning.level);
 
   // In, then a long exponential out. A bell decays, a beep stops. The attack
   // is a strike by default and a swell when a cue asks for one, and is capped
@@ -324,11 +332,15 @@ function playVoice(
   }
   node.connect(b.master);
 
-  if (b.tail && note.send) {
+  const room = note.send ? roomFor(b, tuning.tailSeconds) : null;
+  if (room && note.send) {
     const send = ctx.createGain();
-    send.gain.value = note.send;
+    // The room amount rides on the note's own send for the same reason as the
+    // level above: a shared wet gain would be one more thing the next cue
+    // could move underneath this one.
+    send.gain.value = note.send * tuning.tail;
     node.connect(send);
-    send.connect(b.tail);
+    send.connect(room);
   }
 
   osc.connect(gain);
@@ -348,7 +360,7 @@ export function playNotes(notes: Note[], enabled: boolean, tuning?: Partial<Tuni
   try {
     // Answers are user gestures, so a suspended context can resume here.
     if (ctx.state === 'suspended') void ctx.resume();
-    const b = getBus(ctx, t);
+    const b = getBus(ctx);
     if (!b) return;
     notes.forEach((note) => {
       const start = ctx.currentTime + note.at;
@@ -364,7 +376,7 @@ export function playNotes(notes: Note[], enabled: boolean, tuning?: Partial<Tuni
   }
 }
 
-export function playTone(kind: FeedbackKind, enabled: boolean): void {
+export function playTone(kind: CueName, enabled: boolean): void {
   playNotes(CUES[kind].notes, enabled, CUES[kind].tuning);
 }
 

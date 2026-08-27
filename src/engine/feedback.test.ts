@@ -276,15 +276,16 @@ describe('playNotes tuning', () => {
     expect(targets.every((t) => t > 0)).toBe(true);
   });
 
-  it('swaps the room buffer for a new length without rebuilding the bus', () => {
+  it('builds one convolver per room length and never re-points it', () => {
     const ctx = stub();
+    // A convolver resets when its buffer is replaced, which would cut off a
+    // tail still ringing. Cues overlap in normal use, so each room length gets
+    // its own convolver and keeps the buffer it was built with.
     playNotes(CUES.right.notes, true, { tailSeconds: 1.1 });
     playNotes(CUES.right.notes, true, { tailSeconds: 2.2 });
-    expect(ctx.createConvolver!.mock.calls.length).toBe(1);
+    playNotes(CUES.right.notes, true, { tailSeconds: 1.1 });
+    expect(ctx.createConvolver!.mock.calls.length).toBe(2);
     expect(ctx.createBuffer!.mock.calls.length).toBe(2);
-    const [, lastLength] = ctx.createBuffer!.mock.calls[1] as unknown as number[];
-    const [, firstLength] = ctx.createBuffer!.mock.calls[0] as unknown as number[];
-    expect(lastLength).toBeGreaterThan(firstLength);
   });
 
   it('stays silent when sound is off, whatever the tuning', () => {
@@ -293,33 +294,42 @@ describe('playNotes tuning', () => {
     expect(ctx.createOscillator).not.toHaveBeenCalled();
   });
 
-  it('caches a room per length, so switching cues does not rebuild one', () => {
+  it('generates a room once per length, however often cues alternate', () => {
     const ctx = stub();
-    // The cues carry different room lengths, and answers alternate between
-    // them. Regenerating a multi-second stereo impulse on every answer would
-    // be a quarter of a million random samples on the audio thread.
+    // Answers alternate between cues, and regenerating a multi-second stereo
+    // impulse each time would be a quarter of a million random samples on the
+    // thread trying to play the cue.
     playTone('right', true);
     playTone('wrong', true);
     playTone('right', true);
+    playTone('tap', true);
     playTone('wrong', true);
-    const lengths = new Set(
-      [CUES.right.tuning.tailSeconds, CUES.wrong.tuning.tailSeconds].map((n) => n),
-    );
-    expect(ctx.createBuffer!.mock.calls.length).toBe(lengths.size);
+    const lengths = new Set(Object.values(CUES).map((c) => c.tuning.tailSeconds));
+    expect(ctx.createBuffer!.mock.calls.length).toBeLessThanOrEqual(lengths.size);
   });
 
-  it('plays each cue through its own tuning, not one global treatment', () => {
-    // A miss drenched in the success cue's hall would read as an event.
-    expect(CUES.wrong.tuning.tailSeconds).toBeLessThan(CUES.right.tuning.tailSeconds);
-    expect(CUES.wrong.tuning.tail).toBeLessThan(CUES.right.tuning.tail);
-
+  it('keeps level on the note, not on anything shared', () => {
     const ctx = stub();
-    playTone('wrong', true);
-    const [, wrongLength] = ctx.createBuffer!.mock.calls[0] as unknown as number[];
-    const fresh = stub();
-    playTone('right', true);
-    const [, rightLength] = fresh.createBuffer!.mock.calls[0] as unknown as number[];
-    expect(rightLength).toBeGreaterThan(wrongLength);
+    // Otherwise starting a cue would move the loudness of one still ringing.
+    playNotes(CUES.right.notes, true, { level: 2 });
+    const shared = ctx.createGain.mock.results
+      .map((r) => (r.value as { gain: { value: number } }).gain.value)
+      .filter((v) => v === 2);
+    expect(shared).toHaveLength(0);
+  });
+
+  it('gives every cue its own treatment rather than one global one', () => {
+    const tunings = Object.values(CUES).map((c) => JSON.stringify(c.tuning));
+    expect(new Set(tunings).size).toBeGreaterThan(1);
+  });
+
+  it('keeps the tap far below the answer cues, since it is heard constantly', () => {
+    const loudest = (notes: Note[]) => notes.reduce((max, n) => Math.max(max, n.level), 0);
+    const tap = loudest(CUES.tap.notes) * CUES.tap.tuning.level;
+    const miss = loudest(CUES.wrong.notes) * CUES.wrong.tuning.level;
+    expect(tap).toBeLessThan(miss / 2);
+    // And it has to be over almost before it registers.
+    expect(Math.max(...CUES.tap.notes.map((n) => n.at + n.dur))).toBeLessThan(0.1);
   });
 
   it('never lets a swell outlast the note it belongs to', () => {

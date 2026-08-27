@@ -89,6 +89,7 @@ export function BlankRenderer({ exercise, seed, revealed, wrongGaps, onCheck }: 
             ))}
           </div>
           <Button
+            quiet
             variant="secondary"
             disabled={filled.some((f) => f === null)}
             onClick={() => onCheck(filled)}

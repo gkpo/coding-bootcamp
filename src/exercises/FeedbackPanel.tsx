@@ -72,7 +72,9 @@ export function FeedbackPanel({
       )}
 
       <div className="feedback__cta">
-        <Button onClick={onContinue}>{isLast ? 'Finish' : 'Continue'}</Button>
+        <Button quiet={isLast} onClick={onContinue}>
+          {isLast ? 'Finish' : 'Continue'}
+        </Button>
       </div>
     </section>
   );

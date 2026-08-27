@@ -52,6 +52,12 @@ Milestones are ordered so the app is usable end-to-end as early as possible, the
 
 Deployed on GitHub Pages · installable/offline PWA · 8 exercise types · 100 manifest exercises + all concept cards · daily session loop with re-queue · Leitner review · streak/XP/freezes · Sheets searchable · design system faithfully applied · engine unit-tested · lint/test/build green in CI.
 
+One thing is deliberately still in the build and must come out first: see "Before any public release" below.
+
+## Before any public release
+
+- [ ] **Remove the sound studio.** `/sound` is a working route in the production build, reachable by anyone who knows the path, and it is not designed to be seen by users. It was kept deliberately after the cues were chosen so they can be revisited without rebuilding the harness. Removing it means `src/dev/SoundStudio.tsx`, `src/dev/SoundStudio.css`, `src/dev/soundVariants.ts` and the `/sound` entry in `src/app/App.tsx`. Nothing in the app imports them, so it is a clean delete: `CUES` in `src/engine/feedback.ts` already holds every shipped cue.
+
 ## V2 ideas (do NOT build in v1)
 
 Speed rounds (timed reflex mode) · multi-step chained ladders · progress export/import · dark theme · text-to-speech for decoder drills (practice _hearing_ riddles) · mock-interview mode (random 15-exercise gauntlet across tracks) · React Native port · content difficulty adaptation.

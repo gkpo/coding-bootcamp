@@ -1,12 +1,17 @@
 /**
  * Sound studio: pick cues by ear, on the device they will be heard on.
  *
- * Temporary, and deliberately part of the production build rather than gated
- * behind `import.meta.env.DEV`: the whole point is to hear these through a
- * phone speaker on the deployed site, which a dev-only route cannot do. It is
- * lazily imported and linked from nowhere, so it costs the app nothing until
- * someone types the route. Delete this file, `soundVariants.ts` and the
- * `/sound` route once both families are settled.
+ * Deliberately part of the production build rather than gated behind
+ * `import.meta.env.DEV`: the whole point is to hear these through a phone
+ * speaker on the deployed site, which a dev-only route cannot do. It is lazily
+ * imported and linked from nowhere, so it costs the app nothing until someone
+ * types the route.
+ *
+ * All four cues are chosen and shipped. This is kept anyway, to revisit them
+ * without rebuilding the harness. MUST BE REMOVED BEFORE ANY PUBLIC RELEASE:
+ * it is a route strangers can reach, it is not designed for them, and it is
+ * listed as a release blocker in docs/07-ROADMAP.md. Removing it means this
+ * file, `SoundStudio.css`, `soundVariants.ts` and the `/sound` route.
  */
 
 import { useCallback, useRef, useState } from 'react';

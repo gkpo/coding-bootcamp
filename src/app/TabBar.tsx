@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom';
 import type { ComponentType } from 'react';
 import { HomeIcon, TracksIcon, ReviewIcon, SheetsIcon, MeIcon } from '../components/icons';
+import { useTap } from '../components/useTap';
 import './TabBar.css';
 
 type Tab = { to: string; label: string; Icon: ComponentType<{ size?: number }> };
@@ -14,6 +15,7 @@ const TABS: Tab[] = [
 ];
 
 export function TabBar() {
+  const tap = useTap();
   return (
     <nav className="tabbar" aria-label="Main">
       {TABS.map(({ to, label, Icon }) => (
@@ -22,6 +24,7 @@ export function TabBar() {
           to={to}
           end={to === '/'}
           className={({ isActive }) => (isActive ? 'tabbar__item is-active' : 'tabbar__item')}
+          onClick={tap}
         >
           <Icon />
           <span className="tabbar__label">{label}</span>

@@ -42,16 +42,13 @@ export function ParsonsRenderer({ exercise, seed, revealed, wrongPositions, onCh
 
   // A drop in the solution lands at the index the pointer picked; a drop back
   // in the bank just leaves the solution, since the bank is an unordered pile.
-  const onMove = useCallback(
-    (id: string, _from: string, to: string, index: number) => {
-      setPlacedIds((ids) => {
-        const next = ids.filter((x) => x !== id);
-        if (to === 'solution') next.splice(index, 0, id);
-        return next;
-      });
-    },
-    [],
-  );
+  const onMove = useCallback((id: string, _from: string, to: string, index: number) => {
+    setPlacedIds((ids) => {
+      const next = ids.filter((x) => x !== id);
+      if (to === 'solution') next.splice(index, 0, id);
+      return next;
+    });
+  }, []);
 
   return (
     <div className="parsons">
@@ -85,6 +82,7 @@ export function ParsonsRenderer({ exercise, seed, revealed, wrongPositions, onCh
 
       {!revealed && (
         <Button
+          quiet
           variant="secondary"
           disabled={placed.length === 0}
           onClick={() => onCheck(placed.map((l) => l.code))}

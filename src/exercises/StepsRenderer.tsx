@@ -48,6 +48,7 @@ export function StepsRenderer({ exercise, seed, revealed, wrongPositions, onChec
       />
       {!revealed && (
         <Button
+          quiet
           variant="secondary"
           onClick={() => onCheck(order.map((id) => textOf.get(id) ?? ''))}
         >

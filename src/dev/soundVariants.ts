@@ -251,9 +251,9 @@ const TAP: Variant[] = [
   },
   {
     id: 'tick',
-    name: 'Tick',
-    blurb: 'A tiny high blip. Crisp, closest to a system click.',
-    notes: [{ freq: 2400, at: 0, dur: 0.035, level: 0.02 }],
+    name: 'Tick (chosen)',
+    blurb: 'What every button plays now. A tiny high blip, closest to a system click.',
+    notes: CUES.tap.notes,
   },
   {
     id: 'key',
@@ -303,10 +303,16 @@ const TAP: Variant[] = [
  */
 const WRONG: Variant[] = [
   {
-    id: 'current',
-    name: 'Current',
-    blurb: 'What plays now. One low note with a small fall in pitch.',
+    id: 'sigh',
+    name: 'Sigh (chosen)',
+    blurb: 'What plays now. Two notes stepping down, in the wettest room in the app.',
     notes: CUES.wrong.notes,
+  },
+  {
+    id: 'previous',
+    name: 'Before',
+    blurb: 'The miss this replaced: one low note with a small fall in pitch.',
+    notes: [{ freq: 220, at: 0, dur: 0.3, level: 0.066, bendTo: 196, send: 0.25 }],
   },
   {
     id: 'thud',
@@ -314,15 +320,6 @@ const WRONG: Variant[] = [
     blurb: 'Lower and blunter, no fall. Reads as a full stop rather than a no.',
     notes: matched(0.92, [
       { freq: 164.81, at: 0, dur: 0.22, level: 0.07, type: 'triangle', send: 0.2 },
-    ]),
-  },
-  {
-    id: 'sigh',
-    name: 'Sigh',
-    blurb: 'Two notes stepping down. The most human, and the most audible.',
-    notes: matched(1.27, [
-      { freq: 329.63, at: 0, dur: 0.16, level: 0.05, type: 'triangle', send: 0.3 },
-      { freq: 261.63, at: 0.1, dur: 0.34, level: 0.05, type: 'triangle', send: 0.4 },
     ]),
   },
   {
@@ -351,14 +348,14 @@ const WRONG: Variant[] = [
 ];
 
 /**
- * Open families first. The two settled ones stay below, both so the new cues
- * can be judged against what they will sit next to and so either can be
- * revisited.
+ * Every family is settled: each list leads with the cue the app actually
+ * plays, and the alternatives stay listed so any of them can be revisited
+ * against what it would sit beside.
  */
 export const FAMILIES: Family[] = [
   {
     id: 'tap',
-    label: 'Button tap',
+    label: 'Button tap (chosen)',
     // Close and almost dry. A tap with a room on it stops sounding like a
     // button and starts sounding like an event.
     tuning: { ...DEFAULT_TUNING, level: 1, width: 0.15, tail: 0.08, tailSeconds: 0.5, sparkle: 1 },
@@ -366,7 +363,7 @@ export const FAMILIES: Family[] = [
   },
   {
     id: 'wrong',
-    label: 'Wrong answer',
+    label: 'Wrong answer (chosen)',
     tuning: CUES.wrong.tuning,
     variants: WRONG,
   },

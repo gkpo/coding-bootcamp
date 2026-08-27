@@ -34,11 +34,13 @@ const router = createHashRouter([
   { path: '/onboarding', element: <OnboardingScreen /> },
   { path: '/session', element: <SessionScreen /> },
   { path: '/session/summary', element: <SessionSummaryScreen /> },
-  // Temporary: a studio for choosing the answer cue by ear. Unlike the
-  // harness below it ships in production on purpose, because the point is to
-  // hear the candidates through a phone speaker on the deployed site. Linked
-  // from nowhere and lazily imported, so it costs the app nothing until the
-  // route is typed. Goes away with src/dev/SoundStudio* once a cue is chosen.
+  // A studio for choosing cues by ear. Unlike the harness below it ships in
+  // production on purpose, because the point is to hear candidates through a
+  // phone speaker on the deployed site. Linked from nowhere and lazily
+  // imported, so it costs the app nothing until the route is typed.
+  //
+  // Every cue is now chosen; this is kept to revisit them. It must come out
+  // before any public release, and is a release blocker in docs/07-ROADMAP.md.
   {
     path: '/sound',
     lazy: async () => ({ Component: (await import('../dev/SoundStudio')).SoundStudio }),
