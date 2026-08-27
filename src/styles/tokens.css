@@ -24,12 +24,12 @@
 
 :root {
   /* ---- surfaces & text ---- */
-  --bg: #f6f8f1; /* pale green paper */
+  --bg: #f4f5f6; /* very light neutral grey */
   --surface: #ffffff;
-  --surface-2: #eaefe1;
-  --border: #dbe2ce;
-  --text: #1b2417; /* near-black, warmed toward the ground */
-  --text-dim: #5f6957;
+  --surface-2: #eaecef;
+  --border: #e2e5e8;
+  --text: #1a1d21;
+  --text-dim: #5d646c;
 
   /* ---- the accent, split by job (docs/06) ----
      --accent        anything that MEANS something: button and badge fills,
@@ -38,14 +38,18 @@
                      punchy, dark enough to carry white and to clear 3:1 as a
                      state fill.
      --accent-bright decoration only. Never text, never state. */
-  --accent: #347f00; /* grass green: 5.02 on white, 4.69 on --bg */
-  --accent-pressed: #286100;
+  /* 3.67 under white. That clears AA for LARGE text (3:1), which is what the
+     button label is: 19px at weight 800 is past the 18.66px bold threshold.
+     tokens.test.ts asserts both halves, the ratio AND the label size, so the
+     exemption cannot quietly stop being true if someone shrinks the button. */
+  --accent: #49970a;
+  --accent-pressed: #37740a;
   --accent-text: #2f7300; /* accent as text/small glyphs: 5.13 on --surface-2 */
   --accent-bright: #a3e635; /* lime: the summary bloom, and nothing else */
   --on-accent: #ffffff;
   /* The accent at the same job as the semantic tints: a fill behind a small
      surface (the practiced days in the streak week) rather than text. */
-  --accent-bg: rgba(52, 127, 0, 0.16);
+  --accent-bg: rgba(73, 151, 10, 0.16);
 
   /* ---- semantic (full saturation, same rule: dark enough to mean it) ---- */
   /* Success is pushed toward teal so that "correct" never reads as merely
