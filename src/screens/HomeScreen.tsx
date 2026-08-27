@@ -6,13 +6,14 @@ import { ConceptIcon } from '../components/ConceptIcon';
 import { ProgressBar } from '../components/ProgressBar';
 import { cards, tracks } from '../content';
 import { conceptOfTheDay } from '../engine/conceptOfTheDay';
-import { addDays, todayKey } from '../engine/dates';
+import { addDays, todayKey, weekdayIndex } from '../engine/dates';
 import { TARGET_SESSION_SIZE } from '../engine/sessionComposer';
 import { useStore } from '../store/useStore';
 import './HomeScreen.css';
 
-/** Mon-first labels for the trailing seven days, oldest to newest. */
-const DAY_LABELS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+/** Both indexed by `weekdayIndex`, so Monday first. */
+const DAY_SHORT = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
 export function HomeScreen() {
   const navigate = useNavigate();
@@ -49,13 +50,26 @@ export function HomeScreen() {
         </div>
       </header>
 
-      <div className="streak__dots" aria-label="Last 7 days">
-        {lastSeven.map((day, i) => {
+      {/* Oldest on the left, today on the right, which is only readable if the
+          days say so: each tile is named from its own date and today is
+          ringed, so nobody has to guess which end of the row is now. */}
+      <div className="streak__week" aria-label="Last 7 days">
+        {lastSeven.map((day) => {
           const practiced = (xpByDay[day] ?? 0) > 0;
+          const isToday = day === today;
+          const weekday = weekdayIndex(day);
           return (
-            <span className={`streak__dot ${practiced ? 'is-on' : ''}`} key={day}>
+            <span
+              className={`streak__day ${practiced ? 'is-on' : ''} ${isToday ? 'is-today' : ''}`}
+              key={day}
+            >
+              <span className="streak__day-name" aria-hidden>
+                {DAY_SHORT[weekday]}
+              </span>
+              <span className="streak__dot" aria-hidden />
               <span className="visually-hidden">
-                {DAY_LABELS[i]}: {practiced ? 'practiced' : 'not practiced'}
+                {isToday ? 'Today' : DAY_NAMES[weekday]}:{' '}
+                {practiced ? 'practiced' : 'not practiced'}
               </span>
             </span>
           );

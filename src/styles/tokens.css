@@ -35,6 +35,10 @@
   --success: #059669;
   --danger: #dc2626;
   --info: #2462eb;
+  /* Amber at the same job as the semantic tints below: a fill behind a small
+     surface (the practiced days in the streak week) rather than text. */
+  --accent-bg: rgba(245, 158, 11, 0.16);
+
   --success-bg: rgba(5, 150, 105, 0.1);
   --danger-bg: rgba(220, 38, 38, 0.1);
   --info-bg: rgba(37, 99, 235, 0.1);
