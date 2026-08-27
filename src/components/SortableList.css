@@ -8,6 +8,13 @@
   touch-action: none; /* the list owns vertical gestures while dragging */
 }
 
+/* Where the pill would land if the finger let go now. */
+.sortable.is-drop-target .sortable__empty {
+  border-color: var(--accent);
+  border-style: solid;
+  color: var(--text);
+}
+
 .sortable__item {
   min-height: 44px;
   display: flex;
@@ -22,10 +29,17 @@
   user-select: none;
   -webkit-user-select: none;
   cursor: grab;
+  /* Also on the children: a scrollable descendant (a long code line) would
+     otherwise claim the gesture for panning and cancel the drag mid-way. */
+  touch-action: none;
   transition:
     transform var(--dur-micro) var(--ease),
     border-color var(--dur-micro) var(--ease),
     box-shadow var(--dur-micro) var(--ease);
+}
+
+.sortable__item * {
+  touch-action: none;
 }
 
 .sortable__item.is-dragging {
@@ -51,6 +65,7 @@
 
 .sortable__empty {
   min-height: 64px;
+  list-style: none;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -60,10 +75,14 @@
   font-size: var(--fs-secondary);
   text-align: center;
   padding: var(--sp-3);
+  transition:
+    border-color var(--dur-micro) var(--ease),
+    color var(--dur-micro) var(--ease);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .sortable__item {
+  .sortable__item,
+  .sortable__empty {
     transition: none;
   }
   .sortable__item--wrong {
