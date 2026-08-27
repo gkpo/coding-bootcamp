@@ -38,30 +38,37 @@ Honesty rule: the model is a straight line and the copy says so ("at your recent
 
 ## Part B: Tracks overview (`TracksScreen`)
 
-1. **Journey header**: one card above the track list.
-   - Title: "The whole path".
-   - Figures line (secondary text, tabular numerals, mid-dot separators like the existing bar labels): "X of N exercises seen · Y mastered · Z of M concepts known". "Known" reuses the Sheets rule verbatim: a card is known when every exercise linking to it is mastered. Derive it the same way SheetsScreen does; if that means extracting a small shared helper, extract it rather than copying the loop.
-   - Forecast sentence, three states, durations from `formatDuration`:
+The look to hit, here and in part C: calm, light, warm, confident (docs/06). One big friendly numeral, plenty of air, no icon soup, no dashboard. When something feels crowded, remove rather than shrink.
+
+1. **Journey header**: the first element on the screen, above the track list. Standard card recipe (`--surface`, `--r-card`, 1px `--border`, `--shadow-card`, `--sp-4`/`--sp-5` padding). Anatomy, top to bottom:
+   - Title "The whole path" at `--fs-heading` 600.
+   - The hero figure, the one big friendly numeral this screen gets: exercises seen at `--fs-display` 700, tabular numerals, followed on the same baseline by "of N exercises seen" at `--fs-secondary` in `--text-dim`. No icon next to it, no illustration.
+   - A whole-bank progress bar directly under the numeral: reuse the existing `ProgressBar` component with `--accent` as its colour (the app-wide accent; track colours belong to tracks). Same 6px two-layer anatomy, `aria-hidden` with the counts printed as text, exactly like the track cards.
+   - Figures line at `--fs-secondary`, `--text-dim`, tabular numerals, mid-dot separators like the existing bar labels: "Y mastered · Z of M concepts known". "Known" reuses the Sheets rule verbatim: a card is known when every exercise linking to it is mastered. Derive it the same way SheetsScreen does; if that means extracting a small shared helper, extract it rather than copying the loop.
+   - Forecast sentence at `--fs-body` in `--text`, three states, durations from `formatDuration`:
      - In progress: "At your recent pace the last new exercise is about 3 weeks away. Mastery follows about 11 days behind, one review at a time." When `assumedDailyPace`, open with "At a session a day" instead.
      - Everything seen: "You have seen everything once. About 11 days of reviews stand between here and the last mastery."
      - Everything mastered: "Everything mastered. Reviews keep it warm from here."
    - Voice per docs/06: short, warm, adult. No exclamation marks, no em-dashes, no emoji.
-2. **Next-up line** on each track card: the first lesson in authored order containing an unseen exercise gives "Next up: {lesson title}". When the whole track is seen: "All seen. Reviews take it from here." Placed under the progress bar row, secondary size and colour.
+2. **Next-up line** on each track card, under the progress bar row: "Next up:" in `--text-dim` followed by the lesson title in `--text` at 600, both `--fs-secondary`. One line, ellipsis on overflow. When the whole track is seen: "All seen. Reviews take it from here." in `--text-dim` throughout.
 
-No other layout rework: the existing cards, icon chips and two-layer bars stay as they are.
+No other layout rework: the existing cards, icon chips and two-layer bars stay exactly as they are.
 
 ## Part C: track detail becomes a path (`TrackDetailScreen`)
 
-Lessons become stations on a vertical spine. Per station, top to bottom: node and title, concept chips, then the existing per-exercise rows (state dot, type label, difficulty pips), which stay.
+Lessons become stations on a vertical spine. Per station, top to bottom: node and title row, concept chips, then the existing per-exercise rows (state dot, type label, difficulty pips), which stay unchanged.
 
-- **Spine and nodes**: a 2px `--border` line down a fixed left rail connects one node per lesson. Node: 28px circle carrying the lesson's number. States:
-  - untouched: `--surface` fill, `--border` stroke, number in `--text-dim`.
-  - any exercise seen: fill with the same ~28% track-colour mix the progress bar's seen layer uses; number in `--text`.
-  - all exercises mastered: full track colour fill, the drawn check icon (`CheckIcon`) instead of the number. Never a glyph character.
-- **"You are here"**: the first lesson with an unseen exercise gets a pill beside its title: track-colour text on a ~10% track-colour tint, full radius. At most one per track; none once the whole track is seen.
-- **Concept chips**: the lesson's distinct concepts (dedupe within the lesson, keep first-appearance order), each a chip with the concept's drawn icon and title, linking to `/sheets/{id}`. Reuse the sheets related-chip recipe (min-height 44px, pill radius, 1px border) adapted to sit on the card surface. Concepts repeating across lessons is correct and wanted: a later lesson that revisits hash lookups shows that chip again.
+Layout: each station is a flex row, a fixed 28px rail column plus the station card (`flex: 1`, `min-width: 0`), with the existing `--sp-3` stack gap between stations. The card keeps the standard card recipe.
+
+- **Nodes**: a 28px circle in the rail, its vertical center aligned with the center of the lesson title's first line. Get that alignment by eye at 390px, not by arithmetic alone; a node floating above or sagging below its title is the single fastest way to make this screen look broken. Number at 13px, 600, tabular. States:
+  - untouched: `--surface` fill, 2px `--border` stroke, number in `--text-dim`.
+  - any exercise seen: fill with exactly the progress bar's seen-layer recipe, `color-mix(in srgb, <track colour> 28%, var(--surface-2))` (lift it from `ProgressBar.tsx`, do not invent a new mix), no visible stroke, number in `--text`.
+  - all exercises mastered: full track colour fill, the drawn `CheckIcon` at ~14px in `--surface` instead of the number. Never a glyph character.
+- **Spine**: a 2px `--border` line centered in the rail, connecting node to node. It must run unbroken through the gaps between cards, never poke above the first node or below the last, and butt cleanly against the circles. If the line visibly stutters at card boundaries, fix the geometry, do not fake it with dashes.
+- **"You are here"**: the first lesson with an unseen exercise gets a pill in the title row: 12px 600 `--text` on a `color-mix(in srgb, <track colour> 10%, var(--surface))` tint, `--r-pill`, roughly 3px 10px padding. Deliberately not track-coloured text: docs/06 reserves full-strength track colour for icons, fills and 15px+ bold text, and 12px text in it would flirt with AA failure. The node beside it already carries the colour. At most one pill per track; none once the whole track is seen. If the title plus pill overflows 390px, the pill wraps below the title whole; it never squashes or truncates.
+- **Concept chips**: the lesson's distinct concepts (dedupe within the lesson, keep first-appearance order), each a chip linking to `/sheets/{id}`: the concept's drawn icon at 16px inheriting text colour, then the card title, `--fs-secondary` 600, on `--surface-2` with a 1px `--border`, `--r-pill`, min-height 44px, ~12px horizontal padding, 6px icon-to-text gap. This is the sheets related-chip recipe moved onto a card surface; keep them visually identical apart from the background. The row wraps with `--sp-2` gaps and sits between the title row and the exercise list with `--sp-3` above and below. Concepts repeating across lessons is correct and wanted: a later lesson that revisits hash lookups shows that chip again.
 - Everything on the path remains tappable; nothing is locked, dimmed into illegibility, or blurred.
-- Track colour rules from docs/06 hold: colour lives in the nodes, the pill and the bar, never on a card edge.
+- Track colour rules from docs/06 hold: colour lives in the nodes and the bars, never on a card edge. No new motion: nodes and the pill do not animate; the only transitions on this screen are the ones the progress bar already owns, which respect reduced motion.
 
 ## Docs to update alongside
 
@@ -80,3 +87,16 @@ Lessons become stations on a vertical spine. Per station, top to bottom: node an
 - After playing a session or two: node states advance, the pill sits on the first lesson with unseen material, next-up lines and header figures move, and the forecast shrinks.
 - The everything-seen and everything-mastered copy states verified once in a dev check (temporary progress injection is fine; do not ship it).
 - Touch targets at least 44px for chips and every other tappable; text contrast passes AA; `npm run build`, `npm run lint`, `npm test` green; no emoji and no em-dashes in code, copy or docs.
+
+### The visual pass (do this in the browser, at 390x844, before committing)
+
+These are the specific ways this design goes ugly. Walk every track detail and the overview once, looking for each:
+
+- The spine stutters or breaks at card boundaries, or a stub of line sticks out above station one or below the last station.
+- A node sits visibly off the center of its title line, on any station, including one whose title row wrapped.
+- The longest lesson title plus the pill: the pill must wrap below whole, never compress, truncate or push the title into the rail.
+- A one-chip lesson and a four-chip lesson both look intentional; wrapped chip rows keep even gaps; no chip ever breaks across lines.
+- A track with seven or more lessons scrolls smoothly with the rail staying aligned the whole way down.
+- The journey header with zero progress: the display numeral reads "0" and still looks composed, not broken; with every exercise mastered, the done copy fits without the card growing awkward.
+- Squint test on the overview: the header's numeral, then the accent bar, then the track cards should be the reading order. If the forecast sentence competes with the numeral, the type is too big.
+- Reduce motion on: nothing on either screen still animates.
