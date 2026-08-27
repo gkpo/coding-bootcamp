@@ -67,7 +67,7 @@ Contrast: all text/background pairs must pass WCAG AA (the values above do; keep
 - Durations: micro 150ms, standard 250ms, celebratory 400ms. Easing `cubic-bezier(0.2, 0.8, 0.2, 1)`.
 - Session flow: next exercise slides in from right 250ms. Feedback panel slides up 250ms.
 - Correct answer: option pops (scale 1 → 1.03 → 1) + success tint.
-- Session complete: no particles. The celebration is the figures landing, not decoration on top of them. The XP total counts up from zero over ~600ms (cubic ease out, tabular numerals so the line does not jitter) and overshoots to 1.035 once as it settles; a single soft `--accent` radial bloom breathes out behind it and is gone inside a second; the result dots cascade in left to right, 45ms apart. Nothing falls, nothing is thrown, and no celebration element outlives its animation.
+- Session complete: no particles. The celebration is the figures landing, not decoration on top of them. The XP total counts up from zero over ~700ms (quadratic ease out, tabular numerals so the line does not jitter) and overshoots to 1.035 once as it settles; a single soft `--accent` radial bloom breathes out behind it and is gone inside a second; the result dots cascade in left to right, 45ms apart. Nothing falls, nothing is thrown, and no celebration element outlives its animation.
 - Wrong answer: 250ms horizontal shake, ±4px. No red flashes.
 - Streak milestone (7/30): flame pulse + count-up animation on the number.
 - All motion behind `prefers-reduced-motion` + the in-app toggle → fades only.
