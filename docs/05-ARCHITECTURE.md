@@ -15,7 +15,21 @@
 | Tests               | Vitest for pure logic (Leitner, session composer, content validation, grading)                   | No E2E suite in v1; manual mobile testing per milestone                                              |
 | Lint/format         | ESLint + Prettier, default sensible configs                                                      | `npm run lint` must pass in CI                                                                       |
 
-**Dependency budget:** the list above is the whitelist. Adding anything else needs a one-line justification in the commit message. Target < 200KB gzipped JS total.
+**Budgets.** A build splits into three chunks (`vendor`, `index`, `content`) so these are readable straight off `npm run build`. Two of them are budgets; the third is the product.
+
+| Chunk     | What it holds                       | Budget            | At 190 exercises |
+| --------- | ----------------------------------- | ----------------- | ---------------- |
+| `vendor`  | Everything in `dependencies`        | **< 60KB gzip**   | 35KB             |
+| `index`   | Our UI, engine, store and styles    | **< 100KB gzip**  | 75KB             |
+| `content` | The exercise bank and concept cards | No cap; see below | 93KB             |
+
+**Dependency budget:** the stack table above is the whitelist. Adding anything else needs a one-line justification in the commit message, and `vendor` must stay under its cap. This is the budget that matters: it exists to stop a date library, an icon package or a component library arriving one convenient import at a time.
+
+**App budget:** our own code should grow with features, not with content. If `index` moves without a feature behind it, something content-shaped has leaked into a component (see the content-lives-in-data-files rule).
+
+**Content is not budgeted.** It is the product, it grows every wave, and it costs the user one precache at install rather than a download per visit. It runs about 0.5KB gzipped per exercise, so a wave of 50 is roughly 25KB. Record the figure in the commit when it moves so a jump is visible; do not treat it as a ceiling.
+
+_(These replaced a single "< 200KB gzipped JS total" line. That target was written when the bank was ~100 exercises, and it read as a dependency guard because every note in the table above is one. Content growth was tripping a limit that was never aimed at it, while dependencies sat at a third of the number.)_
 
 ## Folder layout
 

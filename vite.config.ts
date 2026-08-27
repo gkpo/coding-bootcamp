@@ -42,6 +42,19 @@ export default defineConfig({
       },
     }),
   ],
+  build: {
+    rollupOptions: {
+      output: {
+        // Three chunks so the two budgets in docs/05 are readable straight off
+        // a build, and so a content-only release does not invalidate the
+        // framework chunk the browser has already precached.
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom', 'zustand'],
+          content: ['./src/content/index.ts'],
+        },
+      },
+    },
+  },
   test: {
     environment: 'node',
     include: ['src/**/*.test.ts'],
