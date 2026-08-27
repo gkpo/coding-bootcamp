@@ -58,5 +58,9 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['src/**/*.test.ts'],
+    // Vitest stubs CSS imports to empty strings by default, which silently
+    // turns tokens.test.ts into a suite that asserts nothing. It reads
+    // tokens.css through `?raw` to check the palette's contrast ratios.
+    css: true,
   },
 });

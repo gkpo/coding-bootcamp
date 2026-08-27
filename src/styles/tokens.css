@@ -1,5 +1,19 @@
 /* Design tokens. Docs/06-DESIGN-SYSTEM.md is binding. Light theme only in v1.
  *
+ * The accent is split by JOB, not by hue (docs/06 "Accent split"). The rule:
+ * --accent carries anything that means something, --accent-bright carries
+ * only decoration. That split exists because measurement forced it. The old
+ * bright amber #F59E0B could not do either job on warm paper:
+ *
+ *   as a button fill   1.97:1 against --bg      the control never sat forward
+ *   as a progress fill 1.85:1 against --surface-2   the fill vanished
+ *   as a toggle state  2.15:1 against --surface     the state was unreadable
+ *
+ * Its dark-brown label passed at 7.06:1, so the button read as low contrast
+ * while technically clearing AAA. Darkening the fill is the only fix; the
+ * label then flips to white. Bright gold survives in --accent-bright for the
+ * summary bloom, which encodes nothing and sits behind text that does.
+ *
  * Three text tokens are a hair darker than the values printed in that doc.
  * The doc's binding rule is "all text/background pairs must pass WCAG AA
  * (the values above do; keep it true if tweaked)", but measured, they did
@@ -9,8 +23,6 @@
  * what the doc actually binds, so it wins over the printed hex.
  *
  *   --text-dim    #6B7180 -> #666C7A   (4.48 -> 4.83 on --bg)
- *   --accent-text #B45309 -> #B05109   (4.34 -> 4.50 on --surface-2)
- *   --info        #2563EB -> #2462EB   (4.46 -> 4.51 on --surface-2)
  *
  * --success and --danger stay as printed: they are only ever borders, tints
  * and small glyphs, which are UI components needing 3:1, and they clear that.
@@ -25,19 +37,26 @@
   --text: #1f2430;
   --text-dim: #666c7a;
 
-  /* ---- the one accent (warm amber) ---- */
-  --accent: #f59e0b;
-  --accent-pressed: #d97706;
-  --accent-text: #b05109; /* amber as text/small glyphs, the fill fails AA */
-  --on-accent: #33230a;
+  /* ---- the accent, split by job (docs/06) ----
+     --accent        anything that MEANS something: button and badge fills,
+                     progress fills, streak dots, the toggle's on state, the
+                     flame, the active tab icon. Fully saturated so it is
+                     punchy, dark enough to carry white and to clear 3:1 as a
+                     state fill.
+     --accent-bright decoration only. Never text, never state. */
+  --accent: #cc4b00; /* 4.59 on white, 4.22 on --bg, 3.96 on --surface-2 */
+  --accent-pressed: #a83d00;
+  --accent-text: #ad4000; /* accent as text/small glyphs: 5.17 on --surface-2 */
+  --accent-bright: #ffa616; /* gold: the summary bloom, and nothing else */
+  --on-accent: #ffffff;
 
-  /* ---- semantic ---- */
-  --success: #059669;
-  --danger: #dc2626;
-  --info: #2462eb;
-  --success-bg: rgba(5, 150, 105, 0.1);
-  --danger-bg: rgba(220, 38, 38, 0.1);
-  --info-bg: rgba(37, 99, 235, 0.1);
+  /* ---- semantic (full saturation, same rule: dark enough to mean it) ---- */
+  --success: #00875a;
+  --danger: #e11d48;
+  --info: #006daf;
+  --success-bg: rgba(0, 135, 90, 0.1);
+  --danger-bg: rgba(225, 29, 72, 0.1);
+  --info-bg: rgba(0, 109, 175, 0.1);
 
   /* ---- syntax highlighting ----
      Drawn from the deep end of the track colours, never neon-on-white
