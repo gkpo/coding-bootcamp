@@ -1,13 +1,21 @@
 import type { TrackTally } from '../engine/leitner';
 import type { TrackId } from '../content/types';
+import { seenFill } from './progressFill';
 import './ProgressBar.css';
 
-interface Props {
+type Props = {
   tally: TrackTally;
-  trackId: TrackId;
   /** Layout class from the host screen (placement, not appearance). */
   className?: string;
-}
+} & (
+  | { trackId: TrackId; colour?: undefined }
+  /**
+   * A bar that is not about one track takes an explicit colour instead. The
+   * journey header's whole-bank bar is the only one: track colours belong to
+   * tracks, so it uses the app accent (docs/11 part B).
+   */
+  | { colour: string; trackId?: undefined }
+);
 
 /**
  * A track's progress in two layers: a faint fill for exercises seen at least
@@ -20,9 +28,9 @@ interface Props {
  *
  * Decorative: every caller prints the same counts as text next to it.
  */
-export function ProgressBar({ tally, trackId, className }: Props) {
+export function ProgressBar({ tally, trackId, colour, className }: Props) {
   const pct = (n: number) => (tally.total === 0 ? 0 : (n / tally.total) * 100);
-  const colour = `var(--track-${trackId})`;
+  const fill = colour ?? `var(--track-${trackId})`;
 
   return (
     <span className={className ? `progress-bar ${className}` : 'progress-bar'} aria-hidden>
@@ -30,12 +38,12 @@ export function ProgressBar({ tally, trackId, className }: Props) {
         className="progress-bar__seen"
         style={{
           width: `${pct(tally.seen)}%`,
-          background: `color-mix(in srgb, ${colour} 28%, var(--surface-2))`,
+          background: seenFill(fill),
         }}
       />
       <span
         className="progress-bar__mastered"
-        style={{ width: `${pct(tally.mastered)}%`, background: colour }}
+        style={{ width: `${pct(tally.mastered)}%`, background: fill }}
       />
     </span>
   );
