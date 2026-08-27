@@ -39,7 +39,7 @@ export function vibrate(kind: FeedbackKind, enabled: boolean): void {
  * drawn but never read by anything: a control that pretends to work is worse
  * than no control.
  *
- * The shape of each cue is a small score (see `VOICES`) played through one
+ * The shape of each cue is a small score (see `CUES`) played through one
  * shared bus: notes fan out to a dry path and to a short synthesised tail, so
  * a correct answer rings in a room rather than beeping in a box. Level stays
  * low on purpose. The cue should read as expensive, not as loud.
@@ -68,6 +68,11 @@ export interface Note {
   type?: OscillatorType;
   /** Slide the pitch here across the note. Used to stop a miss sounding flat. */
   bendTo?: number;
+  /**
+   * Seconds to reach full level. The default is a strike; longer makes the
+   * note swell in, which is most of what separates a fanfare from a chime.
+   */
+  attack?: number;
   /** Share of the note sent to the tail. Low keeps it dry and close. */
   send?: number;
   /**
@@ -103,28 +108,50 @@ export const DEFAULT_TUNING: Tuning = {
   sparkle: 1,
 };
 
+/** A cue is its notes plus the treatment they are played through. */
+export interface Cue {
+  notes: Note[];
+  tuning: Tuning;
+}
+
 /**
- * Equal temperament, A4 = 440. The correct cue is the same rising E5 to A5 it
- * always was; what is new is the octave of sparkle over it, the quiet low A
- * underneath for body, and the tail behind all of it.
+ * Equal temperament, A4 = 440.
+ *
+ * Each cue carries its own tuning because they do not want the same room. The
+ * correct answer was chosen by ear in the sound studio and is deliberately
+ * wet, wide and bright; a miss drenched in the same 2.4s hall would read as an
+ * event rather than a shrug.
  */
-export const VOICES: Record<FeedbackKind, Note[]> = {
-  right: [
-    { freq: 659.25, at: 0, dur: 0.34, level: 0.05, spread: 9, send: 0.65 },
-    { freq: 880, at: 0.085, dur: 0.66, level: 0.055, spread: 12, send: 1 },
-    { freq: 1760, at: 0.1, dur: 0.5, level: 0.011, spread: 18, send: 1, sparkle: true },
-    { freq: 220, at: 0.085, dur: 0.36, level: 0.028, type: 'triangle', send: 0.2 },
-  ],
+export const CUES: Record<FeedbackKind, Cue> = {
+  // "Warm", picked over six alternatives: A4 up to E5 through the third, the
+  // rise pitched low and rounded off with triangles. More wood than glass.
+  right: {
+    notes: [
+      { freq: 440, at: 0, dur: 0.32, level: 0.05, spread: 8, type: 'triangle', send: 0.6 },
+      { freq: 554.37, at: 0.08, dur: 0.34, level: 0.048, spread: 9, type: 'triangle', send: 0.75 },
+      { freq: 659.25, at: 0.16, dur: 0.7, level: 0.05, spread: 11, send: 1 },
+      { freq: 880, at: 0.17, dur: 0.45, level: 0.008, spread: 14, send: 1, sparkle: true },
+      { freq: 220, at: 0.16, dur: 0.45, level: 0.032, type: 'triangle', send: 0.25 },
+    ],
+    tuning: { level: 1, width: 0.6, tail: 0.8, tailSeconds: 2.4, sparkle: 2.5 },
+  },
   // Unchanged in character: one low note, quiet, over quickly. The small fall
-  // in pitch is there so it reads as a shrug rather than a buzzer.
-  wrong: [{ freq: 220, at: 0, dur: 0.3, level: 0.066, bendTo: 196, send: 0.25 }],
-  complete: [
-    { freq: 523.25, at: 0, dur: 0.3, level: 0.042, spread: 8, send: 0.6 },
-    { freq: 659.25, at: 0.09, dur: 0.34, level: 0.042, spread: 8, send: 0.7 },
-    { freq: 783.99, at: 0.18, dur: 0.4, level: 0.044, spread: 10, send: 0.85 },
-    { freq: 1046.5, at: 0.27, dur: 0.9, level: 0.05, spread: 14, send: 1 },
-    { freq: 130.81, at: 0.27, dur: 0.5, level: 0.03, type: 'triangle', send: 0.2 },
-  ],
+  // in pitch is there so it reads as a shrug rather than a buzzer. Kept on the
+  // close, dry treatment on purpose.
+  wrong: {
+    notes: [{ freq: 220, at: 0, dur: 0.3, level: 0.066, bendTo: 196, send: 0.25 }],
+    tuning: DEFAULT_TUNING,
+  },
+  complete: {
+    notes: [
+      { freq: 523.25, at: 0, dur: 0.3, level: 0.042, spread: 8, send: 0.6 },
+      { freq: 659.25, at: 0.09, dur: 0.34, level: 0.042, spread: 8, send: 0.7 },
+      { freq: 783.99, at: 0.18, dur: 0.4, level: 0.044, spread: 10, send: 0.85 },
+      { freq: 1046.5, at: 0.27, dur: 0.9, level: 0.05, spread: 14, send: 1 },
+      { freq: 130.81, at: 0.27, dur: 0.5, level: 0.03, type: 'triangle', send: 0.2 },
+    ],
+    tuning: { ...DEFAULT_TUNING, tail: 0.42, tailSeconds: 1.6 },
+  },
 };
 
 type AudioCtor = typeof AudioContext;
@@ -139,6 +166,13 @@ interface Bus {
   room: ConvolverNode | null;
   /** Length the current room was built at. */
   roomSeconds: number;
+  /**
+   * Impulses already generated, by length. Cues carry different rooms, so
+   * without this every switch between them would build a fresh one: at 48kHz
+   * a 2.4s stereo impulse is a quarter of a million random samples, on the
+   * thread that is trying to play the cue.
+   */
+  rooms: Map<number, AudioBuffer>;
 }
 
 let context: AudioContext | null = null;
@@ -192,8 +226,9 @@ function getBus(ctx: AudioContext, tuning: Tuning): Bus | null {
     bus.master.gain.value = tuning.level;
     if (bus.tail) bus.tail.gain.value = tuning.tail;
     if (bus.room && bus.roomSeconds !== tuning.tailSeconds) {
-      const next = roomImpulse(ctx, tuning.tailSeconds);
+      const next = bus.rooms.get(tuning.tailSeconds) ?? roomImpulse(ctx, tuning.tailSeconds);
       if (next) {
+        bus.rooms.set(tuning.tailSeconds, next);
         bus.room.buffer = next;
         bus.roomSeconds = tuning.tailSeconds;
       }
@@ -236,7 +271,9 @@ function getBus(ctx: AudioContext, tuning: Tuning): Bus | null {
     room.connect(master);
   }
 
-  bus = { ctx, master, tail, room, roomSeconds: tuning.tailSeconds };
+  const rooms = new Map<number, AudioBuffer>();
+  if (impulse) rooms.set(tuning.tailSeconds, impulse);
+  bus = { ctx, master, tail, room, roomSeconds: tuning.tailSeconds, rooms };
   return bus;
 }
 
@@ -261,9 +298,12 @@ function playVoice(
   // floor has to stay above it even when a slider is pulled all the way down.
   const peak = Math.max(0.00011, note.level * (note.sparkle ? tuning.sparkle : 1));
 
-  // Fast in, long exponential out. A bell decays, a beep stops.
+  // In, then a long exponential out. A bell decays, a beep stops. The attack
+  // is a strike by default and a swell when a cue asks for one, and is capped
+  // below the note's length so a slow swell cannot outlive its own note.
+  const attack = Math.min(note.attack ?? 0.012, note.dur * 0.6);
   gain.gain.setValueAtTime(0.0001, start);
-  gain.gain.exponentialRampToValueAtTime(peak, start + 0.012);
+  gain.gain.exponentialRampToValueAtTime(peak, start + attack);
   gain.gain.exponentialRampToValueAtTime(0.0001, start + note.dur);
 
   let node: AudioNode = gain;
@@ -316,7 +356,7 @@ export function playNotes(notes: Note[], enabled: boolean, tuning?: Partial<Tuni
 }
 
 export function playTone(kind: FeedbackKind, enabled: boolean): void {
-  playNotes(VOICES[kind], enabled);
+  playNotes(CUES[kind].notes, enabled, CUES[kind].tuning);
 }
 
 /** Test seam: drop the cached context and bus so a stubbed one is picked up. */

@@ -230,4 +230,7 @@
   line-height: 1.6;
   color: var(--text);
   overflow-wrap: anywhere;
+  /* One line per cue family. Without this the newline between them renders
+     as a space and the two recipes read as one run-on line. */
+  white-space: pre-line;
 }

@@ -1,11 +1,12 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
+  CUES,
   DEFAULT_TUNING,
   playNotes,
   playTone,
   resetAudioForTests,
   vibrate,
-  VOICES,
+  type Note,
 } from './feedback';
 
 const withVibrate = (impl?: (p: number | number[]) => boolean) => {
@@ -216,9 +217,9 @@ describe('playNotes tuning', () => {
 
   it('collapses a spread note to one oscillator at zero width', () => {
     const wide = stub();
-    playNotes(VOICES.right, true, { width: 0.34 });
+    playNotes(CUES.right.notes, true, { width: 0.34 });
     const narrow = stub();
-    playNotes(VOICES.right, true, { width: 0 });
+    playNotes(CUES.right.notes, true, { width: 0 });
     expect(narrow.createOscillator.mock.calls.length).toBeLessThan(
       wide.createOscillator.mock.calls.length,
     );
@@ -237,8 +238,8 @@ describe('playNotes tuning', () => {
         )
         .map((call) => call[0] as number);
 
-    const sparkle = VOICES.right.filter((n) => n.sparkle);
-    const spine = VOICES.right.filter((n) => !n.sparkle);
+    const sparkle = CUES.right.notes.filter((n: Note) => n.sparkle);
+    const spine = CUES.right.notes.filter((n: Note) => !n.sparkle);
     expect(sparkle.length).toBeGreaterThan(0);
     expect(spine.length).toBeGreaterThan(0);
 
@@ -258,7 +259,7 @@ describe('playNotes tuning', () => {
   it('never ramps to a true zero, however far the sparkle is pulled down', () => {
     const ctx = stub();
     playNotes(
-      VOICES.right.filter((n) => n.sparkle),
+      CUES.right.notes.filter((n: Note) => n.sparkle),
       true,
       { sparkle: 0 },
     );
@@ -277,8 +278,8 @@ describe('playNotes tuning', () => {
 
   it('swaps the room buffer for a new length without rebuilding the bus', () => {
     const ctx = stub();
-    playNotes(VOICES.right, true, { tailSeconds: 1.1 });
-    playNotes(VOICES.right, true, { tailSeconds: 2.2 });
+    playNotes(CUES.right.notes, true, { tailSeconds: 1.1 });
+    playNotes(CUES.right.notes, true, { tailSeconds: 2.2 });
     expect(ctx.createConvolver!.mock.calls.length).toBe(1);
     expect(ctx.createBuffer!.mock.calls.length).toBe(2);
     const [, lastLength] = ctx.createBuffer!.mock.calls[1] as unknown as number[];
@@ -288,8 +289,58 @@ describe('playNotes tuning', () => {
 
   it('stays silent when sound is off, whatever the tuning', () => {
     const ctx = stub();
-    playNotes(VOICES.right, false, { level: 1.6 });
+    playNotes(CUES.right.notes, false, { level: 1.6 });
     expect(ctx.createOscillator).not.toHaveBeenCalled();
+  });
+
+  it('caches a room per length, so switching cues does not rebuild one', () => {
+    const ctx = stub();
+    // The cues carry different room lengths, and answers alternate between
+    // them. Regenerating a multi-second stereo impulse on every answer would
+    // be a quarter of a million random samples on the audio thread.
+    playTone('right', true);
+    playTone('wrong', true);
+    playTone('right', true);
+    playTone('wrong', true);
+    const lengths = new Set(
+      [CUES.right.tuning.tailSeconds, CUES.wrong.tuning.tailSeconds].map((n) => n),
+    );
+    expect(ctx.createBuffer!.mock.calls.length).toBe(lengths.size);
+  });
+
+  it('plays each cue through its own tuning, not one global treatment', () => {
+    // A miss drenched in the success cue's hall would read as an event.
+    expect(CUES.wrong.tuning.tailSeconds).toBeLessThan(CUES.right.tuning.tailSeconds);
+    expect(CUES.wrong.tuning.tail).toBeLessThan(CUES.right.tuning.tail);
+
+    const ctx = stub();
+    playTone('wrong', true);
+    const [, wrongLength] = ctx.createBuffer!.mock.calls[0] as unknown as number[];
+    const fresh = stub();
+    playTone('right', true);
+    const [, rightLength] = fresh.createBuffer!.mock.calls[0] as unknown as number[];
+    expect(rightLength).toBeGreaterThan(wrongLength);
+  });
+
+  it('never lets a swell outlast the note it belongs to', () => {
+    const ctx = stub();
+    // An attack longer than the note would schedule the peak after the decay
+    // has already been asked for, which throws the whole cue away.
+    playNotes([{ freq: 440, at: 0, dur: 0.2, level: 0.05, attack: 5 }], true);
+    // The bus gains come first and are set by value, so the envelope is the
+    // first gain node that was actually ramped.
+    const ramps =
+      ctx.createGain.mock.results
+        .map(
+          (r) =>
+            (r.value as { gain: { exponentialRampToValueAtTime: Fn } }).gain
+              .exponentialRampToValueAtTime.mock.calls,
+        )
+        .find((calls) => calls.length === 2) ?? [];
+    expect(ramps.length).toBe(2);
+    const [, peakAt] = ramps[0] as unknown as number[];
+    const [, endAt] = ramps[1] as unknown as number[];
+    expect(peakAt).toBeLessThan(endAt);
   });
 
   it('leaves the shipped cues on the shipped tuning', () => {

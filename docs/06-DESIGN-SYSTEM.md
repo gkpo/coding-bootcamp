@@ -72,7 +72,8 @@ Contrast: all text/background pairs must pass WCAG AA (the values above do; keep
 Synthesised at runtime in `src/engine/feedback.ts`, so there is nothing to ship or cache. Behind the Sound toggle, and silent wherever the browser lacks a node.
 
 - **Level:** quiet. Peaks sit near 0.09 of full scale for a correct answer and 0.06 for a miss. The cue reads as expensive because of what it is, not how loud it is. A `tanh` soft clip on the master catches stacked peaks. Not a `DynamicsCompressor`: Chrome's costs around 7dB even on material far below its threshold.
-- **Correct:** E5 into A5, the rising interval the app has always used. Under it a quiet A3 for body, over it an A6 for sparkle, and a short room behind all of it. About 0.65s to silence.
+- **Correct:** A4 up to E5 through the third, pitched low and rounded off with triangles: more wood than glass. A quiet A3 under it for body, an A5 over it for sparkle, and a long hall behind all of it. About 1.6s to silence. Chosen by ear in the sound studio over six alternatives.
+- **Per cue, not global:** each cue carries its own treatment. The correct answer is wide and wet by choice; the same hall on a miss would make it an event rather than a shrug.
 - **Wrong:** one low A, a small fall in pitch, mostly dry, gone in 0.2s. A shrug, never a buzzer.
 - **Session complete:** C major arpeggio up to C6 over a low C, the longest tail in the app at roughly 0.9s. The only place it plays is the summary screen, once on arrival.
 - **Width:** notes above a whisper are stacked as two oscillators detuned a few cents apart and panned to opposite sides, and the room's two channels carry independent noise. That is where the size comes from. Where `StereoPannerNode` or `ConvolverNode` is missing the cue degrades to plain centred tones.
