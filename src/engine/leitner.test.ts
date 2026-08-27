@@ -6,6 +6,7 @@ import {
   dueDayForBox,
   isDue,
   isMastered,
+  knownCardIds,
   masteryRatio,
   newProgress,
   nextBox,
@@ -178,5 +179,30 @@ describe('dueExercises', () => {
   it('treats due-today as due', () => {
     expect(isDue(at(1, '2026-08-26'), '2026-08-26')).toBe(true);
     expect(isDue(at(1, '2026-08-27'), '2026-08-26')).toBe(false);
+  });
+});
+
+describe('knownCardIds', () => {
+  const cards = [{ id: 'closure' }, { id: 'hashing' }, { id: 'orphan' }];
+  const exercises = [
+    { id: 'a', conceptId: 'closure' },
+    { id: 'b', conceptId: 'closure' },
+    { id: 'c', conceptId: 'hashing' },
+  ];
+
+  it('knows a card only when every exercise linking to it is mastered', () => {
+    const known = knownCardIds(cards, exercises, { a: at(4), b: at(5), c: at(2) });
+    expect([...known]).toEqual(['closure']);
+  });
+
+  it('does not know a card with an exercise never attempted', () => {
+    const known = knownCardIds(cards, exercises, { a: at(4) });
+    expect(known.has('closure')).toBe(false);
+  });
+
+  it('never knows a card nothing links to', () => {
+    const known = knownCardIds(cards, exercises, { a: at(5), b: at(5), c: at(5) });
+    expect(known.has('orphan')).toBe(false);
+    expect(known.size).toBe(2);
   });
 });

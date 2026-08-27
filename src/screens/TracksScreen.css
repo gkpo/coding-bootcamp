@@ -73,12 +73,6 @@
   font-weight: 600;
 }
 
-.lesson__title {
-  font-size: var(--fs-heading);
-  font-weight: 600;
-  margin-bottom: var(--sp-3);
-}
-
 .lesson__list {
   list-style: none;
   margin: 0;
@@ -150,4 +144,240 @@
 
 .lesson__pip.is-on {
   background: var(--text-dim);
+}
+
+/* ---------------------------------------------------------------------------
+   The journey header (docs/11 part B)
+
+   The whole territory in one card, above the track list: how much of the bank
+   has been met, how much of it has stuck, and roughly how far the far end is.
+   One big numeral, then everything else in secondary type. If the forecast
+   sentence starts competing with the count, the type is too big.
+   --------------------------------------------------------------------------- */
+
+.journey {
+  border: 1px solid var(--border);
+  padding: var(--sp-5);
+}
+
+.journey__title {
+  font-size: var(--fs-heading);
+  font-weight: 600;
+}
+
+/* The caption is not a label under the figure, it is the rest of the sentence
+   the figure starts, so the two share a baseline rather than stacking. */
+.journey__figure {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sp-2);
+  margin-top: var(--sp-4);
+}
+
+.journey__count {
+  font-size: var(--fs-display);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.journey__of {
+  font-size: var(--fs-secondary);
+  color: var(--text-dim);
+}
+
+/* Placement only; the bar's two fills live in ProgressBar.css. This one is the
+   whole bank rather than one track, so it carries the app accent. */
+.journey__bar {
+  margin-top: var(--sp-3);
+}
+
+.journey__figures {
+  margin-top: var(--sp-2);
+  font-size: var(--fs-secondary);
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.journey__forecast {
+  margin-top: var(--sp-4);
+  font-size: var(--fs-body);
+  color: var(--text);
+  line-height: 1.5;
+}
+
+/* ---- next up, on each track card ---- */
+
+.track-card__next {
+  font-size: var(--fs-secondary);
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.track-card__next-title {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* ---------------------------------------------------------------------------
+   The path (docs/11 part C)
+
+   Lessons are stations on one vertical spine. The rail is a fixed column to
+   the left of each card; the spine is drawn per station and runs on through
+   the gap to the next node, so it never stutters at a card boundary.
+   --------------------------------------------------------------------------- */
+
+.path {
+  /* Node geometry, derived rather than guessed. The node's center has to land
+     on the center of the station title's first line: that is the card's top
+     padding plus half a title line, and the node hangs half its own height
+     above that. Every number below follows from these three. */
+  --node-size: 28px;
+  --title-line: 22px;
+  --node-top: calc(var(--sp-4) + var(--title-line) / 2 - var(--node-size) / 2);
+  --node-center: calc(var(--node-top) + var(--node-size) / 2);
+  --station-gap: var(--sp-3);
+
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--station-gap);
+}
+
+.path__station {
+  position: relative;
+  display: flex;
+  gap: var(--sp-3);
+}
+
+/* One spine segment per station: from this node's center down to the next
+   node's top edge, straight through the gap between the two cards. The part
+   behind the node is covered by the node's own opaque fill, so the line butts
+   against the circle instead of crossing it. */
+.path__station::before {
+  content: '';
+  position: absolute;
+  top: var(--node-center);
+  bottom: calc(-1 * (var(--station-gap) + var(--node-top)));
+  left: calc(var(--node-size) / 2 - 1px);
+  width: 2px;
+  background: var(--border);
+}
+
+/* Nothing hangs below the last node, and a single-lesson track gets no line. */
+.path__station:last-child::before {
+  content: none;
+}
+
+.path__rail {
+  flex: 0 0 var(--node-size);
+}
+
+.path__station > .station {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.path__node {
+  position: relative;
+  z-index: 1;
+  margin-top: var(--node-top);
+  width: var(--node-size);
+  height: var(--node-size);
+  border-radius: var(--r-pill);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.path__node-number {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.path__node--untouched {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  color: var(--text-dim);
+}
+
+/* Fill comes from ProgressBar's seen recipe, set inline; only the ink is here. */
+.path__node--started {
+  color: var(--text);
+}
+
+.path__node--mastered {
+  color: var(--surface);
+}
+
+/* ---- the station card ---- */
+
+.station {
+  border: 1px solid var(--border);
+}
+
+/* The pill sits beside the title while it fits and drops to its own line
+   whole when it does not. It never shrinks: a squashed or clipped pill reads
+   as a bug, a wrapped one reads as a layout. */
+.station__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sp-2);
+}
+
+.station__title {
+  flex: 0 1 auto;
+  min-width: 0;
+  font-size: var(--fs-heading);
+  font-weight: 600;
+  line-height: var(--title-line);
+}
+
+.station__pill {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  padding: 3px 10px;
+  border-radius: var(--r-pill);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* The sheets related-chip recipe, moved onto a card surface. Identical apart
+   from the background, which has to step away from the card it sits on. */
+.station__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin: var(--sp-3) 0;
+}
+
+.station__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 var(--sp-3);
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  font-size: var(--fs-secondary);
+  font-weight: 600;
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Without chips the exercise list still needs its air under the title. */
+.station__head + .lesson__list {
+  margin-top: var(--sp-3);
 }

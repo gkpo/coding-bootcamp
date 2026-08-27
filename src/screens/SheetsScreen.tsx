@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { cards, exercises, tracks } from '../content';
 import { searchCards } from '../engine/search';
-import { isMastered } from '../engine/leitner';
+import { knownCardIds } from '../engine/leitner';
 import { useStore } from '../store/useStore';
 import { ConceptIcon } from '../components/ConceptIcon';
 import { RichText } from '../components/RichText';
@@ -17,22 +17,7 @@ export function SheetsScreen() {
   const results = useMemo(() => searchCards(cards, query), [query]);
 
   /** A card is "known" when every exercise linked to it is mastered. */
-  const known = useMemo(() => {
-    const set = new Set<string>();
-    for (const card of cards) {
-      const linked = exercises.filter((e) => e.conceptId === card.id);
-      if (linked.length === 0) continue;
-      if (
-        linked.every((e) => {
-          const p = progress[e.id];
-          return p !== undefined && isMastered(p);
-        })
-      ) {
-        set.add(card.id);
-      }
-    }
-    return set;
-  }, [progress]);
+  const known = useMemo(() => knownCardIds(cards, exercises, progress), [progress]);
 
   const searching = query.trim() !== '';
 

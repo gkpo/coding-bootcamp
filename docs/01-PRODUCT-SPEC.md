@@ -6,7 +6,7 @@
 Home (daily hub)
 ├── Session player (the core loop: one exercise at a time)
 │   └── Session summary (XP earned, streak, mistakes recap)
-├── Tracks (browse 6 tracks → lessons → exercises)
+├── Tracks (the path: browse tracks → lesson stations → exercises)
 ├── Review (spaced-repetition pile)
 ├── Cheat sheets (browsable concept card library + search)
 └── Profile/Stats (streak calendar, XP, per-track mastery, settings)
