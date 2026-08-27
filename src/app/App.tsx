@@ -34,6 +34,15 @@ const router = createHashRouter([
   { path: '/onboarding', element: <OnboardingScreen /> },
   { path: '/session', element: <SessionScreen /> },
   { path: '/session/summary', element: <SessionSummaryScreen /> },
+  // Temporary: a studio for choosing the answer cue by ear. Unlike the
+  // harness below it ships in production on purpose, because the point is to
+  // hear the candidates through a phone speaker on the deployed site. Linked
+  // from nowhere and lazily imported, so it costs the app nothing until the
+  // route is typed. Goes away with src/dev/SoundStudio* once a cue is chosen.
+  {
+    path: '/sound',
+    lazy: async () => ({ Component: (await import('../dev/SoundStudio')).SoundStudio }),
+  },
   // Dev-only harness for driving each renderer in isolation. The dynamic
   // import keeps it out of the production bundle entirely.
   ...(import.meta.env.DEV

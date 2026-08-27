@@ -50,7 +50,7 @@ export function vibrate(kind: FeedbackKind, enabled: boolean): void {
  * degrade to plain tones there rather than fall over.
  */
 
-interface Note {
+export interface Note {
   /** Pitch in Hz. */
   freq: number;
   /** Start, in seconds after the cue is triggered. */
@@ -70,18 +70,49 @@ interface Note {
   bendTo?: number;
   /** Share of the note sent to the tail. Low keeps it dry and close. */
   send?: number;
+  /**
+   * Marks the note as the bright partial on top rather than part of the cue's
+   * spine, which is what lets the sparkle be dialled without retuning the rest.
+   */
+  sparkle?: true;
 }
+
+/**
+ * The four things worth moving by ear rather than by argument. Every cue is
+ * rendered through these, so the same note list can be auditioned wide or
+ * narrow, wet or dry, without a second copy of the synthesis.
+ */
+export interface Tuning {
+  /** Master gain. */
+  level: number;
+  /** How far a spread note's halves sit apart, 0 (mono) to 1 (hard). */
+  width: number;
+  /** How much of the cue reaches the room, 0 (dry) to 1. */
+  tail: number;
+  /** Length of the room itself, in seconds. */
+  tailSeconds: number;
+  /** Multiplier on notes flagged `sparkle`. */
+  sparkle: number;
+}
+
+export const DEFAULT_TUNING: Tuning = {
+  level: 0.9,
+  width: 0.34,
+  tail: 0.3,
+  tailSeconds: 1.1,
+  sparkle: 1,
+};
 
 /**
  * Equal temperament, A4 = 440. The correct cue is the same rising E5 to A5 it
  * always was; what is new is the octave of sparkle over it, the quiet low A
  * underneath for body, and the tail behind all of it.
  */
-const VOICES: Record<FeedbackKind, Note[]> = {
+export const VOICES: Record<FeedbackKind, Note[]> = {
   right: [
     { freq: 659.25, at: 0, dur: 0.34, level: 0.05, spread: 9, send: 0.65 },
     { freq: 880, at: 0.085, dur: 0.66, level: 0.055, spread: 12, send: 1 },
-    { freq: 1760, at: 0.1, dur: 0.5, level: 0.011, spread: 18, send: 1 },
+    { freq: 1760, at: 0.1, dur: 0.5, level: 0.011, spread: 18, send: 1, sparkle: true },
     { freq: 220, at: 0.085, dur: 0.36, level: 0.028, type: 'triangle', send: 0.2 },
   ],
   // Unchanged in character: one low note, quiet, over quickly. The small fall
@@ -96,9 +127,6 @@ const VOICES: Record<FeedbackKind, Note[]> = {
   ],
 };
 
-/** How far apart a spread note's two halves sit in the stereo field. */
-const WIDTH = 0.34;
-
 type AudioCtor = typeof AudioContext;
 
 interface Bus {
@@ -107,6 +135,10 @@ interface Bus {
   master: GainNode;
   /** Input to the tail, or null where convolution is unavailable. */
   tail: GainNode | null;
+  /** The convolver, kept so a new room length can be swapped in. */
+  room: ConvolverNode | null;
+  /** Length the current room was built at. */
+  roomSeconds: number;
 }
 
 let context: AudioContext | null = null;
@@ -130,10 +162,10 @@ function audioContext(): AudioContext | null {
  * the cheapest impulse response that still sounds like a space and not like a
  * delay. Short and dark, so the cue keeps its edges.
  */
-function roomImpulse(ctx: AudioContext): AudioBuffer | null {
+function roomImpulse(ctx: AudioContext, seconds: number): AudioBuffer | null {
   if (typeof ctx.createBuffer !== 'function') return null;
   const rate = ctx.sampleRate || 44100;
-  const length = Math.floor(rate * 1.1);
+  const length = Math.max(1, Math.floor(rate * seconds));
   // A beat of silence before the room answers. Without it the tail lands on
   // top of the note and reads as a slap; with it the note has somewhere to be.
   const preDelay = Math.floor(rate * 0.014);
@@ -150,11 +182,26 @@ function roomImpulse(ctx: AudioContext): AudioBuffer | null {
   return buffer;
 }
 
-/** Build the shared output chain once per context. */
-function getBus(ctx: AudioContext): Bus | null {
-  if (bus && bus.ctx === ctx) return bus;
+/**
+ * Build the shared output chain once per context, then keep it, re-pointing
+ * the two gains at whatever tuning asks for. Only a change of room length
+ * costs anything: that one has to be generated again.
+ */
+function getBus(ctx: AudioContext, tuning: Tuning): Bus | null {
+  if (bus && bus.ctx === ctx) {
+    bus.master.gain.value = tuning.level;
+    if (bus.tail) bus.tail.gain.value = tuning.tail;
+    if (bus.room && bus.roomSeconds !== tuning.tailSeconds) {
+      const next = roomImpulse(ctx, tuning.tailSeconds);
+      if (next) {
+        bus.room.buffer = next;
+        bus.roomSeconds = tuning.tailSeconds;
+      }
+    }
+    return bus;
+  }
   const master = ctx.createGain();
-  master.gain.value = 0.9;
+  master.gain.value = tuning.level;
 
   // A safety net, not an effect: several notes plus a tail can stack past full
   // scale, and clipping is the least premium sound there is. This is a soft
@@ -177,22 +224,31 @@ function getBus(ctx: AudioContext): Bus | null {
   out.connect(ctx.destination);
 
   let tail: GainNode | null = null;
-  const impulse = typeof ctx.createConvolver === 'function' ? roomImpulse(ctx) : null;
+  let room: ConvolverNode | null = null;
+  const impulse =
+    typeof ctx.createConvolver === 'function' ? roomImpulse(ctx, tuning.tailSeconds) : null;
   if (impulse) {
-    const convolver = ctx.createConvolver();
-    convolver.buffer = impulse;
+    room = ctx.createConvolver();
+    room.buffer = impulse;
     tail = ctx.createGain();
-    tail.gain.value = 0.3;
-    tail.connect(convolver);
-    convolver.connect(master);
+    tail.gain.value = tuning.tail;
+    tail.connect(room);
+    room.connect(master);
   }
 
-  bus = { ctx, master, tail };
+  bus = { ctx, master, tail, room, roomSeconds: tuning.tailSeconds };
   return bus;
 }
 
 /** One oscillator: a single voice, or half of a spread pair. */
-function playVoice(b: Bus, note: Note, start: number, cents: number, pan: number): void {
+function playVoice(
+  b: Bus,
+  note: Note,
+  start: number,
+  cents: number,
+  pan: number,
+  tuning: Tuning,
+): void {
   const { ctx } = b;
   const osc = ctx.createOscillator();
   const gain = ctx.createGain();
@@ -201,9 +257,13 @@ function playVoice(b: Bus, note: Note, start: number, cents: number, pan: number
   if (note.bendTo) osc.frequency.exponentialRampToValueAtTime(note.bendTo, start + note.dur);
   if (cents) osc.detune.value = cents;
 
+  // Never zero: an exponential ramp cannot reach or leave silence, so the
+  // floor has to stay above it even when a slider is pulled all the way down.
+  const peak = Math.max(0.00011, note.level * (note.sparkle ? tuning.sparkle : 1));
+
   // Fast in, long exponential out. A bell decays, a beep stops.
   gain.gain.setValueAtTime(0.0001, start);
-  gain.gain.exponentialRampToValueAtTime(note.level, start + 0.012);
+  gain.gain.exponentialRampToValueAtTime(peak, start + 0.012);
   gain.gain.exponentialRampToValueAtTime(0.0001, start + note.dur);
 
   let node: AudioNode = gain;
@@ -227,27 +287,36 @@ function playVoice(b: Bus, note: Note, start: number, cents: number, pan: number
   osc.stop(start + note.dur + 0.05);
 }
 
-export function playTone(kind: FeedbackKind, enabled: boolean): void {
+/**
+ * Play an arbitrary cue. `playTone` is this with the shipped notes and the
+ * shipped tuning; the sound studio is this with everything else.
+ */
+export function playNotes(notes: Note[], enabled: boolean, tuning?: Partial<Tuning>): void {
   if (!enabled) return;
   const ctx = audioContext();
   if (!ctx) return;
+  const t = { ...DEFAULT_TUNING, ...tuning };
   try {
     // Answers are user gestures, so a suspended context can resume here.
     if (ctx.state === 'suspended') void ctx.resume();
-    const b = getBus(ctx);
+    const b = getBus(ctx, t);
     if (!b) return;
-    VOICES[kind].forEach((note) => {
+    notes.forEach((note) => {
       const start = ctx.currentTime + note.at;
-      if (note.spread) {
-        playVoice(b, note, start, -note.spread / 2, -WIDTH);
-        playVoice(b, note, start, note.spread / 2, WIDTH);
+      if (note.spread && t.width > 0) {
+        playVoice(b, note, start, -note.spread / 2, -t.width, t);
+        playVoice(b, note, start, note.spread / 2, t.width, t);
       } else {
-        playVoice(b, note, start, 0, 0);
+        playVoice(b, note, start, 0, 0, t);
       }
     });
   } catch {
     // Autoplay policy, a closed context, or no output device. Never fatal.
   }
+}
+
+export function playTone(kind: FeedbackKind, enabled: boolean): void {
+  playNotes(VOICES[kind], enabled);
 }
 
 /** Test seam: drop the cached context and bus so a stubbed one is picked up. */
