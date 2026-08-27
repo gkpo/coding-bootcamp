@@ -297,6 +297,133 @@ return posts;`,
     explanation:
       'Four things you will be asked to name rather than explain. "One query per row" in particular is the phrase interviewers use to see whether you recognise N+1 from a description, without being shown a query log.',
   },
+  {
+    id: 't9-11',
+    trackId: 't9',
+    type: 'spot-bug',
+    difficulty: 2,
+    conceptId: 'n-plus-one',
+    prompt:
+      'The invoice export takes four minutes for 3,000 invoices. **Tap the line that makes it slow.**',
+    code: {
+      lang: 'js',
+      source: `const invoices = await db.invoices.all();
+const rows = [];
+for (const invoice of invoices) {
+  const customer = await db.customers.byId(invoice.customerId);
+  rows.push(format(invoice, customer));
+}
+return rows;`,
+    },
+    buggyLineIndex: 3,
+    lineHints: {
+      0: 'One query for all the invoices is fine. That is the "1" in N+1.',
+      2: 'Looping over the invoices is unavoidable; formatting each one is the job.',
+      4: 'Building the output array in memory is not what is costing you minutes.',
+      6: 'Returning the rows is free.',
+    },
+    explanation:
+      'One query for the invoices, then one more per invoice, is 3,001 round trips to the database. Each is fast on its own and the network cost between them is what adds up. Fetch the customers in a single query keyed by id, or ask for invoices with their customers joined, and the four minutes become one round trip.',
+  },
+  {
+    id: 't9-12',
+    trackId: 't9',
+    type: 'mcq',
+    difficulty: 2,
+    conceptId: 'indexes',
+    prompt: 'There is an index on `(country, city)`. Which query does **not** get to use it?',
+    promptVariants: [
+      'Given a composite index on `(country, city)`, which of these still scans the table?',
+    ],
+    options: [
+      { text: "WHERE city = 'Lisbon'", correct: true },
+      {
+        text: "WHERE country = 'PT'",
+        whyWrong:
+          'This uses the index. A composite index can be used for a leading prefix of its columns, and `country` is the first one.',
+      },
+      {
+        text: "WHERE country = 'PT' AND city = 'Lisbon'",
+        whyWrong:
+          'This is the case the index was built for. Both columns are given, in order, so the lookup goes straight to the matching rows.',
+      },
+      {
+        text: "WHERE country = 'PT' ORDER BY city",
+        whyWrong:
+          'This uses it well. The index already holds cities in order within each country, so the sort comes free.',
+      },
+    ],
+    explanation:
+      'A composite index is sorted by the first column, then the second within it, like a phone book by surname then first name. Searching by first name alone is no help, because those entries are scattered throughout. Column order in an index is a decision, not a formality, and being able to say why is what this question is really asking.',
+  },
+  {
+    id: 't9-13',
+    trackId: 't9',
+    type: 'mcq',
+    difficulty: 2,
+    conceptId: 'transactions',
+    prompt:
+      'A transfer debits one account and credits another. The credit fails and the code catches the error and logs it. What is the state of the data?',
+    promptVariants: [
+      'The debit succeeded, the credit threw, and the error was caught and logged. What happened to the money?',
+    ],
+    options: [
+      {
+        text: 'The debit stands unless the whole thing was in a transaction that was rolled back',
+        correct: true,
+      },
+      {
+        text: 'Nothing was written, because the second statement failed',
+        whyWrong:
+          'Statements are independent unless you wrap them. The first one committed on its own the moment it succeeded, and nothing about the second undoes it.',
+      },
+      {
+        text: 'The database rolls back automatically when a statement throws',
+        whyWrong:
+          'Some drivers roll back an *open* transaction on error, but only if you opened one. Two plain statements have no transaction to roll back.',
+      },
+      {
+        text: 'Both are written, because the credit is retried',
+        whyWrong:
+          'Nothing here retries. The catch swallowed the error, which is worse than crashing: the money left one account and never arrived anywhere.',
+      },
+    ],
+    explanation:
+      'Money vanished, and the log line is the only trace. Two writes that must both happen belong in one transaction: begin, both statements, commit, and roll back on any error. The catch block is the second bug, because catching an error and carrying on turns a loud failure into a silent one.',
+  },
+  {
+    id: 't9-14',
+    trackId: 't9',
+    type: 'mcq',
+    difficulty: 2,
+    conceptId: 'joins',
+    prompt:
+      'You join `orders` to `refunds` to list every order with its refund total. Orders with no refund vanish from the results. Why?',
+    promptVariants: ['After joining orders to refunds, the order count dropped. What happened?'],
+    options: [
+      {
+        text: 'It is an inner join, which keeps only rows that matched on both sides',
+        correct: true,
+      },
+      {
+        text: 'Orders with no refund have a null refund total, and nulls are filtered out',
+        whyWrong:
+          'A left join would give exactly those nulls and keep the rows. Nothing filters nulls on its own; the rows are gone before any null could appear.',
+      },
+      {
+        text: 'The join needs an index on the refund side',
+        whyWrong:
+          'An index changes how fast the join runs, never which rows come back. A missing index is a performance bug, not a correctness one.',
+      },
+      {
+        text: 'Aggregating with SUM drops rows that have nothing to sum',
+        whyWrong:
+          'SUM over no rows gives null rather than removing the group. The rows were already gone at the join step, before the aggregate ran.',
+      },
+    ],
+    explanation:
+      'An inner join is an intersection: no partner, no row. "Every order, with its refund total if any" is a left join, which keeps every row from the left side and fills nulls where there was no match. Wrapping the total in `COALESCE(SUM(amount), 0)` then turns those nulls into zeroes. Disappearing rows after a join is almost always this.',
+  },
 ];
 
 export const t9: Track = {
@@ -308,5 +435,10 @@ export const t9: Track = {
     { id: 't9-l1', title: 'Reading SQL', exerciseIds: ['t9-01', 't9-02', 't9-03', 't9-04'] },
     { id: 't9-l2', title: 'Making it fast', exerciseIds: ['t9-05', 't9-06', 't9-07'] },
     { id: 't9-l3', title: 'N+1 and transactions', exerciseIds: ['t9-08', 't9-09', 't9-10'] },
+    {
+      id: 't9-l4',
+      title: 'Slow queries and missing rows',
+      exerciseIds: ['t9-11', 't9-12', 't9-13', 't9-14'],
+    },
   ],
 };

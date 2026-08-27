@@ -1,6 +1,6 @@
 # 03, Content plan
 
-Six tracks, 100 exercises, 35 concept cards. This manifest is the authoring contract: the implementing agent writes the full content (prompts, snippets, options, distractors, explanations, card text) but every row below must exist with the stated type, track, difficulty (1–3), and concept link. IDs are stable. Progress data keys off them.
+Six tracks. 100 exercises at v1, 132 after the wave 3 additions below (docs/10 part C), 35 concept cards. This manifest is the authoring contract: the implementing agent writes the full content (prompts, snippets, options, distractors, explanations, card text) but every row below must exist with the stated type, track, difficulty (1–3), and concept link. IDs are stable. Progress data keys off them.
 
 Authoring quality bar (applies to everything):
 
@@ -14,7 +14,7 @@ Authoring quality bar (applies to everything):
 
 ---
 
-## Track 1. Big-O & optimization talk (18 exercises)
+## Track 1. Big-O & optimization talk (26 exercises)
 
 Goal: see code → name its growth → _say it_ the way interviewers expect. Directly targets the "it grows linearly" failure.
 
@@ -39,7 +39,20 @@ Goal: see code → name its growth → _say it_ the way interviewers expect. Dir
 | t1-17 | mcq        | 3    | Which input size makes O(n²) fine? (n≈100 vs n≈10⁶. Pragmatism talk)                                                      | pragmatic-perf |
 | t1-18 | steps      | 2    | Order the interviewer script: state current complexity → identify bottleneck → propose structure → restate new complexity | perf-script    |
 
-## Track 2. Algorithm patterns (24 exercises)
+Wave 3 (docs/10 part C), fresh snippets over the same answer set:
+
+| ID    | Type       | Diff | Exercise                                                                        | Concept card |
+| ----- | ---------- | ---- | ------------------------------------------------------------------------------- | ------------ |
+| t1-19 | complexity | 2    | Nested loop with an early return. Why the worst case is still O(n²)             | big-o        |
+| t1-20 | complexity | 2    | `Object.keys` called inside a loop → O(n·m)                                     | hidden-loops |
+| t1-21 | complexity | 2    | Two pointers meeting in the middle. Still linear, not quadratic                 | big-o        |
+| t1-22 | complexity | 2    | Build a Set, then filter with it. Two passes, still O(n)                        | hash-lookup  |
+| t1-23 | complexity | 2    | Recursion with one branch (walking up a parent chain) → linear, and stack depth | recursion    |
+| t1-24 | complexity | 3    | `slice` inside a loop. The copy is not free                                     | hidden-loops |
+| t1-25 | complexity | 1    | Plain English, no code: one email per customer → O(n)                           | big-o        |
+| t1-26 | complexity | 2    | Plain English, no code: every pair of players compared → O(n²)                  | big-o        |
+
+## Track 2. Algorithm patterns (44 exercises)
 
 Goal: read a problem statement → name the pattern in under a minute. Includes two problems that show up in real interviews (making change, splitting text at a limit) as flagship lessons. Per docs/09, the greedy lesson spans three different surface stories and making change appears in exactly one of them.
 
@@ -69,6 +82,31 @@ Goal: read a problem statement → name the pattern in under a minute. Includes 
 | t2-22 | mcq      | 2    | Statement → pattern: "rate of events per rolling minute" → sliding window over time (bridges to real life) | sliding-window    |
 | t2-23 | match    | 2    | Pair 5 statements ↔ 5 patterns (mixed review of the track)                                                 | pattern-map       |
 | t2-24 | mcq      | 3    | Trick round: a statement that _looks like_ sliding window but is a frequency map. Reading carefully        | pattern-map       |
+
+Wave 3 (docs/10 part C). Every row is a fresh problem statement with 1-2 `promptVariants`; the four marked _near miss_ look like one pattern and are another.
+
+| ID    | Type | Diff | Exercise                                                                                        | Concept card     |
+| ----- | ---- | ---- | ----------------------------------------------------------------------------------------------- | ---------------- |
+| t2-25 | mcq  | 1    | Payments: match each refund to its order → Map keyed by id                                      | hash-lookup      |
+| t2-26 | mcq  | 1    | Chat: group a flat message list by conversation → Map of id to array                            | hash-lookup      |
+| t2-27 | mcq  | 2    | Logs: two durations adding to the timeout budget → complement lookup in a Map                   | hash-lookup      |
+| t2-28 | mcq  | 1    | Files: skip paths already backed up → Set membership (trap: `includes`)                         | hash-lookup      |
+| t2-29 | mcq  | 2    | Games: first square landed on twice → Set, not a frequency map. _Near miss_                     | hash-lookup      |
+| t2-30 | mcq  | 2    | Logs: worst ten consecutive minutes → fixed-size window                                         | sliding-window   |
+| t2-31 | mcq  | 2    | Payments: longest run of charges under the daily limit → variable window                        | sliding-window   |
+| t2-32 | mcq  | 2    | Calendars: shared free slots across two sorted busy lists → two pointers                        | two-pointers     |
+| t2-33 | mcq  | 2    | Games: replay reads the same both ways, ignoring pauses → both-ends pointers                    | two-pointers     |
+| t2-34 | mcq  | 1    | Chat: three most-used reaction words → frequency map                                            | frequency-map    |
+| t2-35 | mcq  | 2    | Files: same multiset of file sizes → counting beats sorting. _Near miss_                        | frequency-map    |
+| t2-36 | mcq  | 2    | Calendars: one room, most bookings → greedy by finishing time (two wrong greedy rules as traps) | greedy           |
+| t2-37 | mcq  | 2    | Files: pack files onto fewest discs → bin packing, greedy is a heuristic, not optimal           | greedy           |
+| t2-38 | mcq  | 2    | Logs: first line at or after a timestamp → binary search for a boundary                         | log-n            |
+| t2-39 | mcq  | 3    | Games: smallest possible largest room → binary search on the answer. _Near miss_                | log-n            |
+| t2-40 | mcq  | 2    | Chat: fewest forwards between two people → BFS                                                  | bfs-mental-model |
+| t2-41 | mcq  | 2    | Games: clear the connected region of blank tiles → flood fill                                   | bfs-mental-model |
+| t2-42 | mcq  | 2    | Payments: recursive pricing recomputing the same basket → memoize                               | memoization      |
+| t2-43 | mcq  | 2    | Files: folder tree recomputing child sizes → cache by folder id                                 | memoization      |
+| t2-44 | mcq  | 3    | Calendars: earliest 30-minute slot for three people → intervals, not a window. _Near miss_      | pattern-map      |
 
 ## Track 3. JS/TS language concepts (20 exercises)
 
@@ -137,7 +175,7 @@ Goal: the full stack system design round: vocabulary + the walkthrough script, a
 | t5-13 | match | 2    | Pair failure ↔ mitigation: thundering herd↔jitter, hot key↔sharding, cascade↔circuit breaker, lost job↔retry+DLQ | resilience     |
 | t5-14 | mcq   | 3    | "How would you scale this to 10× users?". Order of levers (measure first)                                        | scaling        |
 
-## Track 6. Interview decoder & communication (12 exercises)
+## Track 6. Interview decoder & communication (20 exercises)
 
 Goal: the meta-game itself. Interviewer riddles → canonical answers; what to say when stuck; how to not spiral (a lost interview is usually a spiral, not a knowledge gap).
 
@@ -155,6 +193,19 @@ Goal: the meta-game itself. Interviewer riddles → canonical answers; what to s
 | t6-10 | mcq   | 2    | When to abandon an approach: the 3-minute rule (the coin-change lesson, made explicit and kind)                                                                                                                            | stuck-script      |
 | t6-11 | match | 2    | Riddles 3: "one place that owns the value"↔state management, "keep the long job off the main thread"↔async/worker, "what shape does the response come back in"↔API schema/types, "keeps working with no network"↔PWA/cache | decoder           |
 | t6-12 | mcq   | 2    | "Walk me through your thinking". What good thinking-out-loud sounds like (pick the best transcript)                                                                                                                        | whiteboard-script |
+
+Wave 3 (docs/10 part C). Five match rounds using phrasings no other exercise uses, and three longer interviewer sentences to decode.
+
+| ID    | Type  | Diff | Exercise                                                                                       | Concept card |
+| ----- | ----- | ---- | ---------------------------------------------------------------------------------------------- | ------------ |
+| t6-13 | match | 2    | Patterns, fresh phrasings: window, two pointers, frequency map, binary search                  | decoder      |
+| t6-14 | match | 2    | Timing: debounce, async/await, backoff, idempotency                                            | decoder      |
+| t6-15 | match | 2    | Frontend symptoms: unnecessary re-render, missing keys, effect cleanup, lifting state          | decoder      |
+| t6-16 | match | 2    | Data symptoms: missing index, no transaction, N+1, pagination                                  | decoder      |
+| t6-17 | match | 2    | Code quality: guard clause, single responsibility, pure function, naming                       | decoder      |
+| t6-18 | mcq   | 2    | "If I gave you a sorted copy, would that help?" → binary search or two pointers, and say which | decoder      |
+| t6-19 | mcq   | 2    | "What happens on a hundred million rows?" → which line breaks first, time or memory            | decoder      |
+| t6-20 | mcq   | 2    | "Anything you would check before shipping?" → edge cases and the first test, volunteered       | decoder      |
 
 ---
 

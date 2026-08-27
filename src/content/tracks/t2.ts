@@ -631,6 +631,692 @@ function fib(n) {
     explanation:
       'Real problems combine patterns, and reading carefully is the skill being trained. "Shortest stretch" is a window; "containing every distinct value" needs counts, which is a frequency map. Grow the right edge until the window has everything, then pull the left edge in as far as it will go while it still does, and record the best.',
   },
+  {
+    id: 't2-25',
+    trackId: 't2',
+    type: 'mcq',
+    difficulty: 1,
+    conceptId: 'hash-lookup',
+    prompt:
+      '**"You have 50,000 orders and a list of refund records. For each refund, find its order."** What do you reach for?',
+    promptVariants: [
+      '**"Every refund row names an order id. You need the matching order for each of them."** Which approach?',
+      '**"Match each refund to its order. There are tens of thousands of both."** What is the shape of the answer?',
+    ],
+    options: [
+      { text: 'Build a Map from order id to order once, then look each one up', correct: true },
+      {
+        text: 'For each refund, scan the orders array with `find`',
+        whyWrong:
+          'That is a loop inside a loop wearing a friendly name. Every refund walks all 50,000 orders, so the cost is refunds times orders.',
+      },
+      {
+        text: 'Sort the orders by id, then binary search for each refund',
+        whyWrong:
+          'This works and is much better than scanning, but you pay O(n log n) to sort and O(log n) per lookup when a Map gives you one step for free.',
+      },
+      {
+        text: 'Two pointers walking both lists together',
+        whyWrong:
+          'Two pointers needs both lists in the same order to be any use. Refunds do not arrive in order id order, so the pointers have nothing to march along.',
+      },
+    ],
+    explanation:
+      'Any time you find yourself saying "for each of these, find the matching one of those", that is a Map. You pay one pass to build it and one step per lookup after that. Naming it as a join in memory is the sentence interviewers are waiting for.',
+  },
+  {
+    id: 't2-26',
+    trackId: 't2',
+    type: 'mcq',
+    difficulty: 1,
+    conceptId: 'hash-lookup',
+    prompt:
+      '**"Given a flat list of chat messages, each carrying a conversation id, produce the messages grouped by conversation."** Pattern?',
+    promptVariants: [
+      '**"Turn one long list of messages into one list per conversation."** Which approach does an interviewer expect?',
+    ],
+    options: [
+      {
+        text: 'One pass, pushing each message into a Map keyed by conversation id',
+        correct: true,
+      },
+      {
+        text: 'Collect the distinct conversation ids, then filter the messages once per id',
+        whyWrong:
+          'It gives the right answer, but each filter walks every message, so with 200 conversations you walk the list 200 times instead of once.',
+      },
+      {
+        text: 'Sort the messages by conversation id, then cut the list at each change',
+        whyWrong:
+          'This works and is what a database would do, but it costs O(n log n) for a sort you do not need. One pass with a Map is O(n) and clearer.',
+      },
+      {
+        text: 'A frequency map of conversation ids',
+        whyWrong:
+          'A frequency map counts how many messages each conversation has. The question asks to keep the messages themselves, not just tally them.',
+      },
+    ],
+    explanation:
+      'Grouping is the same machinery as counting: a Map keyed by whatever you are grouping on. The only difference is what you keep in each slot, a running number for counting or an array for grouping. Say "group by, one pass, O(n)" and you have named it.',
+  },
+  {
+    id: 't2-27',
+    trackId: 't2',
+    type: 'mcq',
+    difficulty: 2,
+    conceptId: 'hash-lookup',
+    prompt:
+      '**"Each log line has a request id and a duration. Find two requests whose durations add up to exactly the timeout budget."** Pattern?',
+    promptVariants: [
+      '**"Two requests together used exactly the whole budget. Find them."** Which approach?',
+    ],
+    options: [
+      {
+        text: 'One pass with a Map of durations seen so far, checking for budget minus current',
+        correct: true,
+      },
+      {
+        text: 'Sort the durations, then two pointers from both ends',
+        whyWrong:
+          'A genuinely good answer, O(n log n), and worth saying out loud. It loses the request ids unless you sort pairs, and the Map does the job in one pass.',
+      },
+      {
+        text: 'Check every pair of log lines',
+        whyWrong:
+          'The brute force, O(n²). Fine to name as a starting point, but the whole question is what you do instead of it.',
+      },
+      {
+        text: 'A sliding window over the log lines',
+        whyWrong:
+          'A window covers a contiguous stretch. The two requests can be anywhere in the file, so there is nothing to slide.',
+      },
+    ],
+    explanation:
+      'The partner you need for the current duration is the budget minus that duration, which is a single subtraction. A Map answers "have I already seen that number, and which request was it?" in one step, so one pass over the file is enough.',
+  },
+  {
+    id: 't2-28',
+    trackId: 't2',
+    type: 'mcq',
+    difficulty: 1,
+    conceptId: 'hash-lookup',
+    prompt:
+      '**"A nightly backup gets a batch of file paths. Skip any path that is already in the archive."** What do you reach for?',
+    promptVariants: [
+      '**"Only back up the files that are not already stored."** Which approach?',
+      '**"Given the archive contents and tonight\'s batch, which files are actually new?"** Pattern?',
+    ],
+    options: [
+      { text: 'Put the archive paths in a Set, then test each incoming path', correct: true },
+      {
+        text: 'For each incoming path, call `includes` on the archive array',
+        whyWrong:
+          '`includes` scans from the start every time. It looks like one call but it is a loop, so a batch of 1,000 against an archive of 100,000 is 100 million comparisons.',
+      },
+      {
+        text: 'Sort both lists, then compare them with two pointers',
+        whyWrong:
+          'This works and is what you would do if the lists were too big for memory. Here the Set is one line, one pass and no sort.',
+      },
+      {
+        text: 'A frequency map of the archive paths',
+        whyWrong:
+          'Counting how many times each path appears answers a question nobody asked. You only need yes or no, which is exactly what a Set is for.',
+      },
+    ],
+    explanation:
+      '"Is this one already in that pile?" is the Set question. Building the Set costs one pass over the archive and a bit of memory; every test after that is one step. The trap is `includes`, which reads like a single operation and is really a hidden loop.',
+  },
+  {
+    id: 't2-29',
+    trackId: 't2',
+    type: 'mcq',
+    difficulty: 2,
+    conceptId: 'hash-lookup',
+    prompt:
+      'Read this one carefully. **"Given the sequence of squares a game piece landed on, report the first square it landed on twice."** Pattern?',
+    promptVariants: [
+      'Careful. **"Which square did the piece revisit first?"** You have the moves in order.',
+    ],
+    options: [
+      {
+        text: 'A Set of squares seen so far, returning the first one already in it',
+        correct: true,
+      },
+      {
+        text: 'A frequency map of squares, then find the ones with a count above 1',
+        whyWrong:
+          'This is the near miss. Counting works, but it has to read the whole sequence before it can answer, and then you have lost which repeat came *first*.',
+      },
+      {
+        text: 'Sort the squares, then look for neighbours that are equal',
+        whyWrong:
+          'Sorting destroys the order the piece moved in, and "first" is a question about that order. The answer would be the smallest repeated square, not the earliest.',
+      },
+      {
+        text: 'Two pointers, one at each end of the sequence',
+        whyWrong:
+          'Both-ends pointers work on sorted data or on a symmetric question like a palindrome. Here you need the earliest repeat in the original order.',
+      },
+    ],
+    explanation:
+      'Counting and membership look interchangeable and are not. The word "first" means you must answer while walking, and a Set lets you stop the moment you meet a square again. A frequency map is the right tool for "which square was landed on most", a different question.',
+  },
+  {
+    id: 't2-30',
+    trackId: 't2',
+    type: 'mcq',
+    difficulty: 2,
+    conceptId: 'sliding-window',
+    prompt:
+      '**"You have one error count per minute for a whole day. Find the worst ten minutes."** Pattern?',
+    promptVariants: [
+      '**"Which ten consecutive minutes had the most errors?"** How do you approach it?',
+      '**"Find the highest total over any ten minutes in a row."** Which pattern is this?',
+    ],
+    options: [
+      {
+        text: 'A fixed-size sliding window: add the minute entering, subtract the one leaving',
+        correct: true,
+      },
+      {
+        text: 'Sum every possible ten-minute block separately',
+        whyWrong:
+          'Correct but wasteful: each block re-adds nine numbers you already added. It is O(n × k) where the window does the same job in O(n).',
+      },
+      {
+        text: 'Sort the minutes by error count and take the top ten',
+        whyWrong:
+          'Sorting scatters the minutes, and the question asks for ten *consecutive* ones. The worst ten minutes individually may be spread across the day.',
+      },
+      {
+        text: 'Two pointers moving inward from both ends of the day',
+        whyWrong:
+          'Both-ends pointers converge on the middle and would never examine most of the ten-minute blocks. The window moves forward instead.',
+      },
+    ],
+    explanation:
+      'A fixed window is the cheapest of the family: the size never changes, so each step is one addition and one subtraction. The tell is "consecutive" or "in a row" plus a fixed count. Say "sliding window, O(n), one add and one subtract per step".',
+  },
+  {
+    id: 't2-31',
+    trackId: 't2',
+    type: 'mcq',
+    difficulty: 2,
+    conceptId: 'sliding-window',
+    prompt:
+      '**"A customer\'s card is blocked after spending more than the daily limit. Find the longest run of transactions that stays under it."** Pattern?',
+    promptVariants: [
+      '**"What is the longest stretch of consecutive charges whose total stays under the limit?"** Which pattern?',
+    ],
+    options: [
+      {
+        text: 'A growing and shrinking window: extend right, pull the left edge in when the total goes over',
+        correct: true,
+      },
+      {
+        text: 'A fixed-size sliding window',
+        whyWrong:
+          'Close, but the length is what you are looking for, so it cannot be fixed in advance. The window has to be free to grow and shrink.',
+      },
+      {
+        text: 'Sort the transactions smallest first, then take them until the limit is reached',
+        whyWrong:
+          'That is the greedy move, and it answers "how many charges fit", not "which consecutive run fits". Sorting destroys the run.',
+      },
+      {
+        text: 'Binary search on the answer length',
+        whyWrong:
+          'It can be made to work, and it is a good thing to mention as a second approach, but it is a heavier tool than the window and needs a check pass per guess.',
+      },
+    ],
+    explanation:
+      'When the window length is the thing being asked for, the window is variable: the right edge always moves forward, and the left edge moves forward only while the rule is broken. Each transaction enters once and leaves once, so it is still one pass.',
+  },
+  {
+    id: 't2-32',
+    trackId: 't2',
+    type: 'mcq',
+    difficulty: 2,
+    conceptId: 'two-pointers',
+    prompt:
+      '**"Two people each have a calendar of busy blocks, already sorted by start time. Find every slot where both are free."** Pattern?',
+    promptVariants: [
+      '**"Given two sorted lists of busy times, find the gaps they share."** Which approach?',
+    ],
+    options: [
+      {
+        text: 'Two pointers, one per calendar, always advancing the one that ends earlier',
+        correct: true,
+      },
+      {
+        text: 'Merge both lists into one, sort it, then scan for gaps',
+        whyWrong:
+          'It works, but you are paying O(n log n) to re-sort data that arrived sorted. The whole point of "already sorted" in the statement is that you should not need to.',
+      },
+      {
+        text: 'A Set of busy minutes from each calendar, then intersect them',
+        whyWrong:
+          'This turns a handful of blocks into thousands of minutes, so memory and time now depend on the length of the day rather than the number of meetings.',
+      },
+      {
+        text: 'A sliding window over the merged blocks',
+        whyWrong:
+          'A window tracks one contiguous stretch of one list. Here you are stepping through two lists at once, which is what two pointers is for.',
+      },
+    ],
+    explanation:
+      '"Two sorted lists" is the loudest two-pointer signal there is. Keep an index into each, compare the fronts, and advance whichever finishes first. Both lists are consumed once, so it is O(n + m) with no extra memory.',
+  },
+  {
+    id: 't2-33',
+    trackId: 't2',
+    type: 'mcq',
+    difficulty: 2,
+    conceptId: 'two-pointers',
+    prompt:
+      '**"A replay is valid if the sequence of moves reads the same forwards and backwards, ignoring pauses."** Pattern?',
+    promptVariants: [
+      '**"Check whether the move sequence is a mirror of itself, skipping any pause entries."** How do you do it?',
+    ],
+    options: [
+      {
+        text: 'Two pointers from both ends, each skipping pauses before comparing',
+        correct: true,
+      },
+      {
+        text: 'Strip the pauses into a new array, reverse it, and compare the two arrays',
+        whyWrong:
+          'Correct, easy to read, and worth saying out loud. It costs an extra copy of the whole sequence, which the two-pointer version avoids entirely.',
+      },
+      {
+        text: 'A frequency map of moves, checking that at most one has an odd count',
+        whyWrong:
+          'That tests whether the moves *could* be rearranged into a mirror. The question is whether this exact order already is one.',
+      },
+      {
+        text: 'A sliding window growing from the middle',
+        whyWrong:
+          'Growing outward from the centre is the trick for finding the longest mirrored stretch. To check the whole sequence, walking inward from both ends is simpler.',
+      },
+    ],
+    explanation:
+      'Mirror questions are the classic both-ends two-pointer shape: compare the outermost pair, step inward, stop when they cross. The "ignoring pauses" clause is the only twist, and it is handled by moving each pointer past a pause before comparing. O(n) time, no extra memory.',
+  },
+  {
+    id: 't2-34',
+    trackId: 't2',
+    type: 'mcq',
+    difficulty: 1,
+    conceptId: 'frequency-map',
+    prompt:
+      '**"Which three emoji-free reaction words are used most often across a channel\'s messages?"** Pattern?',
+    promptVariants: [
+      '**"Report the three most common reaction words in the channel."** Which approach?',
+    ],
+    options: [
+      { text: 'Count each word in a Map, then take the three highest counts', correct: true },
+      {
+        text: 'Sort all the words, then measure each run of equal words',
+        whyWrong:
+          'It works, and it is what you would do if the data did not fit in memory. In memory it costs O(n log n) for something counting does in O(n).',
+      },
+      {
+        text: 'A Set of the words used',
+        whyWrong:
+          'A Set throws away exactly the information you need. It can tell you *which* words appeared, never how often.',
+      },
+      {
+        text: 'A sliding window over the messages',
+        whyWrong:
+          'A window is for questions about a contiguous stretch. "Most often across the channel" is about the whole set, with no notion of position.',
+      },
+    ],
+    explanation:
+      '"Most common", "how many times", "top N by count": all of these are a frequency map. Count in one pass, then take the largest few. For a small N, scanning the counts beats sorting them, and saying so is a nice extra half-sentence.',
+  },
+  {
+    id: 't2-35',
+    trackId: 't2',
+    type: 'mcq',
+    difficulty: 2,
+    conceptId: 'frequency-map',
+    prompt:
+      'A near miss. **"Two folders hold the same files under different names. Decide whether the two folders hold the same *set of file sizes*."** Pattern?',
+    promptVariants: [
+      'Careful with this one. **"Do these two folders contain the same multiset of file sizes?"** Which approach?',
+    ],
+    options: [
+      {
+        text: 'Count the sizes in each folder with a Map, then compare the two counts',
+        correct: true,
+      },
+      {
+        text: 'Sort both size lists and compare them element by element',
+        whyWrong:
+          'This is the near miss, and it is correct. It costs O(n log n) where counting costs O(n), and it is the answer most candidates give without noticing the cheaper one.',
+      },
+      {
+        text: "Put each folder's sizes in a Set and compare the Sets",
+        whyWrong:
+          'A Set forgets duplicates, so a folder with three 1KB files would look identical to one with a single 1KB file. Sizes repeat, so the counts matter.',
+      },
+      {
+        text: 'Two pointers walking both folders at once',
+        whyWrong:
+          'Two pointers needs both lists sorted first, which puts you back at the O(n log n) answer with more moving parts.',
+      },
+    ],
+    explanation:
+      'Sorting and counting both answer "are these the same collection?", so the interesting part is the cost. Counting is one pass per folder and one comparison of the maps, so O(n). Recognising that sorting is the *reflex* rather than the *best* answer is what this item trains.',
+  },
+  {
+    id: 't2-36',
+    trackId: 't2',
+    type: 'mcq',
+    difficulty: 2,
+    conceptId: 'greedy',
+    prompt:
+      '**"You have one meeting room and a pile of requests. Turn away as few as possible."** Pattern?',
+    promptVariants: [
+      '**"One room, many requests. Accept as many as you can."** Which approach?',
+      '**"Fit the largest number of bookings into a single room."** Pattern?',
+    ],
+    options: [
+      {
+        text: 'Greedy: sort by finishing time and take every request that still fits',
+        correct: true,
+      },
+      {
+        text: 'Greedy: take the shortest requests first',
+        whyWrong:
+          'Plausible and wrong. A short meeting sitting across the middle of the day can block two longer ones that would both have fitted around it.',
+      },
+      {
+        text: 'Greedy: take the earliest-starting requests first',
+        whyWrong:
+          'Also plausible and also wrong. The earliest start can run until closing time, which costs you every request behind it.',
+      },
+      {
+        text: 'Dynamic programming over every subset of requests',
+        whyWrong:
+          'It would give the right answer and it is enormously more expensive. Greedy by finishing time is provably optimal here, which is the point of the question.',
+      },
+    ],
+    explanation:
+      'This one is worth memorising because two natural greedy rules are wrong and one is right. Always take the meeting that frees the room earliest: it leaves the most room for everything after it. When an interviewer asks "why does that work?", that sentence is the proof in plain words.',
+  },
+  {
+    id: 't2-37',
+    trackId: 't2',
+    type: 'mcq',
+    difficulty: 2,
+    conceptId: 'greedy',
+    prompt:
+      '**"Pack a set of files onto as few fixed-size discs as possible."** What should you say about this one?',
+    promptVariants: [
+      '**"Spread these files across the fewest discs you can."** What is the honest answer?',
+    ],
+    options: [
+      {
+        text: 'It is bin packing. Greedy gets close but is not optimal, and the exact answer is expensive',
+        correct: true,
+      },
+      {
+        text: 'Greedy largest-first is optimal here, same as making change',
+        whyWrong:
+          'Largest-first is a good heuristic and often near the best, but it is not guaranteed optimal. Claiming that it is, is the mistake being tested.',
+      },
+      {
+        text: 'Sort the files and use two pointers to pair large with small',
+        whyWrong:
+          'That pairing trick works when each disc holds exactly two files. With any number per disc it stops being an answer.',
+      },
+      {
+        text: 'It is a sliding window over the sorted file sizes',
+        whyWrong:
+          'A window works on a contiguous stretch of one list. Files can go on any disc in any combination, so there is no stretch to slide.',
+      },
+    ],
+    explanation:
+      'Knowing when greedy is only *good enough* is worth as much as knowing when it is right. Bin packing is the standard example: largest-first typically lands within a small factor of the best answer, and the exact answer needs search. Saying "greedy heuristic, not provably optimal, here is the trade-off" is a strong answer.',
+  },
+  {
+    id: 't2-38',
+    trackId: 't2',
+    type: 'mcq',
+    difficulty: 2,
+    conceptId: 'log-n',
+    prompt:
+      '**"Log lines are stored sorted by timestamp. Find the first line at or after a given time."** Pattern?',
+    promptVariants: [
+      '**"Jump to where a given timestamp would start in a sorted log."** Which approach?',
+    ],
+    options: [
+      {
+        text: 'Binary search for the boundary, keeping the leftmost candidate as you narrow',
+        correct: true,
+      },
+      {
+        text: 'Scan forward until a timestamp is not smaller than the target',
+        whyWrong:
+          'Correct and O(n). With a sorted file the whole point is that you can throw away half the remaining lines at every step instead of reading them.',
+      },
+      {
+        text: 'Build a Map from timestamp to line, then look the time up',
+        whyWrong:
+          'A Map only finds a timestamp that exists exactly. The question asks for the first line at or *after* a time, which may not be present at all.',
+      },
+      {
+        text: 'Two pointers moving inward from both ends',
+        whyWrong:
+          'Two pointers converge based on a comparison between the two ends. Here each step compares against the target and discards a half, which is binary search.',
+      },
+    ],
+    explanation:
+      'Sorted data plus "find the first one that satisfies X" is a boundary search, the most useful binary search variant in real work. Instead of returning on a match, you record the candidate and keep searching left. Twenty steps covers a million lines.',
+  },
+  {
+    id: 't2-39',
+    trackId: 't2',
+    type: 'mcq',
+    difficulty: 3,
+    conceptId: 'log-n',
+    prompt:
+      'A tricky one. **"Players are dealt into rooms. Given a fixed number of rooms, what is the smallest possible size of the largest room?"** Pattern?',
+    promptVariants: [
+      'Tricky. **"Split the queue into a fixed number of rooms so the biggest room is as small as it can be."** Which approach?',
+    ],
+    options: [
+      {
+        text: 'Binary search on the answer: guess a maximum size, check whether it fits in the rooms',
+        correct: true,
+      },
+      {
+        text: 'Greedy: fill each room to the average size and move on',
+        whyWrong:
+          'The average is not always reachable, because players cannot be split. Greedy by average gets close and can be beaten, which is exactly why this needs a search.',
+      },
+      {
+        text: 'Sort the players and deal them round-robin into the rooms',
+        whyWrong:
+          'Round-robin balances counts, not sizes, and the question is about size. It is a reasonable first answer to name before you improve on it.',
+      },
+      {
+        text: 'A sliding window over the queue',
+        whyWrong:
+          'A window would give you one grouping at a time with no way to compare it against the best possible. The search here is over candidate answers, not over positions.',
+      },
+    ],
+    explanation:
+      'This is binary search wearing a costume: the thing being searched is not a position in a list, it is the answer itself. If a maximum room size of 40 works, so does 41, and that yes-or-no pattern is what makes the search valid. Spotting "smallest possible maximum" as a binary-search tell is a genuinely senior move.',
+  },
+  {
+    id: 't2-40',
+    trackId: 't2',
+    type: 'mcq',
+    difficulty: 2,
+    conceptId: 'bfs-mental-model',
+    prompt:
+      '**"How many forwards does it take for a message to reach one person from another, given who forwards to whom?"** Pattern?',
+    promptVariants: [
+      '**"Find the fewest hops between two people in the forwarding graph."** Which approach?',
+    ],
+    options: [
+      { text: 'Breadth-first search from one person, counting levels', correct: true },
+      {
+        text: 'Depth-first search, keeping the shortest path found',
+        whyWrong:
+          'It will find *a* path quickly and may wander a long way round before finding the short one. It only gives the shortest after exploring everything.',
+      },
+      {
+        text: 'Sort the people by how many contacts they have, then follow the busiest',
+        whyWrong:
+          'A popular contact is not necessarily on the shortest path. This is a heuristic with no guarantee, and the question asks for the actual fewest hops.',
+      },
+      {
+        text: 'A frequency map of who forwards to whom',
+        whyWrong:
+          'Counting forwards tells you who is busy. It carries nothing about the distance between two particular people.',
+      },
+    ],
+    explanation:
+      '"Fewest steps", "shortest path", "minimum hops" on an unweighted graph is always breadth-first search. It expands one ring at a time, so the first time it reaches the target it has arrived by the shortest route. Depth-first goes deep first and gives no such guarantee.',
+  },
+  {
+    id: 't2-41',
+    trackId: 't2',
+    type: 'mcq',
+    difficulty: 2,
+    conceptId: 'bfs-mental-model',
+    prompt:
+      '**"Tapping a blank tile on the board should clear it and every blank tile connected to it."** Pattern?',
+    promptVariants: [
+      '**"Clear the whole connected region of blank tiles around the one that was tapped."** Which approach?',
+    ],
+    options: [
+      {
+        text: 'A flood fill: breadth-first or depth-first from the tapped tile, marking visited tiles',
+        correct: true,
+      },
+      {
+        text: 'Breadth-first, and depth-first would give a different region',
+        whyWrong:
+          'Both reach exactly the same set of tiles. They differ in the order they visit and in memory shape, not in what ends up cleared.',
+      },
+      {
+        text: 'Scan the whole board row by row, clearing every blank tile',
+        whyWrong:
+          'That clears blank regions elsewhere on the board too. Only the region connected to the tapped tile should go.',
+      },
+      {
+        text: 'Two pointers moving outward from the tapped tile',
+        whyWrong:
+          'Two pointers works along a line. A board region spreads in two dimensions and can wrap around obstacles, which pointers cannot follow.',
+      },
+    ],
+    explanation:
+      'Flood fill is the same search you use for shortest paths, minus the counting: start at one cell, visit every neighbour that qualifies, mark what you have seen so you never revisit. The visited marks are what stops it looping forever, and forgetting them is the classic bug.',
+  },
+  {
+    id: 't2-42',
+    trackId: 't2',
+    type: 'mcq',
+    difficulty: 2,
+    conceptId: 'memoization',
+    prompt:
+      '**"A pricing rule calls itself on smaller baskets, and the same basket keeps coming up."** Pattern?',
+    promptVariants: [
+      '**"The recursive price calculation recomputes the same sub-basket over and over."** What fixes it?',
+    ],
+    options: [
+      { text: "Memoize: cache each basket's price the first time it is worked out", correct: true },
+      {
+        text: 'Rewrite it as a loop',
+        whyWrong:
+          'A loop removes the call stack, not the repeated work. If the same sub-basket is priced twice, an iterative version prices it twice too.',
+      },
+      {
+        text: 'Add a Set of baskets already seen and skip them',
+        whyWrong:
+          'Skipping means returning nothing for a basket you have already priced, which breaks the total. You need its *value* back, so a Map, not a Set.',
+      },
+      {
+        text: 'Sort the baskets so the repeats sit next to each other',
+        whyWrong:
+          'The repeats arrive from different branches of the recursion, not from a list you control the order of, so there is nothing to sort.',
+      },
+    ],
+    explanation:
+      '"The same input keeps coming back" is the memoization signal. Keep a Map from input to result, check it before doing the work, and store the answer on the way out. It trades memory for time, which is a trade you should say out loud rather than make silently.',
+  },
+  {
+    id: 't2-43',
+    trackId: 't2',
+    type: 'mcq',
+    difficulty: 2,
+    conceptId: 'memoization',
+    prompt:
+      '**"Rendering a folder tree calls an expensive size calculation for every folder, and parents recount their children."** Pattern?',
+    promptVariants: [
+      '**"Each folder recomputes the sizes of everything beneath it, and so does its parent."** What do you reach for?',
+    ],
+    options: [
+      { text: "Cache each folder's computed size, keyed by folder id", correct: true },
+      {
+        text: 'Compute the sizes on a background thread',
+        whyWrong:
+          'That moves the cost off the main thread without removing it. The same subtree is still measured many times, so the machine still does the work.',
+      },
+      {
+        text: 'A frequency map of how often each folder is visited',
+        whyWrong:
+          'It would prove the problem exists, which is useful for a bug report and useless as a fix. Counting visits does not remove them.',
+      },
+      {
+        text: 'Debounce the size calculation',
+        whyWrong:
+          'Debouncing helps when the *same* call fires repeatedly in quick succession from an event. Here the repeats are different folders asking for overlapping work.',
+      },
+    ],
+    explanation:
+      'A tree where parents include their children is the textbook case for caching: every subtree is asked for once per ancestor. Store each folder size the first time and the work collapses from repeated passes to one. The follow-up question is always invalidation, so mention when the cache has to be cleared.',
+  },
+  {
+    id: 't2-44',
+    trackId: 't2',
+    type: 'mcq',
+    difficulty: 3,
+    conceptId: 'pattern-map',
+    prompt:
+      'Last near miss. **"Find the earliest meeting slot of at least 30 minutes that three named people are all free for."** Which is it?',
+    promptVariants: [
+      'Careful. **"Three calendars, one slot of 30 minutes or more, earliest wins."** Which pattern?',
+    ],
+    options: [
+      {
+        text: 'Merge the busy blocks with pointers across the three calendars, then take the first gap wide enough',
+        correct: true,
+      },
+      {
+        text: 'A sliding window over the day',
+        whyWrong:
+          'This is the near miss. "At least 30 minutes" sounds like a window, but the data is intervals rather than a list of positions, so there is nothing to slide over.',
+      },
+      {
+        text: 'Greedy: take the first slot any one of them is free for',
+        whyWrong:
+          'Greedy is right about "earliest wins", but a slot has to clear all three calendars. Committing to the first gap in one of them ignores the other two.',
+      },
+      {
+        text: 'Binary search over the times of day',
+        whyWrong:
+          'Binary search needs the answer to be monotone: if a time works, all later times work. Availability comes and goes through the day, so that does not hold.',
+      },
+    ],
+    explanation:
+      'Interval problems answer to pointers, not windows, and a duration in the statement is not automatically a window. Walk the three sorted busy lists together, keep the latest end seen so far, and the first gap that is 30 minutes or more is your answer. Reading the *shape of the data* before the keywords is the skill here.',
+  },
 ];
 
 export const t2: Track = {
@@ -660,6 +1346,26 @@ export const t2: Track = {
       id: 't2-l6',
       title: 'Putting it together',
       exerciseIds: ['t2-21', 't2-22', 't2-23', 't2-24'],
+    },
+    {
+      id: 't2-l7',
+      title: 'Lookups and membership',
+      exerciseIds: ['t2-25', 't2-26', 't2-27', 't2-28', 't2-29'],
+    },
+    {
+      id: 't2-l8',
+      title: 'Windows and pointers again',
+      exerciseIds: ['t2-30', 't2-31', 't2-32', 't2-33', 't2-34'],
+    },
+    {
+      id: 't2-l9',
+      title: 'Counting, greed and its limits',
+      exerciseIds: ['t2-35', 't2-36', 't2-37', 't2-38', 't2-39'],
+    },
+    {
+      id: 't2-l10',
+      title: 'Searching, spreading, remembering',
+      exerciseIds: ['t2-40', 't2-41', 't2-42', 't2-43', 't2-44'],
     },
   ],
 };

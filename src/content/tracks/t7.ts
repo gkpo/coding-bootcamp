@@ -505,6 +505,143 @@ function List({ items }) {
     explanation:
       'These four get mixed up constantly, usually `useRef` with state and `useMemo` with `useCallback`. The split that sticks: `useRef` and `useMemo` hold a value, `useCallback` holds a function, `memo` wraps a component. Say the riddle back with the tool name attached and the question is answered.',
   },
+  {
+    id: 't7-17',
+    trackId: 't7',
+    type: 'mcq',
+    difficulty: 3,
+    conceptId: 'stale-closure',
+    prompt:
+      'The search box works, but the results are always one keystroke behind. What does this log?',
+    code: {
+      lang: 'js',
+      source: `const [query, setQuery] = useState('');
+const search = useCallback(() => {
+  console.log(query);
+}, []);
+// user types "ab", then taps Search`,
+    },
+    options: [
+      { text: 'An empty string', correct: true },
+      {
+        text: '"ab", the current value',
+        whyWrong:
+          'That is what you would get with no dependency array at all, because the callback would be rebuilt on every render and always hold the latest `query`.',
+      },
+      {
+        text: '"a", the previous value',
+        whyWrong:
+          'There is nothing here that remembers the previous value. The frozen callback holds whatever `query` was on the render that created it, which was the first one.',
+      },
+      {
+        text: 'undefined',
+        whyWrong:
+          '`useState` was given an initial value, so `query` is never undefined. It is an empty string on the first render and that is what got captured.',
+      },
+    ],
+    explanation:
+      'An empty dependency array tells React to keep the function from the first render forever, and that function closed over the `query` from that render. This is the stale closure again, wearing a different costume from the interval version. Either list `query` as a dependency, or read the value from a ref.',
+  },
+  {
+    id: 't7-18',
+    trackId: 't7',
+    type: 'spot-bug',
+    difficulty: 2,
+    conceptId: 'use-effect',
+    prompt:
+      'Switch between two chat rooms a few times and messages from old rooms start arriving. **Tap the line responsible.**',
+    code: {
+      lang: 'js',
+      source: `useEffect(() => {
+  const socket = connect(roomId);
+  socket.on('message', addMessage);
+  return () => socket.off('message', addMessage);
+}, [roomId]);`,
+    },
+    buggyLineIndex: 3,
+    lineHints: {
+      0: 'Re-running when the room changes is exactly right.',
+      1: 'Opening a connection for the current room is the job of this effect.',
+      2: 'Subscribing to messages is the point of the effect, not the bug.',
+      4: 'Listing `roomId` is correct: a new room genuinely needs a new connection.',
+    },
+    explanation:
+      'The cleanup removes the message listener but never closes the socket, so every room switch leaves another live connection behind. They all keep receiving. Cleanup has to undo everything the effect set up, in this case `socket.off(...)` and `socket.close()`. An effect that opens something owns closing it.',
+  },
+  {
+    id: 't7-19',
+    trackId: 't7',
+    type: 'mcq',
+    difficulty: 2,
+    conceptId: 're-render',
+    prompt: 'The child is wrapped in `memo` and still re-renders every time. Why?',
+    code: {
+      lang: 'js',
+      source: `function Parent() {
+  const [count, setCount] = useState(0);
+  return <Child options={{ compact: true }} />;
+}`,
+    },
+    options: [
+      {
+        text: 'The object literal is a new object on every render, so the props are never equal',
+        correct: true,
+      },
+      {
+        text: '`memo` does not work on components that take object props',
+        whyWrong:
+          '`memo` compares any props it is given. The problem is not the type of the prop, it is that a fresh object is created each render and compares unequal.',
+      },
+      {
+        text: 'The parent re-renders, so the child must too',
+        whyWrong:
+          'That is the default and it is exactly what `memo` exists to stop. A memoized child skips re-rendering when its props are unchanged, whatever the parent does.',
+      },
+      {
+        text: '`compact: true` never changes, so React re-renders to be safe',
+        whyWrong:
+          'React does not inspect the contents. It compares the prop values, and two objects holding identical contents are still two different objects.',
+      },
+    ],
+    explanation:
+      '`memo` compares props with the same equality rule as `===`, and `{ compact: true } === { compact: true }` is false: same contents, different objects. Hoist the object out of the component, or wrap it in `useMemo`, and the comparison starts passing. This is the single most common reason `memo` appears to do nothing.',
+  },
+  {
+    id: 't7-20',
+    trackId: 't7',
+    type: 'mcq',
+    difficulty: 2,
+    conceptId: 'controlled',
+    prompt: 'The input renders, but typing in it does nothing. What is wrong?',
+    code: {
+      lang: 'js',
+      source: `const [name, setName] = useState('');
+return <input value={name} />;`,
+    },
+    options: [
+      {
+        text: 'It is controlled with no `onChange`, so React puts `name` back after every keystroke',
+        correct: true,
+      },
+      {
+        text: 'The initial state should be `undefined` rather than an empty string',
+        whyWrong:
+          'That would make it uncontrolled and typing would work, but only by accident. React also warns when an input switches from uncontrolled to controlled later.',
+      },
+      {
+        text: '`useState` needs to be called with a function',
+        whyWrong:
+          'A function initialiser only matters when computing the initial value is expensive. An empty string is fine and is not what stops the typing.',
+      },
+      {
+        text: 'The input needs a `name` attribute to accept input',
+        whyWrong:
+          'The `name` attribute is for form submission and labelling. A plain input with no `name` accepts typing perfectly well.',
+      },
+    ],
+    explanation:
+      'Passing `value` makes the input controlled: React now insists the displayed value matches the state. Without an `onChange` to update that state, every keystroke is immediately overwritten by the old value. Add `onChange={(e) => setName(e.target.value)}`, or use `defaultValue` if you actually wanted an uncontrolled input.',
+  },
 ];
 
 export const t7: Track = {
@@ -525,5 +662,10 @@ export const t7: Track = {
       exerciseIds: ['t7-09', 't7-10', 't7-12', 't7-13', 't7-16'],
     },
     { id: 't7-l4', title: 'Where state lives', exerciseIds: ['t7-11', 't7-14', 't7-15'] },
+    {
+      id: 't7-l5',
+      title: 'Second look at effects and renders',
+      exerciseIds: ['t7-17', 't7-18', 't7-19', 't7-20'],
+    },
   ],
 };

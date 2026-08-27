@@ -433,6 +433,135 @@ export const t8Exercises: Exercise[] = [
     explanation:
       'These four get described far more often than they get named, and the name is what gets scored. CORS is a rule the browser enforces, not an attack. The other three are attacks, and the giveaway in each description is where the untrusted thing ends up: in the page, in a request, or in a query.',
   },
+  {
+    id: 't8-17',
+    trackId: 't8',
+    type: 'mcq',
+    difficulty: 2,
+    conceptId: 'cors',
+    prompt:
+      'A GET to your API works from the browser address bar and fails from your app with a CORS error. What is going on?',
+    promptVariants: ['The same URL loads fine in a new tab and is blocked from your page. Why?'],
+    options: [
+      {
+        text: "A typed URL is not a cross-origin request. Only the page's own fetch is subject to the check",
+        correct: true,
+      },
+      {
+        text: 'The server is down for programmatic requests but up for browsers',
+        whyWrong:
+          'It is the same server and the same request. The difference is entirely in what the browser does with the response, not in what the server does with the request.',
+      },
+      {
+        text: 'The app is sending a malformed request',
+        whyWrong:
+          'A malformed request comes back as a 400 from the server. A CORS error is the browser refusing to hand you a response it did receive.',
+      },
+      {
+        text: 'The API needs to allow the GET verb',
+        whyWrong:
+          "GET is allowed by default for simple requests. What is missing is the header naming your page's origin as permitted.",
+      },
+    ],
+    explanation:
+      "Typing a URL makes the page itself, so there is no other origin involved and nothing to check. A `fetch` from your app is one origin asking for another's data, and the browser will not hand the response to your JavaScript unless the server says the origin is allowed. The fix is `Access-Control-Allow-Origin` on the server, never anything in your fetch call.",
+  },
+  {
+    id: 't8-18',
+    trackId: 't8',
+    type: 'mcq',
+    difficulty: 2,
+    conceptId: 'status-codes',
+    prompt:
+      'A sign-up request arrives with a valid, well-formed email that someone already registered. Which status?',
+    promptVariants: [
+      'The request body is perfectly valid, but the email is taken. What do you return?',
+    ],
+    options: [
+      {
+        text: '409 Conflict. The request is valid, it conflicts with the current state',
+        correct: true,
+      },
+      {
+        text: '422 Unprocessable Content',
+        whyWrong:
+          '422 says the shape is right but the values do not make sense on their own. Here the email is entirely valid, and the problem only exists because of what is already stored.',
+      },
+      {
+        text: '400 Bad Request',
+        whyWrong:
+          '400 means the server could not understand the request. This one was understood perfectly, which is how the server knows the email is taken.',
+      },
+      {
+        text: '200 with an error message in the body',
+        whyWrong:
+          'A 200 tells every proxy, client library and retry policy that things went fine. Hiding failures inside a success is how retries end up doing the wrong thing.',
+      },
+    ],
+    explanation:
+      'The line worth remembering: 400 is "I cannot parse this", 422 is "I parsed it and the values are wrong", 409 is "I parsed it, the values are fine, and it clashes with what already exists". Duplicate registration is the textbook 409. Interviewers ask this precisely because most people reach for 400 for everything.',
+  },
+  {
+    id: 't8-19',
+    trackId: 't8',
+    type: 'spot-bug',
+    difficulty: 2,
+    conceptId: 'cookies-tokens',
+    prompt:
+      'This session cookie survives a security review nowhere. **Tap the line that makes it stealable by injected script.**',
+    code: {
+      lang: 'js',
+      source: `res.cookie('session', token, {
+  secure: true,
+  httpOnly: false,
+  sameSite: 'lax',
+  maxAge: 3600000,
+});`,
+    },
+    buggyLineIndex: 2,
+    lineHints: {
+      1: '`secure: true` keeps the cookie off plain HTTP, which is exactly what you want.',
+      3: "`sameSite: 'lax'` is a reasonable default and blocks most cross-site sends.",
+      4: 'A one hour lifetime is a policy choice, not a hole.',
+    },
+    explanation:
+      '`httpOnly: false` lets any JavaScript on the page read the cookie with `document.cookie`, so a single successful XSS hands over the session. With `httpOnly: true` the browser still sends it on every request but never exposes it to script. The other three lines are all doing their job.',
+  },
+  {
+    id: 't8-20',
+    trackId: 't8',
+    type: 'mcq',
+    difficulty: 2,
+    conceptId: 'caching-headers',
+    prompt:
+      'You deployed an hour ago and some users still see the old JavaScript. The file was served with `Cache-Control: max-age=86400`. What now?',
+    promptVariants: [
+      'Old bundles are still being served from browsers a day after the deploy. What is the fix?',
+    ],
+    options: [
+      {
+        text: 'Give each build a new filename, and keep the long cache on those hashed files',
+        correct: true,
+      },
+      {
+        text: 'Lower `max-age` to a few minutes',
+        whyWrong:
+          'It shortens the window without closing it, and it throws away the caching you wanted. Every user now re-downloads the bundle several times a day for nothing.',
+      },
+      {
+        text: 'Ask users to hard refresh',
+        whyWrong:
+          'It is not a fix, it is a support burden, and most users will never see the request. The browser is doing exactly what the header told it to.',
+      },
+      {
+        text: 'Add `no-store` to the HTML and leave the JavaScript alone',
+        whyWrong:
+          'Half right and worth saying: the HTML does need to be fresh. On its own it does not help, because the fresh HTML still points at the same cached filename.',
+      },
+    ],
+    explanation:
+      'The standard arrangement is two rules, not one. Content-hashed asset names get a very long cache because a change produces a new name, and the small HTML that points at them is never cached. That way a deploy is visible immediately and nothing is downloaded twice. Naming both halves is the complete answer.',
+  },
 ];
 
 export const t8: Track = {
@@ -452,6 +581,11 @@ export const t8: Track = {
       id: 't8-l4',
       title: 'The security trio',
       exerciseIds: ['t8-11', 't8-12', 't8-13', 't8-14', 't8-16'],
+    },
+    {
+      id: 't8-l5',
+      title: 'Answers the browser gives back',
+      exerciseIds: ['t8-17', 't8-18', 't8-19', 't8-20'],
     },
   ],
 };

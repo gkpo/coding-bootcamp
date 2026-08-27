@@ -29,8 +29,8 @@ export default defineConfig({
         ],
       },
       workbox: {
-        // The whole app is JS, CSS, fonts and icons — precache all of it so a
-        // cold launch in airplane mode works (docs/07 M6).
+        // The whole app is JS, CSS, fonts and icons, so precache all of it:
+        // a cold launch in airplane mode has to work (docs/07 M6).
         globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
         // The plugin already precaches the manifest icons; without this they
         // are listed twice and fetched twice on install.

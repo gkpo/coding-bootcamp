@@ -15,7 +15,7 @@ This doc is the authoring contract, same rules as `docs/03-CONTENT-PLAN.md`: eve
 
 ---
 
-## Track 7. React and the frontend (16 exercises)
+## Track 7. React and the frontend (20 exercises)
 
 Goal: answer the React round the way a React shop expects: explain re-renders, keys, effects, stale closures and memoization in plain words, and spot the classic bugs on sight.
 
@@ -38,7 +38,16 @@ Goal: answer the React round the way a React shop expects: explain re-renders, k
 | t7-15 | ladder   | 2    | A component that fetches, formats and renders: interviewer asks what you'd improve first (extract the fetch into a hook)                                                                                                        | single-responsibility |
 | t7-16 | match    | 2    | Pair riddle ↔ tool: "remembers without re-rendering" ↔ useRef, "runs after the render is on screen" ↔ useEffect, "skips the child if props are unchanged" ↔ React.memo, "keeps the same function between renders" ↔ useCallback | memo-hooks            |
 
-## Track 8. The web platform (16 exercises)
+Wave 3 (docs/10 part C):
+
+| ID    | Type     | Diff | Exercise                                                                               | Concept card  |
+| ----- | -------- | ---- | -------------------------------------------------------------------------------------- | ------------- |
+| t7-17 | mcq      | 3    | A second stale closure: `useCallback` with an empty dependency array freezes `query`   | stale-closure |
+| t7-18 | spot-bug | 2    | Effect cleanup that unsubscribes but never closes the socket                           | use-effect    |
+| t7-19 | mcq      | 2    | `memo` defeated by an object literal prop, because a new object is never `===` the old | re-render     |
+| t7-20 | mcq      | 2    | A controlled input with no `onChange`: typing does nothing                             | controlled    |
+
+## Track 8. The web platform (20 exercises)
 
 Goal: the HTTP, auth and security questions every full stack loop contains, including the single most classic one (the URL journey) and the security trio (XSS, CSRF, SQL injection).
 
@@ -61,7 +70,16 @@ Goal: the HTTP, auth and security questions every full stack loop contains, incl
 | t8-15 | mcq      | 2    | "How do you stop the browser re-downloading this?": Cache-Control max-age vs ETag revalidation, which does what                                                                                           | caching-headers |
 | t8-16 | match    | 2    | Pair riddle ↔ term: "the browser refuses the cross-site read" ↔ CORS, "a script smuggled into the page" ↔ XSS, "a forged click from another site" ↔ CSRF, "a quote that breaks the query" ↔ SQL injection | decoder         |
 
-## Track 9. Databases in practice (10 exercises)
+Wave 3 (docs/10 part C):
+
+| ID    | Type     | Diff | Exercise                                                                              | Concept card    |
+| ----- | -------- | ---- | ------------------------------------------------------------------------------------- | --------------- |
+| t8-17 | mcq      | 2    | A different CORS scenario: the same URL works in the address bar and fails from fetch | cors            |
+| t8-18 | mcq      | 2    | 409 versus 422 versus 400: a valid sign-up for an email already taken                 | status-codes    |
+| t8-19 | spot-bug | 2    | Session cookie with `httpOnly: false`, readable by injected script                    | cookies-tokens  |
+| t8-20 | mcq      | 2    | Stale bundle after a deploy: hashed filenames plus an uncached HTML shell             | caching-headers |
+
+## Track 9. Databases in practice (14 exercises)
 
 Goal: read SQL out loud, explain why a query is slow, and nail the N+1 question. Complements Track 5's architecture-level database talk with query-level literacy.
 
@@ -77,6 +95,15 @@ Goal: read SQL out loud, explain why a query is slow, and nail the N+1 question.
 | t9-08 | mcq      | 2    | Fix t9-07: one query with `IN` / a JOIN (or the ORM's include), and how to _say_ the diagnosis in an interview                                                      | n-plus-one   |
 | t9-09 | mcq      | 2    | Money transfer crashes between the debit and the credit: what a transaction guarantees, ACID in plain words                                                         | transactions |
 | t9-10 | match    | 2    | Pair riddle ↔ term: "the book's index at the back" ↔ index, "all or nothing" ↔ transaction, "one query per row" ↔ N+1, "rows that match on both sides" ↔ INNER JOIN | decoder      |
+
+Wave 3 (docs/10 part C):
+
+| ID    | Type     | Diff | Exercise                                                                   | Concept card |
+| ----- | -------- | ---- | -------------------------------------------------------------------------- | ------------ |
+| t9-11 | spot-bug | 2    | A different N+1 shape: a customer lookup inside an invoice export loop     | n-plus-one   |
+| t9-12 | mcq      | 2    | Composite index on `(country, city)`: which query cannot use it            | indexes      |
+| t9-13 | mcq      | 2    | Debit committed, credit threw, error swallowed. No transaction, money gone | transactions |
+| t9-14 | mcq      | 2    | Rows vanish after a join: inner versus left, and `COALESCE` on the total   | joins        |
 
 ---
 

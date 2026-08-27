@@ -498,6 +498,168 @@ for (const item of items) {
     explanation:
       'Interviewers are listening for a structure, not just a verdict. Naming the complexity shows you can read code; the plain-words line shows you actually understand it; pointing at the bottleneck proves you can find the cost; and restating the improvement closes the loop. Jumping straight to "use a Set" skips the reasoning they are trying to score.',
   },
+  {
+    id: 't1-19',
+    trackId: 't1',
+    type: 'complexity',
+    difficulty: 2,
+    conceptId: 'big-o',
+    prompt: 'There is a `break` in the inner loop. How does the work grow in the worst case?',
+    code: {
+      lang: 'js',
+      source: `function firstDuplicate(items) {
+  for (let i = 0; i < items.length; i++) {
+    for (let j = i + 1; j < items.length; j++) {
+      if (items[i] === items[j]) return items[i];
+    }
+  }
+  return null;
+}`,
+    },
+    answer: 'O(n²)',
+    sayIt:
+      "It's quadratic in the worst case. The early return helps on lucky inputs and does nothing when there is no duplicate.",
+    explanation:
+      'An early exit changes the best case, never the worst. With no duplicate at all, nothing returns early and every pair gets compared, which is about half of n times n. Big-O describes the worst case unless you say otherwise, so this is O(n²).',
+  },
+  {
+    id: 't1-20',
+    trackId: 't1',
+    type: 'complexity',
+    difficulty: 2,
+    conceptId: 'hidden-loops',
+    prompt: 'Look closely at what `Object.keys` does on every pass.',
+    code: {
+      lang: 'js',
+      source: `function report(settings, rows) {
+  for (const row of rows) {
+    const keys = Object.keys(settings);
+    row.fields = keys.length;
+  }
+}`,
+    },
+    answer: 'O(n·m)',
+    optionSet: ['O(1)', 'O(n)', 'O(n log n)', 'O(n·m)', 'O(n²)'],
+    sayIt:
+      "It's rows times settings keys. `Object.keys` builds a fresh array every pass, and that array is not free.",
+    explanation:
+      '`Object.keys` looks like reading a property and is really a loop that builds a new array of every key. Inside a loop over rows, you pay for it once per row. Hoisting the call above the loop makes it O(n) plus one pass over the settings, which is the fix an interviewer is listening for.',
+  },
+  {
+    id: 't1-21',
+    trackId: 't1',
+    type: 'complexity',
+    difficulty: 2,
+    conceptId: 'big-o',
+    prompt: 'Two pointers walking toward each other. Careful, this one catches people out.',
+    code: {
+      lang: 'js',
+      source: `function isMirror(chars) {
+  let left = 0, right = chars.length - 1;
+  while (left < right) {
+    if (chars[left] !== chars[right]) return false;
+    left++;
+    right--;
+  }
+  return true;
+}`,
+    },
+    answer: 'O(n)',
+    sayIt:
+      "It's linear. Two pointers, but each one visits each position at most once, so it is one pass between them.",
+    explanation:
+      'Two pointers is not two loops. Together they cover each position once and meet in the middle, so the total number of comparisons is about half of n. Halving a linear cost is still linear: constants drop out of Big-O.',
+  },
+  {
+    id: 't1-22',
+    trackId: 't1',
+    type: 'complexity',
+    difficulty: 2,
+    conceptId: 'hash-lookup',
+    prompt: 'A Set gets built first, then used in a loop. What is the total growth?',
+    code: {
+      lang: 'js',
+      source: `function newNames(incoming, existing) {
+  const known = new Set(existing);
+  return incoming.filter((name) => !known.has(name));
+}`,
+    },
+    answer: 'O(n)',
+    sayIt:
+      "It's linear in both lists. Building the Set is one pass, and each lookup after that is a single step.",
+    explanation:
+      'Building the Set costs one pass over `existing`. The filter costs one pass over `incoming`, with a single-step `has` inside it rather than a scan. Two passes one after the other stay linear. Swapping the Set for `existing.includes(name)` is what would make this quadratic.',
+  },
+  {
+    id: 't1-23',
+    trackId: 't1',
+    type: 'complexity',
+    difficulty: 2,
+    conceptId: 'recursion',
+    prompt: 'The function calls itself once per step. How does the work grow?',
+    code: {
+      lang: 'js',
+      source: `function depth(node) {
+  if (node.parent === null) return 0;
+  return 1 + depth(node.parent);
+}`,
+    },
+    answer: 'O(n)',
+    sayIt:
+      "It's linear in the depth of the chain. One call per level, no branching, so the calls form a line rather than a tree.",
+    explanation:
+      'Recursion is only expensive when each call spawns several more. Here every call makes exactly one, so the calls stack up in a straight line as long as the chain. The cost that people forget is memory: the call stack grows with the depth too, and a deep enough tree will overflow it.',
+  },
+  {
+    id: 't1-24',
+    trackId: 't1',
+    type: 'complexity',
+    difficulty: 3,
+    conceptId: 'hidden-loops',
+    prompt: '`slice` looks cheap. What does calling it inside the loop cost?',
+    code: {
+      lang: 'js',
+      source: `function windows(items, size) {
+  const out = [];
+  for (let i = 0; i + size <= items.length; i++) {
+    out.push(items.slice(i, i + size));
+  }
+  return out;
+}`,
+    },
+    answer: 'O(n²)',
+    sayIt:
+      "Each slice copies up to size items, so it's n times size. With a window that grows with the input, that's quadratic.",
+    explanation:
+      '`slice` copies the range it returns, so it costs as much as the length of that range, not one step. Inside a loop over n positions you pay for that copy n times. When `size` is a small fixed number this is fine and effectively linear; when it grows with the input, it is quadratic, and saying which case you are in is the full answer.',
+  },
+  {
+    id: 't1-25',
+    trackId: 't1',
+    type: 'complexity',
+    difficulty: 1,
+    conceptId: 'big-o',
+    prompt:
+      'No code this time. **"For every customer in the list, we send one email, and the mail service takes the same time for each."** How does the work grow?',
+    answer: 'O(n)',
+    sayIt: "It's linear. One send per customer, so twice the customers means twice the sends.",
+    explanation:
+      'Big-O is a statement about a description as much as about code. One fixed unit of work per item, repeated once per item, grows in a straight line. Notice that a slow constant does not change the shape: an email taking a whole second is still O(n), just with an unpleasant constant.',
+  },
+  {
+    id: 't1-26',
+    trackId: 't1',
+    type: 'complexity',
+    difficulty: 2,
+    conceptId: 'big-o',
+    prompt:
+      'Still no code. **"For every pair of players in the lobby, we work out whether their skill ratings are close enough to match."** How does the work grow?',
+    answer: 'O(n²)',
+    sayIt:
+      "It's quadratic. Every pair means about half of n squared comparisons, so ten times the players is a hundred times the work.",
+    explanation:
+      '"Every pair" is the phrase to listen for: with n players there are roughly n squared over two pairs, and the halving drops out of Big-O. This is why a lobby that feels instant at 50 players locks up at 5,000, and why real matchmaking buckets players by rating first instead of comparing everyone.',
+  },
 ];
 
 export const t1: Track = {
@@ -514,6 +676,16 @@ export const t1: Track = {
       id: 't1-l5',
       title: 'Saying it out loud',
       exerciseIds: ['t1-15', 't1-16', 't1-17', 't1-18'],
+    },
+    {
+      id: 't1-l6',
+      title: 'Loops in disguise',
+      exerciseIds: ['t1-19', 't1-20', 't1-21', 't1-22'],
+    },
+    {
+      id: 't1-l7',
+      title: 'Deeper and wider',
+      exerciseIds: ['t1-23', 't1-24', 't1-25', 't1-26'],
     },
   ],
 };

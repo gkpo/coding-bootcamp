@@ -309,6 +309,194 @@ export const t6Exercises: Exercise[] = [
     explanation:
       'Good thinking-out-loud has a visible shape: restate, name the naive approach with its cost, identify the clue in the wording, then propose the pattern. It shows you can derive an approach rather than recall one, which matters, because the next problem will be one you have not seen.',
   },
+  {
+    id: 't6-13',
+    trackId: 't6',
+    type: 'match',
+    difficulty: 2,
+    conceptId: 'decoder',
+    prompt: 'Round four. Same patterns, phrases you have not been shown before.',
+    pairs: [
+      {
+        left: 'A stretch that grows on one side and shrinks on the other',
+        right: 'Sliding window',
+      },
+      { left: 'Walk in from both ends until they meet', right: 'Two pointers' },
+      { left: 'A tally kept as you go', right: 'Frequency map' },
+      { left: 'Throw away half of what is left, every step', right: 'Binary search' },
+    ],
+    explanation:
+      'The pattern never changes; the sentence does. If you learned "longest stretch with no repeats" as the only way a window is described, a colleague saying "grows on one side, shrinks on the other" will not land. Recognising the shape from any description is the whole skill.',
+  },
+  {
+    id: 't6-14',
+    trackId: 't6',
+    type: 'match',
+    difficulty: 2,
+    conceptId: 'decoder',
+    prompt: 'Timing and async. Pair the phrase with the term.',
+    pairs: [
+      { left: 'Wait until they stop typing, then do it once', right: 'Debounce' },
+      { left: 'It reads like normal code but pauses at each await', right: 'Async and await' },
+      { left: 'Wait a bit longer after each failure', right: 'Backoff' },
+      { left: 'Doing it twice changes nothing', right: 'Idempotency' },
+    ],
+    explanation:
+      'These four come up in almost every full stack round, usually as an aside rather than a question. The one people miss is idempotency: interviewers rarely say the word, they say "what if the user taps pay twice?", and the word is what they are scoring.',
+  },
+  {
+    id: 't6-15',
+    trackId: 't6',
+    type: 'match',
+    difficulty: 2,
+    conceptId: 'decoder',
+    prompt: 'Frontend phrases. Pair each one with what they are asking about.',
+    pairs: [
+      { left: 'It drew again when nothing it shows had changed', right: 'Unnecessary re-render' },
+      { left: 'The list got reordered and the wrong row kept its text', right: 'Missing keys' },
+      { left: 'Tear it down when the component goes away', right: 'Effect cleanup' },
+      { left: 'Two components need the same value', right: 'Lifting state up' },
+    ],
+    explanation:
+      'Frontend interviewers describe symptoms rather than naming causes, because naming the cause is your job. Each phrase here is a bug report; the term is the diagnosis, and saying the diagnosis before the fix is what separates a strong answer from a lucky one.',
+  },
+  {
+    id: 't6-16',
+    trackId: 't6',
+    type: 'match',
+    difficulty: 2,
+    conceptId: 'decoder',
+    prompt: 'Data phrases. Pair each one with the term.',
+    pairs: [
+      { left: 'It got slower as the table grew', right: 'Missing index' },
+      { left: 'Half the update landed and half did not', right: 'No transaction' },
+      { left: 'The page loads 200 rows and fires 201 queries', right: 'N+1' },
+      { left: 'Do not send the whole table down the wire', right: 'Pagination' },
+    ],
+    explanation:
+      'Backend rounds lean on symptoms too, and these four cover most of what goes wrong with a database in practice. Notice that each phrase describes something a user or a graph would notice, which is usually how you will first hear about it in a real job as well.',
+  },
+  {
+    id: 't6-17',
+    trackId: 't6',
+    type: 'match',
+    difficulty: 2,
+    conceptId: 'decoder',
+    prompt: 'Code quality phrases. Pair each one with what they want.',
+    pairs: [
+      { left: 'Handle the odd cases first and get out', right: 'Guard clause' },
+      { left: 'This function is doing three jobs', right: 'Single responsibility' },
+      { left: 'Same answer every time, nothing else touched', right: 'Pure function' },
+      { left: 'What does this variable actually hold?', right: 'Better naming' },
+    ],
+    explanation:
+      'Review-style questions almost never use the formal term, so the term is the part being tested. "This function is doing three jobs" is an invitation to say "single responsibility" and then split it, in that order. The word first, the change second.',
+  },
+  {
+    id: 't6-18',
+    trackId: 't6',
+    type: 'mcq',
+    difficulty: 2,
+    conceptId: 'decoder',
+    prompt:
+      'The interviewer says **"if I gave you a sorted copy of this list, would that help?"**. Decode it.',
+    promptVariants: [
+      'The interviewer says **"suppose the input arrived already sorted, does anything change?"**. Decode it.',
+    ],
+    options: [
+      {
+        text: 'A hint that a sorted input unlocks binary search or two pointers, and an invitation to say which',
+        correct: true,
+      },
+      {
+        text: 'A request to add a sort at the top of your function',
+        whyWrong:
+          'They said "if I gave you", which means the sort is free. Adding one yourself costs O(n log n) and answers a different question from the one asked.',
+      },
+      {
+        text: 'A hint that your current answer is wrong',
+        whyWrong:
+          'Hints about correctness sound like "walk me through it with an empty list". This one is about cost, and it usually means your answer is right but improvable.',
+      },
+      {
+        text: 'Small talk while they read your code',
+        whyWrong:
+          'Interviewers rarely ask hypotheticals for no reason, and a question about the *shape of the input* is nearly always steering you toward a specific technique.',
+      },
+    ],
+    explanation:
+      'This is one of the most common hints in the whole interview, and most candidates answer it with a shrug. The full answer names both options: sorted data makes lookups O(log n) with binary search, and it makes pair-finding O(n) with two pointers from both ends. Then say which one fits this problem and why.',
+  },
+  {
+    id: 't6-19',
+    trackId: 't6',
+    type: 'mcq',
+    difficulty: 2,
+    conceptId: 'decoder',
+    prompt:
+      'The interviewer says **"what happens if this runs on a hundred million rows?"**. What are they asking?',
+    promptVariants: [
+      'The interviewer says **"now imagine the input is a hundred times bigger"**. Decode it.',
+    ],
+    options: [
+      {
+        text: 'Which line breaks first at scale, and whether memory or time gives out',
+        correct: true,
+      },
+      {
+        text: 'Whether you would add more servers',
+        whyWrong:
+          'That is the answer in a system design round. Asked about the function in front of you, they want the bottleneck inside it, not the infrastructure around it.',
+      },
+      {
+        text: 'A request to rewrite it in a faster language',
+        whyWrong:
+          'A faster language changes the constant, not the shape. Something quadratic stays quadratic, so this answers a question about seconds rather than about growth.',
+      },
+      {
+        text: 'Whether the code has been load tested',
+        whyWrong:
+          'They are asking you to reason from the code, which you can do right now. Reporting measurements you could not have taken sidesteps the question.',
+      },
+    ],
+    explanation:
+      'This is "how does this scale?" with a number attached, and the number is a hint about which resource runs out first. The strong answer has two halves: the growth in plain words, and the specific thing that breaks, usually a copy of the whole input held in memory or a nested loop. Naming a concrete first fix afterwards is what finishes it.',
+  },
+  {
+    id: 't6-20',
+    trackId: 't6',
+    type: 'mcq',
+    difficulty: 2,
+    conceptId: 'decoder',
+    prompt:
+      'The interviewer says **"is there anything you would want to check before shipping this?"**. Decode it.',
+    promptVariants: [
+      'The interviewer says **"would you be happy to put this in front of users tomorrow?"**. Decode it.',
+    ],
+    options: [
+      {
+        text: 'Edge cases and tests: empty input, duplicates, sizes at the boundary, and what you would assert',
+        correct: true,
+      },
+      {
+        text: 'A hint that there is a bug on a specific line',
+        whyWrong:
+          'A pointed hint names the area: "what happens with an empty list?". This one is open, which means they are testing whether you volunteer the checks unprompted.',
+      },
+      {
+        text: 'A question about your deployment process',
+        whyWrong:
+          'In a coding round the subject is the code in front of you. Talking about pipelines here reads as avoiding the question rather than answering it.',
+      },
+      {
+        text: 'They are wrapping up and being polite',
+        whyWrong:
+          'It is a scored question, and "no, I think it is fine" is a weak answer to it. Even solid code has inputs worth naming out loud.',
+      },
+    ],
+    explanation:
+      'The wrong move is "no, I think it is fine". Reach for the standard list every time: empty input, one item, duplicates, the largest realistic size, and anything the type system does not stop. Then name one test you would write first. Volunteering these before being asked is what makes you look like someone who has shipped things.',
+  },
 ];
 
 export const t6: Track = {
@@ -321,5 +509,15 @@ export const t6: Track = {
     { id: 't6-l2', title: 'What they mean', exerciseIds: ['t6-03', 't6-04', 't6-08'] },
     { id: 't6-l3', title: 'When you are stuck', exerciseIds: ['t6-05', 't6-06', 't6-07'] },
     { id: 't6-l4', title: 'Thinking out loud', exerciseIds: ['t6-09', 't6-10', 't6-12'] },
+    {
+      id: 't6-l5',
+      title: 'The phrasebook, second pass',
+      exerciseIds: ['t6-13', 't6-14', 't6-15', 't6-16'],
+    },
+    {
+      id: 't6-l6',
+      title: 'Longer questions, decoded',
+      exerciseIds: ['t6-17', 't6-18', 't6-19', 't6-20'],
+    },
   ],
 };

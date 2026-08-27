@@ -15,15 +15,15 @@ describe('the authored content', () => {
     expect(findContentProblems({ tracks, exercises, cards })).toEqual([]);
   });
 
-  it('has the full manifest: 142 exercises across 9 tracks', () => {
-    // docs/03-CONTENT-PLAN.md is the v1 authoring contract and
-    // docs/08-CONTENT-EXPANSION.md the v1.1 one; these counts are them.
+  it('has the full manifest: 190 exercises across 9 tracks', () => {
+    // docs/03-CONTENT-PLAN.md is the v1 authoring contract, docs/08 the v1.1
+    // one and docs/10 part C the wave 3 one; these counts are them.
     expect(tracks.map((t) => t.id)).toEqual(['t1', 't2', 't3', 't4', 't5', 't6', 't7', 't8', 't9']);
-    const perTrack = { t1: 18, t2: 24, t3: 20, t4: 12, t5: 14, t6: 12, t7: 16, t8: 16, t9: 10 };
+    const perTrack = { t1: 26, t2: 44, t3: 20, t4: 12, t5: 14, t6: 20, t7: 20, t8: 20, t9: 14 };
     for (const [trackId, expected] of Object.entries(perTrack)) {
       expect(trackExerciseIds(trackId as keyof typeof perTrack).length, trackId).toBe(expected);
     }
-    expect(exercises.length).toBe(142);
+    expect(exercises.length).toBe(190);
   });
 
   it('covers all eight exercise types', () => {
@@ -40,8 +40,8 @@ describe('the authored content', () => {
     ]);
   });
 
-  it('has all 18 Track 1 exercises from the manifest', () => {
-    const expected = Array.from({ length: 18 }, (_, i) => `t1-${String(i + 1).padStart(2, '0')}`);
+  it('has every Track 1 exercise from the manifest, in order', () => {
+    const expected = Array.from({ length: 26 }, (_, i) => `t1-${String(i + 1).padStart(2, '0')}`);
     expect(trackExerciseIds('t1')).toEqual(expected);
   });
 
@@ -175,6 +175,44 @@ describe('the daily session over the real content', () => {
     expect([...compose({})].sort()).toEqual(['t1', 't2', 't3', 't4', 't6']);
   });
 
+  it('deals a second session of fresh material on the same day', () => {
+    // docs/10 part A over the real bank, not fixtures: with 190 exercises
+    // there is no reason a second sitting should repeat the first.
+    const today = '2026-08-26';
+    const compose = (progress: Record<string, ExerciseProgress>) =>
+      composeSession({
+        tracks: pools(),
+        decoderExerciseIds: trackExerciseIds('t6'),
+        progress,
+        today,
+        seed: 3,
+      });
+    const first = compose({});
+    const answered = Object.fromEntries(
+      first.map((id) => [
+        id,
+        { box: 1, dueDay: '2026-08-27', seen: 1, lapses: 0, lastResult: 'right' } as const,
+      ]),
+    );
+    const second = compose(answered);
+    expect(second).toHaveLength(8);
+    expect(second.filter((id) => first.includes(id))).toEqual([]);
+  });
+
+  it('rotates the decoder item across consecutive days once the track is seen', () => {
+    const seen = mastered(trackExerciseIds('t6'));
+    const pick = (today: string) =>
+      composeSession({
+        tracks: pools(),
+        decoderExerciseIds: trackExerciseIds('t6'),
+        progress: seen,
+        today,
+        seed: 1,
+      }).find((id) => id.startsWith('t6'));
+    const picks = ['2026-08-26', '2026-08-27', '2026-08-28'].map(pick);
+    expect(new Set(picks).size).toBe(3);
+  });
+
   it('brings the v1.1 tracks in once the earlier ones are done', () => {
     const done = ['t1', 't2', 't3', 't4', 't5', 't6'].flatMap((t) =>
       trackExerciseIds(t as Parameters<typeof trackExerciseIds>[0]),
@@ -207,10 +245,38 @@ describe('one concept, several skins (docs/09)', () => {
     expect(offenders.join('\n')).toBe('');
   });
 
-  it('spreads the greedy lesson over three surface stories', () => {
+  it('never reuses a pairing phrase, so every match trains a fresh one', () => {
+    const seen = new Map<string, string>();
+    const offenders: string[] = [];
+    for (const exercise of exercises) {
+      if (exercise.type !== 'match') continue;
+      for (const pair of exercise.pairs) {
+        const key = pair.left
+          .toLowerCase()
+          .replace(/[^a-z0-9 ]/g, '')
+          .trim();
+        const first = seen.get(key);
+        if (first) offenders.push(`${exercise.id} repeats ${first}: "${pair.left}"`);
+        else seen.set(key, exercise.id);
+      }
+    }
+    expect(offenders.join('\n')).toBe('');
+  });
+
+  it('gives the statement-to-pattern items an alternate phrasing to show', () => {
+    // docs/10 part B: variants belong on problem statements and riddles, and
+    // wave 3 is where they landed first.
+    const wave3 = exercises.filter((e) => /^t2-(2[5-9]|3\d|4[0-4])$/.test(e.id));
+    expect(wave3.length).toBe(20);
+    for (const exercise of wave3) {
+      expect(exercise.promptVariants?.length ?? 0, exercise.id).toBeGreaterThan(0);
+    }
+  });
+
+  it('spreads the greedy lesson across several surface stories', () => {
     const greedy = exercises.filter((e) => e.conceptId === 'greedy');
-    expect(greedy.map((e) => e.id)).toEqual(['t2-02', 't2-03', 't2-04']);
-    // Making change is canon and stays, but in exactly one of the three.
+    expect(greedy.length).toBeGreaterThanOrEqual(3);
+    // Making change is canon and stays, but in exactly one exercise.
     const change = greedy.filter((e) => /banknote|coin/i.test(e.prompt));
     expect(change.map((e) => e.id)).toEqual(['t2-02']);
   });
