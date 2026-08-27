@@ -121,3 +121,24 @@ export function HelpIcon({ size = 16 }: IconProps) {
     </svg>
   );
 }
+
+/**
+ * The drag grip on a sortable pill. Six dots is the shape a phone user has
+ * already met in every reorderable list they own, which is the whole point:
+ * nothing else on a pill says "this one moves, and you move it by holding it".
+ *
+ * Dots rather than strokes, so it reads as texture to grab rather than as a
+ * line of content.
+ */
+export function GripIcon({ size = 20 }: IconProps) {
+  return (
+    <svg {...base(size)} fill="currentColor" stroke="none">
+      <circle cx="9" cy="5.5" r="1.85" />
+      <circle cx="15" cy="5.5" r="1.85" />
+      <circle cx="9" cy="12" r="1.85" />
+      <circle cx="15" cy="12" r="1.85" />
+      <circle cx="9" cy="18.5" r="1.85" />
+      <circle cx="15" cy="18.5" r="1.85" />
+    </svg>
+  );
+}

@@ -45,6 +45,21 @@
   touch-action: none;
 }
 
+/* The only thing on a pill that says it is draggable. Dimmed, because it is a
+   hint and not content; the whole pill stays the drag target, so this never
+   becomes a 16px thing to hit with a thumb. */
+.sortable__grip {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  margin-right: var(--sp-2);
+  color: var(--text-dim);
+}
+
+.sortable__item.is-dragging .sortable__grip {
+  color: var(--accent);
+}
+
 .sortable__item.is-dragging {
   cursor: grabbing;
   border-color: var(--accent);
