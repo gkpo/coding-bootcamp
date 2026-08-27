@@ -6,27 +6,27 @@ The energy comes from **saturation and form, not from lightness**. Fully saturat
 
 ## Direction
 
-- **Light theme only in v1**: a warm paper-like off-white, never pure `#FFFFFF` walls or clinical gray. Design tokens make a future dark theme cheap; do not build one now.
+- **Light theme only in v1**: a pale green paper, never pure `#FFFFFF` walls or clinical gray. Design tokens make a future dark theme cheap; do not build one now.
 - Personality comes from: one warm accent used sparingly, generous whitespace, big friendly numerals for streak/XP, soft cards with gentle shadows, springy micro-motion. Not from illustrations or gradients everywhere.
 
 ## Color tokens (CSS custom properties in `styles/tokens.css`)
 
 | Token                                        | Value                                    | Use                                                                                                                              |
 | -------------------------------------------- | ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| `--bg`                                       | `#F7F5F1`                                | App background (warm paper off-white)                                                                                            |
+| `--bg`                                       | `#F6F8F1`                                | App background (pale green paper)                                                                                                |
 | `--surface`                                  | `#FFFFFF`                                | Cards, tab bar, sheets                                                                                                           |
-| `--surface-2`                                | `#F1EEE8`                                | Nested surfaces (code blocks, pressed states, bar tracks)                                                                        |
-| `--border`                                   | `#E5E1D8`                                | Hairline borders, dividers                                                                                                       |
-| `--text`                                     | `#1F2430`                                | Primary text (soft near-black, slightly blue)                                                                                    |
-| `--text-dim`                                 | `#6B7180`                                | Secondary text, captions (AA on `--bg` and `--surface`)                                                                          |
-| `--accent`                                   | `#CC4B00`                                | THE accent (vivid orange): button and badge fills, progress fills, streak dots and flame, the toggle's on state, active tab icon  |
-| `--accent-pressed`                           | `#A83D00`                                | Pressed state, and the solid underside every button sits on                                                                      |
-| `--accent-text`                              | `#AD4000`                                | Accent used _as text or small icons_ on light bg. Always use this darker step for text and strokes                               |
-| `--accent-bright`                            | `#FFA616`                                | Gold. **Decoration only**: the session-summary bloom, and nothing else. Never text, never state (see "Accent split")             |
+| `--surface-2`                                | `#EAEFE1`                                | Nested surfaces (code blocks, pressed states, bar tracks)                                                                        |
+| `--border`                                   | `#DBE2CE`                                | Hairline borders, dividers                                                                                                       |
+| `--text`                                     | `#1B2417`                                | Primary text (near-black, warmed toward the ground)                                                                              |
+| `--text-dim`                                 | `#5F6957`                                | Secondary text, captions (AA on all three surfaces)                                                                              |
+| `--accent`                                   | `#347F00`                                | THE accent (grass green): button and badge fills, progress fills, streak dots and flame, the toggle's on state, active tab icon   |
+| `--accent-pressed`                           | `#286100`                                | Pressed state, and the solid underside every button sits on                                                                      |
+| `--accent-text`                              | `#2F7300`                                | Accent used _as text or small icons_ on light bg. Always use this darker step for text and strokes                               |
+| `--accent-bright`                            | `#A3E635`                                | Lime. **Decoration only**: the session-summary bloom, and nothing else. Never text, never state (see "Accent split")             |
 | `--on-accent`                                | `#FFFFFF`                                | Text on accent-filled surfaces                                                                                                   |
-| `--success`                                  | `#00875A`                                | Correct answers, mastered checks                                                                                                 |
-| `--danger`                                   | `#E11D48`                                | Wrong answers (used gently. Border/tint, never full red panels)                                                                  |
-| `--info`                                     | `#006DAF`                                | Links, the "?" concept chip                                                                                                      |
+| `--success`                                  | `#00806C`                                | Correct answers, mastered checks. Pushed toward teal so it never reads as "the accent again" (see below)                          |
+| `--danger`                                   | `#CF2E4E`                                | Wrong answers (used gently. Border/tint, never full red panels)                                                                  |
+| `--info`                                     | `#12629E`                                | Links, the "?" concept chip                                                                                                      |
 | `--success-bg` / `--danger-bg` / `--info-bg` | the above at ~10% opacity on `--surface` | Feedback panel tints                                                                                                             |
 
 ### Accent split
@@ -43,9 +43,11 @@ Its dark-brown label passed at 7.06:1, so the button cleared AAA on paper while 
 
 So: if an element encodes state, carries text, or has to be found, it takes `--accent`. If it is pure expression sitting beside text that already says the same thing, it may take `--accent-bright`. Today exactly one element qualifies: the summary bloom.
 
+One more rule the green accent forces: **`--success` must stay clearly apart from `--accent`.** With a green accent the two would blur, and the feedback panel is the one place in the app where a colour has to mean exactly one thing. That is why `--success` sits at teal `#00806C` rather than a straight green, and why no track colour is green either.
+
 Corollary for any new colour: a fill that carries text needs 4.5:1 against that text, and a fill that encodes state needs 3:1 against whatever sits behind it. On this warm ground, that puts every usable accent at full saturation and roughly 30-45% lightness. Warm hues cannot be both pale and legible here; do not try to recover brightness by lightening a fill.
 
-Track identity colors (track cards, progress bars, lesson headers). Deep enough to read on light backgrounds: t1 amber `#D97706`, t2 violet `#7C3AED`, t3 pink `#DB2777`, t4 teal `#0D9488`, t5 blue `#2563EB`, t6 green `#059669`, t7 cyan `#0891B2`, t8 indigo `#4F46E5`, t9 slate `#475569`. Use at full strength only for small elements (icons, bar fills, 15px+ bold text); tint at ~8–10% for card backgrounds and icon chips. **Never carry track colour on a single edge of a rounded card.** A thick one-sided border cannot share the card's 16px radius, so the browser miters the join and the corners come to a point. Where colour must sit on an edge, square off that side's corners (as `.concept__say-line` does); otherwise give the colour a shape of its own.
+Track identity colors (track cards, progress bars, lesson headers). Deep enough to read on light backgrounds: t1 orange `#C2410C`, t2 violet `#7C3AED`, t3 magenta `#BE185D`, t4 cyan `#0E7490`, t5 blue `#1D4ED8`, t6 teal `#0F766E`, t7 gold `#A16207`, t8 indigo `#4F46E5`, t9 slate `#475569`. **No track is green.** The accent owns that hue, and a track chip wearing the accent's colour stops reading as identity and starts reading as selection. Use at full strength only for small elements (icons, bar fills, 15px+ bold text); tint at ~8–10% for card backgrounds and icon chips. **Never carry track colour on a single edge of a rounded card.** A thick one-sided border cannot share the card's 16px radius, so the browser miters the join and the corners come to a point. Where colour must sit on an edge, square off that side's corners (as `.concept__say-line` does); otherwise give the colour a shape of its own.
 
 Contrast: all text/background pairs must pass WCAG AA (the values above do; keep it true if tweaked).
 

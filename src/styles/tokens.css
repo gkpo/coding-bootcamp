@@ -11,31 +11,25 @@
  *
  * Its dark-brown label passed at 7.06:1, so the button read as low contrast
  * while technically clearing AAA. Darkening the fill is the only fix; the
- * label then flips to white. Bright gold survives in --accent-bright for the
- * summary bloom, which encodes nothing and sits behind text that does.
+ * label then flips to white. A bright step survives in --accent-bright for
+ * the summary bloom, which encodes nothing and sits behind text that does.
+ * The hue has since moved from amber to grass green, but the split is the
+ * lasting part: any future palette has to answer the same two questions.
  *
- * Three text tokens are a hair darker than the values printed in that doc.
- * The doc's binding rule is "all text/background pairs must pass WCAG AA
- * (the values above do; keep it true if tweaked)", but measured, they did
- * not: --text-dim on --bg is 4.48:1 against a 4.5:1 threshold, and the same
- * three tokens all fell short on --surface-2. Lighthouse flagged it. The hues
- * are unchanged and the shift is imperceptible; the accessibility rule is
- * what the doc actually binds, so it wins over the printed hex.
- *
- *   --text-dim    #6B7180 -> #666C7A   (4.48 -> 4.83 on --bg)
- *
- * --success and --danger stay as printed: they are only ever borders, tints
- * and small glyphs, which are UI components needing 3:1, and they clear that.
+ * Every value here is measured by tokens.test.ts against the pairs that
+ * matter, so the palette cannot drift back under a threshold unnoticed.
+ * --success and --danger only ever appear as borders, tints and small
+ * glyphs, which are UI components needing 3:1 rather than 4.5:1.
  */
 
 :root {
   /* ---- surfaces & text ---- */
-  --bg: #f7f5f1;
+  --bg: #f6f8f1; /* pale green paper */
   --surface: #ffffff;
-  --surface-2: #f1eee8;
-  --border: #e5e1d8;
-  --text: #1f2430;
-  --text-dim: #666c7a;
+  --surface-2: #eaefe1;
+  --border: #dbe2ce;
+  --text: #1b2417; /* near-black, warmed toward the ground */
+  --text-dim: #5f6957;
 
   /* ---- the accent, split by job (docs/06) ----
      --accent        anything that MEANS something: button and badge fills,
@@ -44,42 +38,48 @@
                      punchy, dark enough to carry white and to clear 3:1 as a
                      state fill.
      --accent-bright decoration only. Never text, never state. */
-  --accent: #cc4b00; /* 4.59 on white, 4.22 on --bg, 3.96 on --surface-2 */
-  --accent-pressed: #a83d00;
-  --accent-text: #ad4000; /* accent as text/small glyphs: 5.17 on --surface-2 */
-  --accent-bright: #ffa616; /* gold: the summary bloom, and nothing else */
+  --accent: #347f00; /* grass green: 5.02 on white, 4.69 on --bg */
+  --accent-pressed: #286100;
+  --accent-text: #2f7300; /* accent as text/small glyphs: 5.13 on --surface-2 */
+  --accent-bright: #a3e635; /* lime: the summary bloom, and nothing else */
   --on-accent: #ffffff;
 
   /* ---- semantic (full saturation, same rule: dark enough to mean it) ---- */
-  --success: #00875a;
-  --danger: #e11d48;
-  --info: #006daf;
-  --success-bg: rgba(0, 135, 90, 0.1);
-  --danger-bg: rgba(225, 29, 72, 0.1);
-  --info-bg: rgba(0, 109, 175, 0.1);
+  /* Success is pushed toward teal so that "correct" never reads as merely
+     "the accent again": on a green-accented app the two would blur, and the
+     feedback panel is the one place a colour has to mean exactly one thing. */
+  --success: #00806c;
+  --danger: #cf2e4e;
+  --info: #12629e;
+  --success-bg: rgba(0, 128, 108, 0.1);
+  --danger-bg: rgba(207, 46, 78, 0.1);
+  --info-bg: rgba(18, 98, 158, 0.1);
 
   /* ---- syntax highlighting ----
      Drawn from the deep end of the track colours, never neon-on-white
      (docs/06 §Core components). Every one clears WCAG AA on --surface-2,
      where code blocks sit, and on --surface for the concept-card examples. */
-  --tok-keyword: #6d28d9; /* deep violet: 6.14 on --surface-2 */
-  --tok-string: #0f766e; /* deep teal: 4.73 */
-  --tok-number: #b05109; /* deep amber: 4.50 */
-  --tok-function: #2462eb; /* deep blue: 4.51 */
-  --tok-property: #be185d; /* deep pink: 5.21 */
+  --tok-keyword: #6d28d9; /* deep violet: 6.06 on --surface-2 */
+  --tok-string: #0f766e; /* deep teal: 4.67 */
+  --tok-number: #ab4e08; /* deep amber: 4.64 */
+  --tok-function: #215de0; /* deep blue: 4.62 */
+  --tok-property: #be185d; /* deep pink: 5.14 */
   --tok-literal: #6d28d9;
   --tok-type: #0f766e;
-  --tok-comment: #666c7a; /* --text-dim: 4.54 */
-  --tok-punctuation: #666c7a;
+  --tok-comment: #5f6957; /* --text-dim: 5.21 */
+  --tok-punctuation: #5f6957;
 
-  /* ---- track identity ---- */
-  --track-t1: #d97706;
+  /* ---- track identity ----
+     No track is green: the accent owns that hue, and a track chip sitting on
+     the accent's colour stops reading as identity and starts reading as
+     selection. Every one clears 3:1 on --surface and on --surface-2. */
+  --track-t1: #c2410c;
   --track-t2: #7c3aed;
-  --track-t3: #db2777;
-  --track-t4: #0d9488;
-  --track-t5: #2563eb;
-  --track-t6: #059669;
-  --track-t7: #0891b2;
+  --track-t3: #be185d;
+  --track-t4: #0e7490;
+  --track-t5: #1d4ed8;
+  --track-t6: #0f766e;
+  --track-t7: #a16207;
   --track-t8: #4f46e5;
   --track-t9: #475569;
 
