@@ -122,8 +122,7 @@
 
 .confetti {
   position: fixed;
-  inset: 0 0 auto 0;
-  height: 40dvh;
+  inset: 0;
   pointer-events: none;
   overflow: hidden;
   z-index: 5;
@@ -131,24 +130,42 @@
 
 .confetti__bit {
   position: absolute;
-  top: -12px;
-  width: 8px;
-  height: 12px;
+  top: -16px;
   border-radius: 2px;
   opacity: 0;
+  will-change: transform, opacity;
+  /* The shape of the fall lives in the keyframes, so the timing stays linear:
+     an eased curve on top of them would flatten the acceleration back out. */
+  animation-name: confetti-fall;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
 }
 
-.confetti.is-firing .confetti__bit {
-  animation: confetti-fall 900ms var(--ease) forwards;
+.confetti__bit--round {
+  border-radius: 50%;
 }
 
+/* Vertical travel accelerates (gravity), horizontal drift slows (air), and
+   each piece carries its own distance, spin and flip in custom properties. */
 @keyframes confetti-fall {
   0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) rotate(0deg) rotateX(0deg);
+  }
+  6% {
     opacity: 1;
-    transform: translateY(0) rotate(0deg);
+  }
+  30% {
+    transform: translate3d(calc(var(--drift) * 0.5), calc(var(--fall) * 0.16), 0)
+      rotate(calc(var(--spin) * 0.3)) rotateX(calc(var(--flip) * 0.3));
+  }
+  65% {
+    opacity: 1;
+    transform: translate3d(calc(var(--drift) * 0.78), calc(var(--fall) * 0.5), 0)
+      rotate(calc(var(--spin) * 0.65)) rotateX(calc(var(--flip) * 0.65));
   }
   100% {
     opacity: 0;
-    transform: translateY(40dvh) rotate(240deg);
+    transform: translate3d(var(--drift), var(--fall), 0) rotate(var(--spin)) rotateX(var(--flip));
   }
 }
