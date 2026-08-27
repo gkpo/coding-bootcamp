@@ -21,7 +21,7 @@ export interface Variant {
 }
 
 export interface Family {
-  id: 'right' | 'complete';
+  id: string;
   label: string;
   /** What the sliders start at for this family. */
   tuning: Tuning;
@@ -29,7 +29,6 @@ export interface Family {
 }
 
 const A3 = 220;
-const E3 = 164.81;
 const A4 = 440;
 const CS5 = 554.37;
 const E5 = 659.25;
@@ -44,23 +43,31 @@ const C4 = 261.63;
 const E4 = 329.63;
 const G4 = 392;
 const C5 = 523.25;
-const D5 = 587.33;
 const E5C = 659.25;
 const G5 = 783.99;
-const A5C = 880;
-const B5 = 987.77;
 const C6 = 1046.5;
 const E6C = 1318.51;
 const G6 = 1567.98;
-const C7 = 2093;
 
 /** The success cue, settled. Kept here so it can still be compared against. */
 const RIGHT: Variant[] = [
   {
-    id: 'warm',
-    name: 'Warm (chosen)',
-    blurb: 'The one you picked. Pitched low, rounded off, wide and wet.',
+    id: 'warm-low',
+    name: 'Warm, lower (chosen)',
+    blurb: 'What plays now. Pitched low, rounded off, heavy underneath, wide and wet.',
     notes: CUES.right.notes,
+  },
+  {
+    id: 'warm',
+    name: 'Warm, higher bass',
+    blurb: 'The same cue with its bottom note an octave up. Lighter underneath.',
+    notes: [
+      { freq: A4, at: 0, dur: 0.32, level: 0.05, spread: 8, type: 'triangle', send: 0.6 },
+      { freq: CS5, at: 0.08, dur: 0.34, level: 0.048, spread: 9, type: 'triangle', send: 0.75 },
+      { freq: E5, at: 0.16, dur: 0.7, level: 0.05, spread: 11, send: 1 },
+      { freq: A5, at: 0.17, dur: 0.45, level: 0.008, spread: 14, send: 1, sparkle: true },
+      { freq: A3, at: 0.16, dur: 0.45, level: 0.032, type: 'triangle', send: 0.25 },
+    ],
   },
   {
     id: 'original',
@@ -93,18 +100,6 @@ const RIGHT: Variant[] = [
       { freq: A3, at: 0.15, dur: 0.4, level: 0.028, type: 'triangle', send: 0.2 },
     ],
   },
-  {
-    id: 'warm-low',
-    name: 'Warm, lower',
-    blurb: 'The chosen cue dropped an octave at the bottom. Heavier underneath.',
-    notes: [
-      { freq: A4, at: 0, dur: 0.32, level: 0.05, spread: 8, type: 'triangle', send: 0.6 },
-      { freq: CS5, at: 0.08, dur: 0.34, level: 0.048, spread: 9, type: 'triangle', send: 0.75 },
-      { freq: E5, at: 0.16, dur: 0.8, level: 0.05, spread: 11, send: 1 },
-      { freq: A5, at: 0.17, dur: 0.5, level: 0.008, spread: 14, send: 1, sparkle: true },
-      { freq: E3, at: 0.16, dur: 0.6, level: 0.036, type: 'triangle', send: 0.25 },
-    ],
-  },
 ];
 
 /**
@@ -124,10 +119,22 @@ const matched = (gain: number, notes: Note[]): Note[] =>
  */
 const COMPLETE: Variant[] = [
   {
-    id: 'current',
-    name: 'Current',
-    blurb: 'What plays now. Four notes up a C chord. Here to compare against.',
+    id: 'ascension',
+    name: 'Ascension (chosen)',
+    blurb: 'What plays now. A fast run up the scale onto a high held note.',
     notes: CUES.complete.notes,
+  },
+  {
+    id: 'previous',
+    name: 'Before',
+    blurb: 'The cue this replaced: four notes up a C chord, in a smaller room.',
+    notes: matched(1.3, [
+      { freq: C5, at: 0, dur: 0.3, level: 0.042, spread: 8, send: 0.6 },
+      { freq: E5C, at: 0.09, dur: 0.34, level: 0.042, spread: 8, send: 0.7 },
+      { freq: G5, at: 0.18, dur: 0.4, level: 0.044, spread: 10, send: 0.85 },
+      { freq: C6, at: 0.27, dur: 0.9, level: 0.05, spread: 14, send: 1 },
+      { freq: C3, at: 0.27, dur: 0.5, level: 0.03, type: 'triangle', send: 0.2 },
+    ]),
   },
   {
     id: 'fanfare',
@@ -155,22 +162,6 @@ const COMPLETE: Variant[] = [
       { freq: E5C, at: 0.34, dur: 1.5, level: 0.03, spread: 14, attack: 0.06, send: 1 },
       { freq: C6, at: 0.46, dur: 1.4, level: 0.016, spread: 18, send: 1, sparkle: true },
       { freq: C3, at: 0, dur: 1.2, level: 0.04, type: 'triangle', attack: 0.04, send: 0.3 },
-    ]),
-  },
-  {
-    id: 'ascension',
-    name: 'Ascension',
-    blurb: 'A fast run up the scale landing on a high held note. The most motion.',
-    notes: matched(1.07, [
-      { freq: C5, at: 0, dur: 0.14, level: 0.04, spread: 6, send: 0.5 },
-      { freq: D5, at: 0.07, dur: 0.14, level: 0.04, spread: 6, send: 0.5 },
-      { freq: E5C, at: 0.14, dur: 0.14, level: 0.042, spread: 7, send: 0.6 },
-      { freq: G5, at: 0.21, dur: 0.14, level: 0.044, spread: 8, send: 0.6 },
-      { freq: A5C, at: 0.28, dur: 0.14, level: 0.044, spread: 9, send: 0.7 },
-      { freq: B5, at: 0.35, dur: 0.14, level: 0.046, spread: 10, send: 0.8 },
-      { freq: C6, at: 0.42, dur: 1.6, level: 0.055, spread: 14, send: 1 },
-      { freq: C7, at: 0.44, dur: 1.1, level: 0.011, spread: 22, send: 1, sparkle: true },
-      { freq: C3, at: 0.42, dur: 0.9, level: 0.036, type: 'triangle', send: 0.25 },
     ]),
   },
   {
@@ -245,19 +236,150 @@ const COMPLETE: Variant[] = [
   },
 ];
 
+/**
+ * Button taps. The brief is subtlety, because unlike the answer cues this one
+ * is heard on every press: a tap that is charming the first time is a tell the
+ * hundredth. So all of these are short, quiet and close, an order of magnitude
+ * below the answer cues in level. They are meant to be felt more than heard.
+ */
+const TAP: Variant[] = [
+  {
+    id: 'none',
+    name: 'Silence',
+    blurb: 'No tap at all. Worth hearing against the rest before adding one.',
+    notes: [],
+  },
+  {
+    id: 'tick',
+    name: 'Tick',
+    blurb: 'A tiny high blip. Crisp, closest to a system click.',
+    notes: [{ freq: 2400, at: 0, dur: 0.035, level: 0.02 }],
+  },
+  {
+    id: 'key',
+    name: 'Key',
+    blurb: 'Mid, with a small drop in pitch. Like a good keyboard.',
+    notes: [{ freq: 800, at: 0, dur: 0.045, level: 0.028, bendTo: 690 }],
+  },
+  {
+    id: 'thock',
+    name: 'Thock',
+    blurb: 'Low and soft, no top end at all. The least intrusive of these.',
+    notes: [{ freq: 150, at: 0, dur: 0.07, level: 0.038, type: 'triangle', bendTo: 120 }],
+  },
+  {
+    id: 'pebble',
+    name: 'Pebble',
+    blurb: 'Wooden, with the smallest hint of brightness over it.',
+    notes: [
+      { freq: 520, at: 0, dur: 0.05, level: 0.03, type: 'triangle' },
+      { freq: 1560, at: 0, dur: 0.03, level: 0.006, sparkle: true },
+    ],
+  },
+  {
+    id: 'glass',
+    name: 'Glass',
+    blurb: 'High and delicate, with a touch of ring. The prettiest, and the riskiest.',
+    notes: [
+      { freq: 1760, at: 0, dur: 0.09, level: 0.014, spread: 12, send: 0.5 },
+      { freq: 2640, at: 0, dur: 0.06, level: 0.005, spread: 18, send: 0.5, sparkle: true },
+    ],
+  },
+  {
+    id: 'soft',
+    name: 'Soft',
+    blurb: 'Barely there. Rounded, no attack to speak of, almost subliminal.',
+    notes: [{ freq: 300, at: 0, dur: 0.11, level: 0.024, type: 'triangle', attack: 0.02 }],
+  },
+];
+
+/**
+ * The miss. It has to land without punishing: the app tells you the answer was
+ * wrong in words a moment later, so the sound only has to mark the moment.
+ * None of these are buzzers, and all stay close and dry.
+ *
+ * Level matched to the current cue, with one deliberate exception: "Muted" is
+ * left quieter, because being quieter is the whole of what it is proposing.
+ */
+const WRONG: Variant[] = [
+  {
+    id: 'current',
+    name: 'Current',
+    blurb: 'What plays now. One low note with a small fall in pitch.',
+    notes: CUES.wrong.notes,
+  },
+  {
+    id: 'thud',
+    name: 'Thud',
+    blurb: 'Lower and blunter, no fall. Reads as a full stop rather than a no.',
+    notes: matched(0.92, [
+      { freq: 164.81, at: 0, dur: 0.22, level: 0.07, type: 'triangle', send: 0.2 },
+    ]),
+  },
+  {
+    id: 'sigh',
+    name: 'Sigh',
+    blurb: 'Two notes stepping down. The most human, and the most audible.',
+    notes: matched(1.27, [
+      { freq: 329.63, at: 0, dur: 0.16, level: 0.05, type: 'triangle', send: 0.3 },
+      { freq: 261.63, at: 0.1, dur: 0.34, level: 0.05, type: 'triangle', send: 0.4 },
+    ]),
+  },
+  {
+    id: 'muted',
+    name: 'Muted',
+    blurb: 'A soft drop of a tone, quieter than the rest. Nearly a shrug.',
+    notes: [
+      { freq: 293.66, at: 0, dur: 0.26, level: 0.045, type: 'triangle', bendTo: 246.94, send: 0.3 },
+    ],
+  },
+  {
+    id: 'knock',
+    name: 'Knock',
+    blurb: 'Two quick low taps. Says try again without saying wrong.',
+    notes: matched(1.26, [
+      { freq: 196, at: 0, dur: 0.09, level: 0.055, type: 'triangle', send: 0.15 },
+      { freq: 196, at: 0.1, dur: 0.12, level: 0.05, type: 'triangle', send: 0.2 },
+    ]),
+  },
+  {
+    id: 'neutral',
+    name: 'Neutral',
+    blurb: 'One flat note that does not fall at all. The least judgemental option.',
+    notes: matched(1.16, [{ freq: 233.08, at: 0, dur: 0.18, level: 0.055, send: 0.2 }]),
+  },
+];
+
+/**
+ * Open families first. The two settled ones stay below, both so the new cues
+ * can be judged against what they will sit next to and so either can be
+ * revisited.
+ */
 export const FAMILIES: Family[] = [
   {
+    id: 'tap',
+    label: 'Button tap',
+    // Close and almost dry. A tap with a room on it stops sounding like a
+    // button and starts sounding like an event.
+    tuning: { ...DEFAULT_TUNING, level: 1, width: 0.15, tail: 0.08, tailSeconds: 0.5, sparkle: 1 },
+    variants: TAP,
+  },
+  {
+    id: 'wrong',
+    label: 'Wrong answer',
+    tuning: CUES.wrong.tuning,
+    variants: WRONG,
+  },
+  {
     id: 'right',
-    label: 'Correct answer',
+    label: 'Correct answer (chosen)',
     tuning: CUES.right.tuning,
     variants: RIGHT,
   },
   {
     id: 'complete',
-    label: 'Session complete',
-    // Starts wetter and longer than the app default: the brief is glory, and
-    // these want more room than a per-answer cue does.
-    tuning: { ...DEFAULT_TUNING, level: 1, width: 0.6, tail: 0.85, tailSeconds: 3, sparkle: 1.6 },
+    label: 'Session complete (chosen)',
+    tuning: CUES.complete.tuning,
     variants: COMPLETE,
   },
 ];

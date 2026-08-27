@@ -11,7 +11,7 @@
 
 import { useCallback, useRef, useState } from 'react';
 import { Button } from '../components/Button';
-import { CUES, playNotes, type Tuning } from '../engine/feedback';
+import { playNotes, type Tuning } from '../engine/feedback';
 import { FAMILIES, type Family } from './soundVariants';
 import './SoundStudio.css';
 
@@ -90,7 +90,7 @@ const initialPicks = (): Picks =>
 
 export function SoundStudio() {
   const [picks, setPicks] = useState<Picks>(initialPicks);
-  const [focus, setFocus] = useState<Family['id']>('complete');
+  const [focus, setFocus] = useState<Family['id']>(FAMILIES[0].id);
   const [copied, setCopied] = useState(false);
   const copyTimer = useRef<number | undefined>(undefined);
 
@@ -165,7 +165,8 @@ export function SoundStudio() {
         <h1 className="studio__title">Sound studio</h1>
         <p className="studio__lede">
           Tap a cue to hear it. The sliders below apply to whichever cue you last tapped, and every
-          change replays it. Each family keeps its own settings.
+          change replays it. Each family keeps its own settings. The two marked chosen are what the
+          app plays today, kept here to judge the new ones against.
         </p>
       </header>
 
@@ -234,20 +235,6 @@ export function SoundStudio() {
             Play again
           </Button>
         </div>
-      </section>
-
-      <section className="studio__section">
-        <h2 className="studio__label">In context</h2>
-        <p className="studio__note">
-          The miss, so you can hear how the picks sit next to it. It stays close and dry on purpose
-          and ignores the sliders.
-        </p>
-        <Button
-          variant="secondary"
-          onClick={() => playNotes(CUES.wrong.notes, true, CUES.wrong.tuning)}
-        >
-          Wrong answer
-        </Button>
       </section>
 
       <section className="studio__section">

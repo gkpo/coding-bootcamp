@@ -123,15 +123,16 @@ export interface Cue {
  * event rather than a shrug.
  */
 export const CUES: Record<FeedbackKind, Cue> = {
-  // "Warm", picked over six alternatives: A4 up to E5 through the third, the
-  // rise pitched low and rounded off with triangles. More wood than glass.
+  // "Warm, lower", chosen by ear: A4 up to E5 through the third, rounded off
+  // with triangles, over an E an octave below where the first pass put it.
+  // More wood than glass, and heavier underneath.
   right: {
     notes: [
       { freq: 440, at: 0, dur: 0.32, level: 0.05, spread: 8, type: 'triangle', send: 0.6 },
       { freq: 554.37, at: 0.08, dur: 0.34, level: 0.048, spread: 9, type: 'triangle', send: 0.75 },
-      { freq: 659.25, at: 0.16, dur: 0.7, level: 0.05, spread: 11, send: 1 },
-      { freq: 880, at: 0.17, dur: 0.45, level: 0.008, spread: 14, send: 1, sparkle: true },
-      { freq: 220, at: 0.16, dur: 0.45, level: 0.032, type: 'triangle', send: 0.25 },
+      { freq: 659.25, at: 0.16, dur: 0.8, level: 0.05, spread: 11, send: 1 },
+      { freq: 880, at: 0.17, dur: 0.5, level: 0.008, spread: 14, send: 1, sparkle: true },
+      { freq: 164.81, at: 0.16, dur: 0.6, level: 0.036, type: 'triangle', send: 0.25 },
     ],
     tuning: { level: 1, width: 0.6, tail: 0.8, tailSeconds: 2.4, sparkle: 2.5 },
   },
@@ -142,15 +143,23 @@ export const CUES: Record<FeedbackKind, Cue> = {
     notes: [{ freq: 220, at: 0, dur: 0.3, level: 0.066, bendTo: 196, send: 0.25 }],
     tuning: DEFAULT_TUNING,
   },
+  // "Ascension", chosen by ear: a fast run up the C scale landing on a high
+  // held note, in the biggest room in the app. The level carries the studio's
+  // match factor, which is a gain and so belongs here rather than smeared
+  // across nine note levels.
   complete: {
     notes: [
-      { freq: 523.25, at: 0, dur: 0.3, level: 0.042, spread: 8, send: 0.6 },
-      { freq: 659.25, at: 0.09, dur: 0.34, level: 0.042, spread: 8, send: 0.7 },
-      { freq: 783.99, at: 0.18, dur: 0.4, level: 0.044, spread: 10, send: 0.85 },
-      { freq: 1046.5, at: 0.27, dur: 0.9, level: 0.05, spread: 14, send: 1 },
-      { freq: 130.81, at: 0.27, dur: 0.5, level: 0.03, type: 'triangle', send: 0.2 },
+      { freq: 523.25, at: 0, dur: 0.14, level: 0.04, spread: 6, send: 0.5 },
+      { freq: 587.33, at: 0.07, dur: 0.14, level: 0.04, spread: 6, send: 0.5 },
+      { freq: 659.25, at: 0.14, dur: 0.14, level: 0.042, spread: 7, send: 0.6 },
+      { freq: 783.99, at: 0.21, dur: 0.14, level: 0.044, spread: 8, send: 0.6 },
+      { freq: 880, at: 0.28, dur: 0.14, level: 0.044, spread: 9, send: 0.7 },
+      { freq: 987.77, at: 0.35, dur: 0.14, level: 0.046, spread: 10, send: 0.8 },
+      { freq: 1046.5, at: 0.42, dur: 1.6, level: 0.055, spread: 14, send: 1 },
+      { freq: 2093, at: 0.44, dur: 1.1, level: 0.011, spread: 22, send: 1, sparkle: true },
+      { freq: 130.81, at: 0.42, dur: 0.9, level: 0.036, type: 'triangle', send: 0.25 },
     ],
-    tuning: { ...DEFAULT_TUNING, tail: 0.42, tailSeconds: 1.6 },
+    tuning: { level: 1.07, width: 0.6, tail: 0.85, tailSeconds: 3, sparkle: 1.6 },
   },
 };
 
