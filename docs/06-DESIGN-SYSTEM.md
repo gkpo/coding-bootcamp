@@ -50,6 +50,10 @@ Contrast: all text/background pairs must pass WCAG AA (the values above do; keep
 - **Card:** `--surface`, radius 16, 16–20px padding, optional 1px border.
 - **Track card:** uniform 1px `--border` and the soft shadow, never an accent edge. Identity is carried by an **icon chip**: a 40px (34px in the Home strip) rounded square, radius 12 (10), filled with a ~12% tint of the track colour, with the drawn icon at full strength inside it. The progress-bar fill repeats the colour. Two deliberate uses beat one smeared along a border.
 - **Progress bar:** 6px tall, radius full, track `--surface-2`, fill = track color or accent; animate width 300ms ease-out.
+  Track progress bars carry two stacked fills in that same 6px: the mastered fill at full track colour, over a
+  "seen" fill at ~28% track colour mixed into `--surface-2`. Both are absolutely positioned from the left edge, so
+  the wider seen layer reads as the ground the solid one advances across. The counts are always printed as text
+  beside the bar, so the bar itself is `aria-hidden`.
 - **Progress ring:** (Home CTA, session summary) 3–4px stroke, accent on `--surface-2` track.
 - **Streak flame:** the one playful mascot-ish element. Inline SVG flame, accent-colored, subtle 1.5s ease pulse when today is done; grayed at `--text-dim` when today isn't done yet.
 - **Chips:** concept "?" chip = `--info-bg` bg + `--info` text + radius full; option pills for parsons/blank = `--surface-2` + border, drag state lifts with slight scale + border-accent.

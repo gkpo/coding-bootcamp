@@ -1,12 +1,13 @@
 import { Link } from 'react-router-dom';
-import { exercises, tracks, trackExerciseIds } from '../content';
+import { exercises, tracks } from '../content';
 import { ConceptIcon } from '../components/ConceptIcon';
+import { ProgressBar } from '../components/ProgressBar';
 import { useStore } from '../store/useStore';
 import './TracksScreen.css';
 
 /** Nothing is gated. Everything is available from day one (docs/03). */
 export function TracksScreen() {
-  const trackMastery = useStore((s) => s.trackMastery);
+  const trackTally = useStore((s) => s.trackTally);
 
   return (
     <div className="stack">
@@ -18,7 +19,7 @@ export function TracksScreen() {
       </div>
 
       {tracks.map((track) => {
-        const mastery = trackMastery(track.id);
+        const tally = trackTally(track.id);
         return (
           <Link key={track.id} to={`/tracks/${track.id}`} className="track-card">
             <div className="track-card__head">
@@ -31,14 +32,9 @@ export function TracksScreen() {
               </div>
             </div>
             <div className="track-card__meta">
-              <span className="track-card__bar">
-                <span
-                  className="track-card__fill"
-                  style={{ width: `${mastery * 100}%`, background: `var(--track-${track.id})` }}
-                />
-              </span>
+              <ProgressBar className="track-card__bar" tally={tally} trackId={track.id} />
               <span className="track-card__pct">
-                {Math.round(mastery * 100)}% · {trackExerciseIds(track.id).length}
+                {tally.seen} of {tally.total} seen · {tally.mastered} mastered
               </span>
             </div>
           </Link>

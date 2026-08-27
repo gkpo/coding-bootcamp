@@ -53,7 +53,13 @@ Keep it honest and lightweight:
 
 - **XP:** +10 per exercise solved first try, +5 solved after retry/unsure, +5 bonus per completed session, +10 streak bonus at 7/30-day marks. XP is cosmetic (lifetime number + weekly bar on profile). No leagues, no leaderboards (single user).
 - **Streak:** a day counts if ≥1 session completed. One "streak freeze" earned per 7-day streak, auto-consumed on a missed day, max 2 banked. Local-timezone day boundary.
-- **Track mastery:** each track shows % = mastered exercises / total. An exercise is _mastered_ when its spaced-repetition box ≥ 4 (see below).
+- **Track mastery:** an exercise is _mastered_ when its spaced-repetition box ≥ 4 (see below).
+  Each track's bar carries two layers: a pale fill for exercises seen at least once, and a
+  solid fill for the mastered ones, labelled "9 of 26 seen · 2 mastered". Mastery alone is
+  not a usable progress signal early on: the box intervals put the earliest possible mastery
+  eleven days after an exercise is first seen, so a mastery-only bar reads 0% through the
+  whole first fortnight of daily use and looks like lost work. The pale layer moves from the
+  first session; the solid layer keeps its strict meaning.
 - **Concept card mastery:** a card is "known" when all exercises linked to it are mastered; the Sheets tab shows known cards with a subtle check.
 
 ## Spaced repetition (Leitner boxes)

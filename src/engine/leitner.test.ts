@@ -9,6 +9,7 @@ import {
   masteryRatio,
   newProgress,
   nextBox,
+  trackTally,
   type Box,
   type ExerciseProgress,
 } from './leitner';
@@ -120,6 +121,35 @@ describe('mastery', () => {
 
   it('is 0 for an empty track rather than NaN', () => {
     expect(masteryRatio([], {})).toBe(0);
+  });
+});
+
+describe('trackTally', () => {
+  it('counts seen and mastered separately', () => {
+    const all = { a: at(4), b: at(5), c: at(1) };
+    expect(trackTally(['a', 'b', 'c', 'd'], all)).toEqual({ total: 4, seen: 3, mastered: 2 });
+  });
+
+  it('leaves an untouched track at zero without dividing by anything', () => {
+    expect(trackTally(['x', 'y'], {})).toEqual({ total: 2, seen: 0, mastered: 0 });
+    expect(trackTally([], {})).toEqual({ total: 0, seen: 0, mastered: 0 });
+  });
+
+  it('counts a wrong answer as seen, which is the point of the second layer', () => {
+    const wrong = applyResult(newProgress('2026-08-26'), 'wrong', '2026-08-26');
+    expect(trackTally(['a'], { a: wrong })).toEqual({ total: 1, seen: 1, mastered: 0 });
+  });
+
+  it('moves on the first session, when mastery still cannot', () => {
+    const day0 = applyResult(newProgress('2026-08-26'), 'right', '2026-08-26');
+    expect(trackTally(['a', 'b'], { a: day0 })).toEqual({ total: 2, seen: 1, mastered: 0 });
+    expect(masteryRatio(['a', 'b'], { a: day0 })).toBe(0);
+  });
+
+  it('never reports more mastered than seen', () => {
+    const all = { a: at(5), b: at(0) };
+    const tally = trackTally(['a', 'b'], all);
+    expect(tally.mastered).toBeLessThanOrEqual(tally.seen);
   });
 });
 

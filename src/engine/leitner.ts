@@ -86,3 +86,36 @@ export function masteryRatio(exerciseIds: string[], all: Record<string, Exercise
   }).length;
   return mastered / exerciseIds.length;
 }
+
+export interface TrackTally {
+  total: number;
+  /** Presented at least once, whatever the answer was. */
+  seen: number;
+  /** Box >= 4. Always a subset of `seen`. */
+  mastered: number;
+}
+
+/**
+ * Counts behind a track's progress bar.
+ *
+ * Mastery alone is a poor progress signal for the first fortnight of use: a
+ * box only moves one step per correct answer and the intervals are 1, 3 and 7
+ * days, so the earliest an exercise can reach box 4 is eleven days after it is
+ * first seen. A bar that can only read 0% for that long tells a daily user
+ * their work vanished. Seen and mastered are reported separately so the UI can
+ * show both, without loosening what "mastered" means.
+ */
+export function trackTally(
+  exerciseIds: string[],
+  all: Record<string, ExerciseProgress>,
+): TrackTally {
+  let seen = 0;
+  let mastered = 0;
+  for (const id of exerciseIds) {
+    const p = all[id];
+    if (p === undefined || p.seen === 0) continue;
+    seen += 1;
+    if (isMastered(p)) mastered += 1;
+  }
+  return { total: exerciseIds.length, seen, mastered };
+}

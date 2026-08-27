@@ -1,0 +1,27 @@
+/* Docs/06 §Progress bar: 6px, full radius, --surface-2 track, width animates
+   300ms ease-out. The two fills stack in the same 6px, so both are absolutely
+   positioned from the left edge rather than sharing a flow. */
+.progress-bar {
+  position: relative;
+  display: block;
+  height: 6px;
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+.progress-bar__seen,
+.progress-bar__mastered {
+  position: absolute;
+  inset: 0 auto 0 0;
+  display: block;
+  border-radius: var(--r-pill);
+  transition: width 300ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progress-bar__seen,
+  .progress-bar__mastered {
+    transition: none;
+  }
+}
