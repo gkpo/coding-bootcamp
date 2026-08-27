@@ -4,11 +4,22 @@ import { FlameIcon } from '../components/icons';
 import { tracks } from '../content';
 import { ConceptIcon } from '../components/ConceptIcon';
 import { ProgressBar } from '../components/ProgressBar';
-import { addDays, todayKey } from '../engine/dates';
+import { addDays, startOfWeek, todayKey, weekdayIndex } from '../engine/dates';
 import { useStore } from '../store/useStore';
 import './ProfileScreen.css';
 
 const WEEKS = 5;
+
+/** Both indexed by `weekdayIndex`, so Monday first. */
+const DAY_SHORT = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+/** Row labels for the calendar, oldest week first. */
+function weekLabel(weeksAgo: number): string {
+  if (weeksAgo === 0) return 'This week';
+  if (weeksAgo === 1) return 'Last week';
+  return `${weeksAgo} wks ago`;
+}
 
 export function ProfileScreen() {
   const today = todayKey();
@@ -21,9 +32,20 @@ export function ProfileScreen() {
 
   const [confirmingReset, setConfirmingReset] = useState(0);
 
-  // Trailing 35 days, oldest first, so the calendar reads left to right.
-  const days = Array.from({ length: WEEKS * 7 }, (_, i) => addDays(today, i - (WEEKS * 7 - 1)));
-  const weekXp = days.slice(-7).map((d) => xp.byDay[d] ?? 0);
+  // Five whole calendar weeks, the current one last, each row Monday to Sunday
+  // and each column one weekday. A trailing 35-day window would put today in
+  // the last cell whatever day it is, which shears every column off its
+  // weekday and makes the grid read as if it ran backwards.
+  const calendarStart = addDays(startOfWeek(today), -7 * (WEEKS - 1));
+  const weeks = Array.from({ length: WEEKS }, (_, w) => ({
+    label: weekLabel(WEEKS - 1 - w),
+    isCurrent: w === WEEKS - 1,
+    days: Array.from({ length: 7 }, (_, d) => addDays(calendarStart, w * 7 + d)),
+  }));
+
+  // The bars are the trailing seven days, oldest first, ending on today.
+  const recent = Array.from({ length: 7 }, (_, i) => addDays(today, i - 6));
+  const weekXp = recent.map((d) => xp.byDay[d] ?? 0);
   const weekMax = Math.max(10, ...weekXp);
 
   const onReset = () => {
@@ -68,14 +90,19 @@ export function ProfileScreen() {
       </section>
 
       <section className="card">
-        <h2 className="profile__section">This week</h2>
+        <h2 className="profile__section">Last 7 days</h2>
         <div className="profile__bars">
-          {weekXp.map((value, i) => (
-            <span className="profile__bar" key={i}>
-              <span
-                className="profile__bar-fill"
-                style={{ height: `${Math.max(3, (value / weekMax) * 100)}%` }}
-              />
+          {recent.map((day, i) => (
+            <span className={`profile__bar-col ${day === today ? 'is-today' : ''}`} key={day}>
+              <span className="profile__bar">
+                <span
+                  className="profile__bar-fill"
+                  style={{ height: `${Math.max(3, (weekXp[i] / weekMax) * 100)}%` }}
+                />
+              </span>
+              <span className="profile__bar-label" aria-hidden>
+                {DAY_SHORT[weekdayIndex(day)]}
+              </span>
             </span>
           ))}
         </div>
@@ -85,12 +112,30 @@ export function ProfileScreen() {
       <section className="card">
         <h2 className="profile__section">Last 5 weeks</h2>
         <div className="profile__calendar" aria-label="Practice calendar">
-          {days.map((day) => (
-            <span
-              key={day}
-              className={`profile__day ${(xp.byDay[day] ?? 0) > 0 ? 'is-on' : ''} ${day === today ? 'is-today' : ''}`}
-              title={day}
-            />
+          {weeks.map((week) => (
+            <div className={`profile__week ${week.isCurrent ? 'is-current' : ''}`} key={week.label}>
+              <span className="profile__week-label">{week.label}</span>
+              <div className="profile__week-days">
+                {week.days.map((day) => {
+                  // Days later this week have not happened yet, so they are
+                  // drawn as holes rather than as missed days.
+                  const future = day > today;
+                  const practiced = (xp.byDay[day] ?? 0) > 0;
+                  return (
+                    <span
+                      key={day}
+                      className={`profile__day ${practiced ? 'is-on' : ''} ${day === today ? 'is-today' : ''} ${future ? 'is-future' : ''}`}
+                      title={future ? undefined : day}
+                    >
+                      <span className="visually-hidden">
+                        {DAY_NAMES[weekdayIndex(day)]}
+                        {future ? ': still to come' : practiced ? ': practiced' : ': not practiced'}
+                      </span>
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
           ))}
         </div>
         {streak.freezes > 0 && (
