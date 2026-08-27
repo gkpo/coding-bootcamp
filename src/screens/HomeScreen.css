@@ -112,20 +112,8 @@
 .home__track-bar {
   /* Pinned to the bottom so the bars line up across the strip whatever the
      title does. "Big-O & optimization talk" wraps to two lines and its
-     neighbours do not. */
+     neighbours do not. Appearance lives in ProgressBar.css. */
   margin-top: auto;
-  height: 6px;
-  border-radius: var(--r-pill);
-  background: var(--surface-2);
-  overflow: hidden;
-}
-
-.home__track-fill {
-  display: block;
-  height: 100%;
-  width: 0%;
-  border-radius: var(--r-pill);
-  transition: width 300ms ease-out;
 }
 
 .home__concept-kicker {
