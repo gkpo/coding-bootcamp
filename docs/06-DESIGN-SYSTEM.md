@@ -6,21 +6,21 @@ The energy comes from **saturation and form, not from lightness**. Fully saturat
 
 ## Direction
 
-- **Light theme only in v1**: a pale green paper, never pure `#FFFFFF` walls or clinical gray. Design tokens make a future dark theme cheap; do not build one now.
+- **Light theme only in v1**: a very light neutral grey page under white cards. The grey is what lets a card read as a card, so cards take the soft shadow and no border. Design tokens make a future dark theme cheap; do not build one now.
 - Personality comes from: one warm accent used sparingly, generous whitespace, big friendly numerals for streak/XP, soft cards with gentle shadows, springy micro-motion. Not from illustrations or gradients everywhere.
 
 ## Color tokens (CSS custom properties in `styles/tokens.css`)
 
 | Token                                        | Value                                    | Use                                                                                                                              |
 | -------------------------------------------- | ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| `--bg`                                       | `#F6F8F1`                                | App background (pale green paper)                                                                                                |
+| `--bg`                                       | `#F4F5F6`                                | App background (very light neutral grey)                                                                                         |
 | `--surface`                                  | `#FFFFFF`                                | Cards, tab bar, sheets                                                                                                           |
-| `--surface-2`                                | `#EAEFE1`                                | Nested surfaces (code blocks, pressed states, bar tracks)                                                                        |
-| `--border`                                   | `#DBE2CE`                                | Hairline borders, dividers                                                                                                       |
-| `--text`                                     | `#1B2417`                                | Primary text (near-black, warmed toward the ground)                                                                              |
-| `--text-dim`                                 | `#5F6957`                                | Secondary text, captions (AA on all three surfaces)                                                                              |
-| `--accent`                                   | `#347F00`                                | THE accent (grass green): button and badge fills, progress fills, streak dots and flame, the toggle's on state, active tab icon   |
-| `--accent-pressed`                           | `#286100`                                | Pressed state, and the solid underside every button sits on                                                                      |
+| `--surface-2`                                | `#EAECEF`                                | Nested surfaces (code blocks, pressed states, bar tracks)                                                                        |
+| `--border`                                   | `#E2E5E8`                                | Hairline borders, dividers                                                                                                       |
+| `--text`                                     | `#1A1D21`                                | Primary text (near-black)                                                                                                        |
+| `--text-dim`                                 | `#5D646C`                                | Secondary text, captions (AA on all three surfaces)                                                                              |
+| `--accent`                                   | `#49970A`                                | THE accent (grass green): button fills, progress fills, streak dots and flame, the toggle's on state, active tab icon             |
+| `--accent-pressed`                           | `#37740A`                                | Pressed state, the solid underside every button sits on, and any **small** text on an accent fill (see "The large-label rule")    |
 | `--accent-text`                              | `#2F7300`                                | Accent used _as text or small icons_ on light bg. Always use this darker step for text and strokes                               |
 | `--accent-bright`                            | `#A3E635`                                | Lime. **Decoration only**: the session-summary bloom, and nothing else. Never text, never state (see "Accent split")             |
 | `--on-accent`                                | `#FFFFFF`                                | Text on accent-filled surfaces                                                                                                   |
@@ -42,6 +42,19 @@ The accent is split by **job, not by hue**: `--accent` carries anything that mea
 Its dark-brown label passed at 7.06:1, so the button cleared AAA on paper while reading as low contrast to every actual user. **The label was never the problem.** A bright fill on a bright ground is the problem, and the only fix is to darken the fill, at which point the label flips to white.
 
 So: if an element encodes state, carries text, or has to be found, it takes `--accent`. If it is pure expression sitting beside text that already says the same thing, it may take `--accent-bright`. Today exactly one element qualifies: the summary bloom.
+
+### The large-label rule
+
+`--accent` is light on purpose: a darker green reads heavy, and heavy is what this palette was changed to get away from. White on it measures **3.67:1**, which is below the 4.5:1 that normal text needs but comfortably above the **3:1 that WCAG allows for large text**, defined as 18.66px bold or larger.
+
+So the primary button's label is **19px at weight 800**, and that size is load-bearing rather than decorative. Shrink it and the label silently drops under its real threshold.
+
+Two consequences, both enforced by `tokens.test.ts`:
+
+1. Any button whose label sits on `--accent` must be 19px/800. That includes the session's confirm dialog, not just `.btn`.
+2. Anything **small** on an accent fill takes `--accent-pressed` instead, which clears 4.5:1 under white. The review count badge is 12px, so it uses the deeper step. This is the same instinct as `--accent-text`: small things need more contrast, not less.
+
+The test walks every rule in the app that sets `color: var(--on-accent)`, resolves a BEM modifier's type size from its base rule, and applies the 3:1 threshold only where the label is genuinely large and bold. It is written that way because both exceptions above were missed on the first pass, and a test that only checked the two known cases would not have found them.
 
 One more rule the green accent forces: **`--success` must stay clearly apart from `--accent`.** With a green accent the two would blur, and the feedback panel is the one place in the app where a colour has to mean exactly one thing. That is why `--success` sits at teal `#00806C` rather than a straight green, and why no track colour is green either.
 
@@ -67,7 +80,7 @@ Contrast: all text/background pairs must pass WCAG AA (the values above do; keep
 
 ## Core components
 
-- **Primary button:** full-width, 52px tall, `--accent` bg, `--on-accent` (white) 800-weight text, radius 14. It sits on a **solid 4px underside** (`box-shadow: 0 4px 0 var(--accent-pressed)`, a hard colour stop and never a blur) and on press travels down by exactly that 4px while the underside is removed, so the bottom edge lands where the shadow's was. A scale-down reads as the button shrinking away from the finger; travelling into its own shadow reads as the button being depressed, which is what actually happened. Secondary: `--surface` bg + `--border`, same underside in `--border`. Ghost: text-only `--info`, no underside. Under reduced motion the underside stays (it is shape, not motion) and only the travel is dropped.
+- **Primary button:** full-width, 52px tall, `--accent` bg, `--on-accent` (white) **19px/800** text (see "The large-label rule": the size is what makes the light fill legal), radius 14. It sits on a **solid 4px underside** (`box-shadow: 0 4px 0 var(--accent-pressed)`, a hard colour stop and never a blur) and on press travels down by exactly that 4px while the underside is removed, so the bottom edge lands where the shadow's was. A scale-down reads as the button shrinking away from the finger; travelling into its own shadow reads as the button being depressed, which is what actually happened. Secondary: `--surface` bg + `--border`, same underside in `--border`. Ghost: text-only `--info`, no underside. Under reduced motion the underside stays (it is shape, not motion) and only the travel is dropped.
 - **Card:** `--surface`, radius 16, 16–20px padding, optional 1px border.
 - **Track card:** uniform 1px `--border` and the soft shadow, never an accent edge. Identity is carried by an **icon chip**: a 40px (34px in the Home strip) rounded square, radius 12 (10), filled with a ~12% tint of the track colour, with the drawn icon at full strength inside it. The progress-bar fill repeats the colour. Two deliberate uses beat one smeared along a border.
 - **Progress bar:** 6px tall, radius full, track `--surface-2`, fill = track color or accent; animate width 300ms ease-out.

@@ -15,7 +15,10 @@
   align-items: center;
   justify-content: center;
   border-radius: var(--r-pill);
-  background: var(--accent);
+  /* The deeper step, not --accent. This count is 12px, so it is normal-size
+     text needing 4.5:1, and it gets no help from the large-text threshold the
+     button label relies on. Same rule as --accent-text for small glyphs. */
+  background: var(--accent-pressed);
   color: var(--on-accent);
   font-size: 12px;
   font-weight: 700;

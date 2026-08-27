@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import TOKENS from './tokens.css?raw';
+import BUTTON_CSS from '../components/Button.css?raw';
 
 /* Guards the contrast rule docs/06 binds: "all text/background pairs must pass
  * WCAG AA". That rule was already in the doc when the primary button shipped at
@@ -45,6 +46,12 @@ function ratio(a: string, b: string): number {
 
 const AA_TEXT = 4.5;
 const AA_NON_TEXT = 3;
+/* WCAG treats text at 18.66px bold (14pt) or larger as "large", and large text
+   needs 3:1 rather than 4.5:1. The primary button's label is the one place the
+   app relies on that, and it is what lets the accent be light enough to look
+   friendly rather than heavy. */
+const AA_LARGE_TEXT = 3;
+const LARGE_TEXT_PX = 18.66;
 
 describe('token contrast', () => {
   describe('text on its background', () => {
@@ -68,14 +75,36 @@ describe('token contrast', () => {
   });
 
   describe('accent-filled surfaces', () => {
+    /** The primary button's label size and weight, read out of Button.css. */
+    function buttonLabel(): { px: number; weight: number } {
+      const block = BUTTON_CSS.slice(BUTTON_CSS.indexOf('.btn {'));
+      const px = block.match(/font-size:\s*([\d.]+)px;/);
+      const weight = block.match(/font-weight:\s*(\d+);/);
+      if (!px || !weight) throw new Error('could not read .btn font-size/font-weight');
+      return { px: Number(px[1]), weight: Number(weight[1]) };
+    }
+
+    // The exemption and the thing that earns it are asserted together. Testing
+    // only the ratio would let someone shrink the button back to 17px and
+    // silently drop the label under its real threshold, with this file still
+    // green. That is precisely the failure mode this whole suite exists for:
+    // the original bug was a rule nobody checked, not a rule nobody had.
+    it('the button label is large enough to earn the 3:1 threshold', () => {
+      const { px, weight } = buttonLabel();
+      expect(px).toBeGreaterThanOrEqual(LARGE_TEXT_PX);
+      expect(weight).toBeGreaterThanOrEqual(700);
+    });
+
     it('--on-accent reads on an --accent fill', () => {
-      expect(ratio(token('on-accent'), token('accent'))).toBeGreaterThanOrEqual(AA_TEXT);
+      expect(ratio(token('on-accent'), token('accent'))).toBeGreaterThanOrEqual(AA_LARGE_TEXT);
     });
 
     it('--on-accent still reads once the fill is pressed', () => {
       // The pressed state is a real state, not a transient: a finger can rest
       // on a button indefinitely. It gets the same threshold as the rest.
-      expect(ratio(token('on-accent'), token('accent-pressed'))).toBeGreaterThanOrEqual(AA_TEXT);
+      expect(ratio(token('on-accent'), token('accent-pressed'))).toBeGreaterThanOrEqual(
+        AA_LARGE_TEXT,
+      );
     });
   });
 
@@ -92,6 +121,70 @@ describe('token contrast', () => {
 
     it('--accent-pressed is visible against --bg', () => {
       expect(ratio(token('accent-pressed'), token('bg'))).toBeGreaterThanOrEqual(AA_NON_TEXT);
+    });
+  });
+
+  describe('every surface that puts text on an accent fill', () => {
+    /* The button label earns a 3:1 threshold by being large and bold. Nothing
+       else in the app automatically does, and the two that got missed the first
+       time (a 12px review badge and a confirm button with no size at all) were
+       both sitting on the light --accent at 3.67:1 against a 4.5 requirement.
+       So rather than fix those two by hand and hope, this walks every rule in
+       the app that sets `color: var(--on-accent)` and checks the pairing. */
+    const sheets = import.meta.glob('../**/*.css', {
+      query: '?raw',
+      import: 'default',
+      eager: true,
+    }) as Record<string, string>;
+
+    /** Every `selector { ... }` pair in a stylesheet, comments stripped so a
+     *  documented rule's selector still matches its own name. */
+    function rules(css: string): { selector: string; block: string }[] {
+      return [...css.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(/([^{}]+)\{([^{}]*)\}/g)].map(
+        (m) => ({ selector: m[1].trim(), block: m[2] }),
+      );
+    }
+
+    const size = (block: string) => Number(block.match(/font-size:\s*([\d.]+)px/)?.[1] ?? NaN);
+    const weight = (block: string) => Number(block.match(/font-weight:\s*(\d+)/)?.[1] ?? NaN);
+
+    /** Every rule that paints text in --on-accent, with its effective type size.
+     *  A BEM modifier (.btn--primary) inherits from its base (.btn), which is
+     *  where .btn--primary's own size actually lives. */
+    const painted = Object.entries(sheets).flatMap(([path, css]) => {
+      const all = rules(css);
+      return all
+        .filter((r) => /color:\s*var\(--on-accent\)/.test(r.block))
+        .map((r) => {
+          const base = r.selector.includes('--')
+            ? all.find((o) => o.selector === r.selector.split('--')[0])
+            : undefined;
+          const inherit = (read: (b: string) => number) =>
+            Number.isNaN(read(r.block)) && base ? read(base.block) : read(r.block);
+          return {
+            file: path.split('/').pop() as string,
+            selector: r.selector,
+            fill: r.block.match(/background:\s*var\(--([a-z-]+)\)/)?.[1] ?? null,
+            px: inherit(size),
+            weight: inherit(weight),
+          };
+        });
+    });
+
+    it('finds them all', () => {
+      // A guard on the guard: if this drops to zero the checks below pass
+      // vacuously, which is exactly how the original bug survived.
+      expect(painted.length).toBeGreaterThanOrEqual(3);
+    });
+
+    it.each(painted)('$selector on --$fill carries its label', (use) => {
+      expect(use.fill).not.toBeNull();
+      const contrast = ratio(token('on-accent'), token(use.fill as string));
+
+      // Large and bold earns 3:1. Anything else, including a rule that never
+      // states its own size, has to clear the full 4.5:1.
+      const isLarge = use.px >= LARGE_TEXT_PX && use.weight >= 700;
+      expect(contrast).toBeGreaterThanOrEqual(isLarge ? AA_LARGE_TEXT : AA_TEXT);
     });
   });
 

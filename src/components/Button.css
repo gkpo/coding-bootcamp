@@ -17,7 +17,12 @@
   min-height: 52px;
   padding: 0 var(--sp-5);
   border-radius: var(--r-button);
-  font-size: var(--fs-heading);
+  /* 19px rather than --fs-heading's 17px. A button label is the one piece of
+     text in the app that has to work on a saturated fill, and WCAG's large-text
+     threshold (18.66px bold) is what lets the fill be light enough to look
+     friendly. Shrinking this invalidates the accent's contrast: see
+     tokens.test.ts, which fails if this drops below the threshold. */
+  font-size: 19px;
   font-weight: 800;
   letter-spacing: 0.005em;
   transform: translateY(0);
