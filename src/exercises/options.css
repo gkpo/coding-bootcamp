@@ -1,4 +1,18 @@
+/* Names the answer area as a set of choices. The prompt above asks a question
+   but does not say how to answer it, and a stack of full-width sentences on
+   its own reads as prose. */
+.options__label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
 .option {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
   width: 100%;
   min-height: 52px;
   padding: var(--sp-3) var(--sp-4);
@@ -14,9 +28,48 @@
     background-color var(--dur-micro) var(--ease);
 }
 
+.option__text {
+  flex: 1 1 auto;
+}
+
+/* The radio ring. A drawn shape rather than a glyph, and the one part of the
+   option that is allowed to move before the answer is committed: it is a press
+   receipt, not a verdict. */
+.option__marker {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--border);
+  border-radius: var(--r-pill);
+  transition:
+    border-color var(--dur-micro) var(--ease),
+    box-shadow var(--dur-micro) var(--ease),
+    background-color var(--dur-micro) var(--ease);
+}
+
 .option:active:not(:disabled) {
   transform: scale(0.99);
   background: var(--surface-2);
+  border-color: var(--accent);
+}
+
+.option:active:not(:disabled) .option__marker {
+  border-color: var(--accent);
+}
+
+/* Graded: the ring fills, so the answer reads at a glance from the markers
+   alone. The inset ring of surface is what keeps it a radio rather than a
+   coloured disc. */
+.option--correct .option__marker {
+  border-color: var(--success);
+  background: var(--success);
+  box-shadow: inset 0 0 0 3px var(--surface);
+}
+
+.option--wrong .option__marker {
+  border-color: var(--danger);
+  background: var(--danger);
+  box-shadow: inset 0 0 0 3px var(--surface);
 }
 
 .option:disabled {
