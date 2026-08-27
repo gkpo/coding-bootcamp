@@ -30,6 +30,12 @@ interface DragState {
   dy: number;
   /** Pill height plus the gap: one slot's worth of travel. */
   slot: number;
+  /** Room the target zone lays out for the pill on its way in. */
+  reserve: number;
+  /** Room the source zone gives back once its pill has left. */
+  release: number;
+  /** How far that reservation pushes the source zone's own content down. */
+  shift: number;
   moved: boolean;
 }
 
@@ -52,6 +58,35 @@ interface ZoneBox {
   zone: string;
   top: number;
   bottom: number;
+  /** Pills resting in the zone, the dragged one included. */
+  count: number;
+  /** Whether the zone is showing its empty placeholder. */
+  placeholder: boolean;
+}
+
+/**
+ * What a pill in flight between two zones costs each of them in layout. The
+ * pills themselves move by transform, which the page never lays out, so
+ * without this the target keeps its old height and a pill landing in a new
+ * row would cover whatever follows the zone.
+ */
+function reserveRoom(boxes: ZoneBox[], from: string, to: string, slot: number) {
+  const none = { reserve: 0, release: 0, shift: 0 };
+  if (from === to) return none;
+  const target = boxes.find((b) => b.zone === to);
+  const source = boxes.find((b) => b.zone === from);
+  if (!target || !source) return none;
+  // A pill brings along the gap above it, which the first one in a list has not
+  // got. An empty zone already stands taller than a pill for its placeholder.
+  const pill = (neighbours: number) => (neighbours === 0 ? slot - GAP : slot);
+  const reserve = target.count === 0 && target.placeholder ? 0 : pill(target.count);
+  return {
+    reserve,
+    release: pill(source.count - 1),
+    // Room made above the source carries the pill under the finger down with
+    // it, so the pill has to take that much back.
+    shift: target.top < source.top ? reserve : 0,
+  };
 }
 
 /** Which zone the pointer sits in, falling back to the nearest one. */
@@ -115,8 +150,15 @@ export function DragGroup({
       boxes.current = [];
       for (const [z, zoneEl] of zones.current) {
         const box = zoneEl.getBoundingClientRect();
-        boxes.current.push({ zone: z, top: box.top + scroll, bottom: box.bottom + scroll });
-        zoneEl.querySelectorAll<HTMLElement>('[data-sortable-id]').forEach((node) => {
+        const pills = zoneEl.querySelectorAll<HTMLElement>('[data-sortable-id]');
+        boxes.current.push({
+          zone: z,
+          top: box.top + scroll,
+          bottom: box.bottom + scroll,
+          count: pills.length,
+          placeholder: zoneEl.querySelector('.sortable__empty') !== null,
+        });
+        pills.forEach((node) => {
           const r = node.getBoundingClientRect();
           slots.current.push({
             zone: z,
@@ -135,6 +177,9 @@ export function DragGroup({
         insertIndex: indexIn(slots.current, zone, e.clientY + scroll, id),
         dy: 0,
         slot: el.getBoundingClientRect().height + GAP,
+        reserve: 0,
+        release: 0,
+        shift: 0,
         moved: false,
       };
       live.current = state;
@@ -154,6 +199,7 @@ export function DragGroup({
       const toZone = zoneAt(boxes.current, y, state.fromZone);
       const next: DragState = {
         ...state,
+        ...reserveRoom(boxes.current, state.fromZone, toZone, state.slot),
         dy,
         toZone,
         insertIndex: indexIn(slots.current, toZone, y, state.id),
@@ -236,16 +282,37 @@ export function SortableZone({ zone, items, onTap, disabled, stateOf, emptyLabel
     return offset;
   };
 
+  /** A pill on its way from one zone to another, rather than reordering here. */
+  const foreign = drag !== null && active && drag.fromZone !== drag.toZone;
+
+  /**
+   * The room the zone lays out while such a pill is in flight: the target takes
+   * on a row, the source hands back the one it is losing. That is what makes a
+   * growing list push what follows it down instead of covering it.
+   */
+  const sizeDelta = () => {
+    if (drag === null || !foreign) return 0;
+    if (arriving) return drag.reserve;
+    if (leaving) return -drag.release;
+    return 0;
+  };
+
+  /** What the target zone's new row cost the pill under the finger. */
+  const shift = drag !== null && foreign ? drag.shift : 0;
+
   return (
     <ul
       className={`sortable ${arriving && drag.fromZone !== zone ? 'is-drop-target' : ''}`}
       ref={listRef}
+      style={{ marginBottom: sizeDelta() }}
     >
       {items.length === 0 && emptyLabel && <li className="sortable__empty">{emptyLabel}</li>}
 
       {items.map((item, index) => {
         const isDragging = drag !== null && item.id === drag.id && drag.fromZone === zone;
-        const offset = isDragging ? drag.dy : offsetOf(index);
+        // `translate` follows the finger and must never lag; `transform` gives
+        // back the room a zone above just took, easing in step with it.
+        const offset = isDragging ? -shift : offsetOf(index);
 
         return (
           <li
@@ -256,6 +323,7 @@ export function SortableZone({ zone, items, onTap, disabled, stateOf, emptyLabel
             }`}
             style={{
               transform: `translateY(${offset}px)`,
+              translate: isDragging ? `0 ${drag.dy}px` : undefined,
               marginLeft: `${(item.indent ?? 0) * 16}px`,
             }}
             onPointerDown={(e) => {
