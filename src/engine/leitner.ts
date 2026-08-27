@@ -119,3 +119,37 @@ export function trackTally(
   }
   return { total: exerciseIds.length, seen, mastered };
 }
+
+/**
+ * Concept cards whose every linked exercise is mastered.
+ *
+ * The Sheets tick and the journey header's "known" figure are the same claim,
+ * so they share one rule rather than each carrying its own copy of the loop.
+ * A card nothing links to is never known: there is no evidence either way.
+ *
+ * Structurally typed so the engine stays free of content imports.
+ */
+export function knownCardIds(
+  cards: readonly { id: string }[],
+  exercises: readonly { id: string; conceptId: string }[],
+  all: Record<string, ExerciseProgress>,
+): Set<string> {
+  const linked = new Map<string, string[]>();
+  for (const exercise of exercises) {
+    const existing = linked.get(exercise.conceptId);
+    if (existing) existing.push(exercise.id);
+    else linked.set(exercise.conceptId, [exercise.id]);
+  }
+
+  const known = new Set<string>();
+  for (const card of cards) {
+    const ids = linked.get(card.id);
+    if (ids === undefined || ids.length === 0) continue;
+    const everyOneMastered = ids.every((id) => {
+      const p = all[id];
+      return p !== undefined && isMastered(p);
+    });
+    if (everyOneMastered) known.add(card.id);
+  }
+  return known;
+}
