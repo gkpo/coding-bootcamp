@@ -40,17 +40,55 @@
   font-size: var(--fs-secondary);
 }
 
-.streak__dots {
+/* One tile per day, evenly spread: tinted when the day was practiced, ringed
+   when it is today, so the row cannot be read backwards. */
+.streak__week {
   display: flex;
-  gap: var(--sp-2);
+  gap: 6px;
+}
+
+.streak__day {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-1);
+  padding: 7px 0 8px;
+  border-radius: 12px;
+  background: var(--surface-2);
+  border: 1px solid transparent;
+}
+
+.streak__day-name {
+  font-size: 10.5px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-dim);
 }
 
 .streak__dot {
-  width: 12px;
-  height: 12px;
+  width: 9px;
+  height: 9px;
   border-radius: var(--r-pill);
-  background: var(--surface-2);
-  border: 1px solid var(--border);
+  background: var(--border);
+}
+
+.streak__day.is-on {
+  background: var(--accent-bg);
+}
+
+.streak__day.is-on .streak__dot {
+  background: var(--accent);
+}
+
+.streak__day.is-today {
+  border-color: var(--accent);
+}
+
+.streak__day.is-today .streak__day-name {
+  color: var(--accent-text);
 }
 
 .home__cta {
@@ -144,11 +182,6 @@
   color: var(--accent);
   display: inline-flex;
   animation: flame-pulse 1.5s var(--ease) infinite;
-}
-
-.streak__dot.is-on {
-  background: var(--accent);
-  border-color: var(--accent);
 }
 
 .home__review {
