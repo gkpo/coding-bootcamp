@@ -3,8 +3,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '../components/Button';
 import { RichText } from '../components/RichText';
 import { FlameIcon } from '../components/icons';
-import { Confetti } from '../components/Confetti';
 import { ConceptIcon } from '../components/ConceptIcon';
+import { useCountUp } from '../components/useCountUp';
 import { getCard, getExercise } from '../content';
 import type { Result } from '../engine/leitner';
 import { playTone, vibrate } from '../engine/feedback';
@@ -25,10 +25,10 @@ export function SessionSummaryScreen() {
   const sound = useStore((s) => s.settings.sound);
   const haptics = useStore((s) => s.settings.haptics);
 
-  // The confetti had been landing in silence. This is the one moment in the
-  // app that has earned the full cue, so it gets it, once, on arrival. The ref
-  // is what keeps it to once: StrictMode runs effects twice in development,
-  // and two copies of a five note chord an instant apart is not the sound.
+  // This is the one moment in the app that has earned the full cue, so it gets
+  // it, once, on arrival. The ref is what keeps it to once: StrictMode runs
+  // effects twice in development, and two copies of a five note chord an
+  // instant apart is not the sound.
   const celebrated = useRef(false);
   useEffect(() => {
     if (!state || celebrated.current) return;
@@ -40,24 +40,32 @@ export function SessionSummaryScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Derived above the early return below, because the count-up is a hook and
+  // hooks cannot sit behind a condition.
+  const results = state?.results ?? [];
+  const right = results.filter((r) => r === 'right').length;
+  const answerXp = results.reduce((sum, r) => sum + (r === 'right' ? 10 : 5), 0);
+  const totalXp = answerXp + (state?.xpEarned ?? 0);
+  const shownXp = useCountUp(totalXp);
+
   if (!state) {
     // Landed here directly (refresh, deep link), nothing to celebrate.
     navigate('/', { replace: true });
     return null;
   }
 
-  const { results, xpEarned, streakDays, toughestId, conceptIds } = state;
-  const right = results.filter((r) => r === 'right').length;
-  const answerXp = results.reduce((sum, r) => sum + (r === 'right' ? 10 : 5), 0);
+  const { streakDays, toughestId, conceptIds } = state;
   const toughest = toughestId ? getExercise(toughestId) : undefined;
   const cards = conceptIds.map((id) => getCard(id)).filter((c) => c !== undefined);
 
   return (
     <main className="summary">
-      <Confetti active />
       <div className="summary__hero">
+        {/* One soft breath of accent behind the figure, the whole of the
+            celebration now that there are no particles (docs/06 §Motion). */}
+        <span className="summary__bloom" aria-hidden />
         <p className="summary__kicker">Session complete</p>
-        <p className="summary__xp">+{answerXp + xpEarned} XP</p>
+        <p className="summary__xp">+{shownXp} XP</p>
         <p className="summary__streak">
           <span className="summary__flame">
             <FlameIcon size={20} />
@@ -78,7 +86,13 @@ export function SessionSummaryScreen() {
         </p>
         <div className="summary__dots">
           {results.map((r, i) => (
-            <span key={i} className={`summary__dot summary__dot--${r}`} />
+            <span
+              key={i}
+              className={`summary__dot summary__dot--${r}`}
+              // Delays are expressed in motion tokens so both the OS
+              // preference and the in-app toggle collapse them to nothing.
+              style={{ animationDelay: `calc(var(--dur-micro) * ${(2.4 + i * 0.3).toFixed(2)})` }}
+            />
           ))}
         </div>
       </section>

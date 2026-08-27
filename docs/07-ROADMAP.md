@@ -38,7 +38,7 @@ Milestones are ordered so the app is usable end-to-end as early as possible, the
 ## M5. Gamification polish + Profile
 
 - Streak freezes, XP bonuses, session summary niceties ("toughest moment", concepts touched), Home "concept of the day", Profile screen (streak calendar, weekly XP bar, per-track mastery), settings (sound/haptics/reduce-motion/reset), onboarding 3-screener + first-session easy start.
-- Motion pass per design system §Motion (transitions, correct/wrong feedback, confetti-lite, flame pulse).
+- Motion pass per design system §Motion (transitions, correct/wrong feedback, the session-complete landing, flame pulse).
 - **Accept:** the app _feels_ like the design doc; reduced-motion honored; reset works with double-confirm.
 
 ## M6, PWA + ship

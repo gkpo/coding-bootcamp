@@ -1,5 +1,8 @@
 .summary {
   display: flex;
+  /* A stacking context, so the bloom below can sit at z-index -1: behind every
+     section on the screen but still in front of this background. */
+  isolation: isolate;
   flex-direction: column;
   gap: var(--sp-4);
   min-height: 100dvh;
@@ -11,6 +14,38 @@
 .summary__hero {
   text-align: center;
   padding: var(--sp-4) 0 var(--sp-2);
+  position: relative;
+}
+
+/* Lives behind the whole screen's content, so it warms the space around the
+   figure without washing over the white card below it. */
+.summary__bloom {
+  z-index: -1;
+  position: absolute;
+  top: 52%;
+  left: 50%;
+  width: 280px;
+  height: 280px;
+  margin: -140px 0 0 -140px;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(circle, var(--accent) 0%, transparent 68%);
+  opacity: 0;
+  animation: bloom-breathe calc(var(--dur-celebrate) * 2.6) var(--ease) both;
+}
+
+@keyframes bloom-breathe {
+  0% {
+    opacity: 0;
+    transform: scale(0.45);
+  }
+  24% {
+    opacity: 0.26;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.45);
+  }
 }
 
 .summary__kicker {
@@ -26,6 +61,31 @@
   font-weight: 700;
   letter-spacing: -0.02em;
   margin-top: var(--sp-2);
+  /* The figure changes every frame while it counts, so fix the digit width
+     or the line jitters as it climbs. */
+  font-variant-numeric: tabular-nums;
+  animation: xp-land calc(var(--dur-celebrate) * 2.3) var(--ease) both;
+}
+
+/* Rises in, then overshoots once as the count lands on its total. */
+@keyframes xp-land {
+  0% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  22% {
+    opacity: 1;
+  }
+  68% {
+    transform: translateY(0) scale(1);
+  }
+  82% {
+    transform: translateY(0) scale(1.035);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .summary__streak {
@@ -57,6 +117,19 @@
   width: 10px;
   height: 10px;
   border-radius: var(--r-pill);
+  /* Per-dot delay comes from the element, so the row arrives left to right. */
+  animation: dot-in var(--dur-standard) var(--ease) both;
+}
+
+@keyframes dot-in {
+  from {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .summary__dot--right {
@@ -118,54 +191,4 @@
 .summary__cta {
   margin-top: auto;
   padding-top: var(--sp-5);
-}
-
-.confetti {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  overflow: hidden;
-  z-index: 5;
-}
-
-.confetti__bit {
-  position: absolute;
-  top: -16px;
-  border-radius: 2px;
-  opacity: 0;
-  will-change: transform, opacity;
-  /* The shape of the fall lives in the keyframes, so the timing stays linear:
-     an eased curve on top of them would flatten the acceleration back out. */
-  animation-name: confetti-fall;
-  animation-timing-function: linear;
-  animation-fill-mode: forwards;
-}
-
-.confetti__bit--round {
-  border-radius: 50%;
-}
-
-/* Vertical travel accelerates (gravity), horizontal drift slows (air), and
-   each piece carries its own distance, spin and flip in custom properties. */
-@keyframes confetti-fall {
-  0% {
-    opacity: 0;
-    transform: translate3d(0, 0, 0) rotate(0deg) rotateX(0deg);
-  }
-  6% {
-    opacity: 1;
-  }
-  30% {
-    transform: translate3d(calc(var(--drift) * 0.5), calc(var(--fall) * 0.16), 0)
-      rotate(calc(var(--spin) * 0.3)) rotateX(calc(var(--flip) * 0.3));
-  }
-  65% {
-    opacity: 1;
-    transform: translate3d(calc(var(--drift) * 0.78), calc(var(--fall) * 0.5), 0)
-      rotate(calc(var(--spin) * 0.65)) rotateX(calc(var(--flip) * 0.65));
-  }
-  100% {
-    opacity: 0;
-    transform: translate3d(var(--drift), var(--fall), 0) rotate(var(--spin)) rotateX(var(--flip));
-  }
 }
