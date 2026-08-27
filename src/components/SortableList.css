@@ -42,6 +42,13 @@
   touch-action: none;
 }
 
+/* Lifted by a tap and waiting for a destination. Reads as held rather than
+   graded, so it borrows the drag look rather than a right/wrong colour. */
+.sortable__item.is-picked {
+  border-color: var(--accent);
+  box-shadow: var(--shadow-card);
+}
+
 .sortable__item.is-dragging {
   cursor: grabbing;
   border-color: var(--accent);

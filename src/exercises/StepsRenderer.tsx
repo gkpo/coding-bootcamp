@@ -14,7 +14,14 @@ interface Props {
   onCheck: (placed: string[]) => void;
 }
 
-/** Parsons for prose: drag the plan steps into the right order. */
+/**
+ * Parsons for prose: drag the plan steps into the right order.
+ *
+ * Tapping two rows swaps them, the same fallback docs/02 requires of parsons
+ * and for the same reasons: dragging is the hard gesture to discover and the
+ * hard one to perform. Without it a tap on a row did nothing whatsoever, which
+ * is indistinguishable from a screen that has stopped responding.
+ */
 export function StepsRenderer({ exercise, seed, revealed, wrongPositions, onCheck }: Props) {
   const [order, setOrder] = useState<string[]>(() =>
     shuffle(
@@ -22,10 +29,30 @@ export function StepsRenderer({ exercise, seed, revealed, wrongPositions, onChec
       seed,
     ),
   );
+  const [picked, setPicked] = useState<string | null>(null);
   const textOf = useMemo(
     () => new Map(exercise.steps.map((step, i) => [`s${i}`, step])),
     [exercise],
   );
+
+  /** First tap lifts a row, second drops it on the row it lands on. */
+  const tap = (id: string) => {
+    if (revealed) return;
+    if (picked === null || picked === id) {
+      setPicked(picked === id ? null : id);
+      return;
+    }
+    setOrder((prev) => {
+      const from = prev.indexOf(picked);
+      const to = prev.indexOf(id);
+      if (from < 0 || to < 0) return prev;
+      const next = [...prev];
+      next[from] = id;
+      next[to] = picked;
+      return next;
+    });
+    setPicked(null);
+  };
 
   const items: SortableItem[] = order.map((id) => ({
     id,
@@ -38,9 +65,15 @@ export function StepsRenderer({ exercise, seed, revealed, wrongPositions, onChec
 
   return (
     <div className="parsons">
+      {!revealed && <p className="parsons__label">Drag a row, or tap two to swap them</p>}
       <SortableList
         items={items}
-        onReorder={setOrder}
+        onReorder={(ids) => {
+          setPicked(null);
+          setOrder(ids);
+        }}
+        onTap={tap}
+        pickedId={picked}
         disabled={revealed}
         stateOf={(_, index) =>
           wrongPositions ? (wrongPositions[index] ? 'wrong' : 'correct') : 'idle'
