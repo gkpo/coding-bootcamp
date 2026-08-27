@@ -6,13 +6,14 @@ import { ConceptIcon } from '../components/ConceptIcon';
 import { ProgressBar } from '../components/ProgressBar';
 import { cards, tracks } from '../content';
 import { conceptOfTheDay } from '../engine/conceptOfTheDay';
-import { addDays, todayKey } from '../engine/dates';
+import { addDays, startOfWeek, todayKey, weekdayIndex } from '../engine/dates';
 import { TARGET_SESSION_SIZE } from '../engine/sessionComposer';
 import { useStore } from '../store/useStore';
 import './HomeScreen.css';
 
-/** Mon-first labels for the trailing seven days, oldest to newest. */
-const DAY_LABELS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+/** Both indexed by `weekdayIndex`, so Monday first. */
+const DAY_SHORT = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
 export function HomeScreen() {
   const navigate = useNavigate();
@@ -25,7 +26,10 @@ export function HomeScreen() {
 
   const card = conceptOfTheDay(cards, today);
   const activeToday = streak.lastActiveDay === today;
-  const lastSeven = Array.from({ length: 7 }, (_, i) => addDays(today, i - 6));
+  // The current Monday-to-Sunday week, the same week the profile calendar ends
+  // on. A trailing seven days would start on whatever weekday today happens to
+  // be, which reads as a week that begins on a Friday.
+  const thisWeek = Array.from({ length: 7 }, (_, i) => addDays(startOfWeek(today), i));
 
   return (
     <div className="stack home">
@@ -49,13 +53,27 @@ export function HomeScreen() {
         </div>
       </header>
 
-      <div className="streak__dots" aria-label="Last 7 days">
-        {lastSeven.map((day, i) => {
+      {/* Monday on the left through Sunday on the right, each tile named from
+          its own date and today ringed. Days still to come are drawn as holes
+          rather than as missed days. */}
+      <div className="streak__week" aria-label="This week">
+        {thisWeek.map((day) => {
           const practiced = (xpByDay[day] ?? 0) > 0;
+          const isToday = day === today;
+          const future = day > today;
+          const weekday = weekdayIndex(day);
           return (
-            <span className={`streak__dot ${practiced ? 'is-on' : ''}`} key={day}>
+            <span
+              className={`streak__day ${practiced ? 'is-on' : ''} ${isToday ? 'is-today' : ''} ${future ? 'is-future' : ''}`}
+              key={day}
+            >
+              <span className="streak__day-name" aria-hidden>
+                {DAY_SHORT[weekday]}
+              </span>
+              <span className="streak__dot" aria-hidden />
               <span className="visually-hidden">
-                {DAY_LABELS[i]}: {practiced ? 'practiced' : 'not practiced'}
+                {isToday ? 'Today' : DAY_NAMES[weekday]}
+                {future ? ': still to come' : practiced ? ': practiced' : ': not practiced'}
               </span>
             </span>
           );

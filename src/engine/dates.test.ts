@@ -1,5 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { addDays, daysBetween, isOnOrBefore, parseDayKey, toDayKey, todayKey } from './dates';
+import {
+  addDays,
+  daysBetween,
+  isOnOrBefore,
+  parseDayKey,
+  startOfWeek,
+  toDayKey,
+  todayKey,
+  weekdayIndex,
+} from './dates';
 
 describe('day keys', () => {
   it('formats local dates as YYYY-MM-DD with padding', () => {
@@ -66,5 +75,29 @@ describe('isOnOrBefore', () => {
   it('is true for past due dates and false for future ones', () => {
     expect(isOnOrBefore('2026-08-20', '2026-08-26')).toBe(true);
     expect(isOnOrBefore('2026-09-02', '2026-08-26')).toBe(false);
+  });
+});
+
+describe('weekdayIndex', () => {
+  it('counts from Monday, not Sunday', () => {
+    // 2026-08-24 is a Monday.
+    expect(weekdayIndex('2026-08-24')).toBe(0);
+    expect(weekdayIndex('2026-08-27')).toBe(3);
+    expect(weekdayIndex('2026-08-30')).toBe(6);
+  });
+});
+
+describe('startOfWeek', () => {
+  it('returns the Monday on or before the day', () => {
+    expect(startOfWeek('2026-08-24')).toBe('2026-08-24');
+    expect(startOfWeek('2026-08-27')).toBe('2026-08-24');
+    expect(startOfWeek('2026-08-30')).toBe('2026-08-24');
+  });
+
+  it('gives every day of a week the same column offset', () => {
+    const week = Array.from({ length: 7 }, (_, i) => addDays('2026-08-24', i));
+    for (const day of week) {
+      expect(addDays(startOfWeek(day), weekdayIndex(day))).toBe(day);
+    }
   });
 });

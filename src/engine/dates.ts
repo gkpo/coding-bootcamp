@@ -41,3 +41,13 @@ export function addDays(key: DayKey, days: number): DayKey {
 export function isOnOrBefore(key: DayKey, reference: DayKey): boolean {
   return key <= reference;
 }
+
+/** Day of the week as a Monday-first index: Monday 0 ... Sunday 6. */
+export function weekdayIndex(key: DayKey): number {
+  return (parseDayKey(key).getDay() + 6) % 7;
+}
+
+/** The Monday on or before `key`. */
+export function startOfWeek(key: DayKey): DayKey {
+  return addDays(key, -weekdayIndex(key));
+}

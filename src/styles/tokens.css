@@ -43,6 +43,9 @@
   --accent-text: #2f7300; /* accent as text/small glyphs: 5.13 on --surface-2 */
   --accent-bright: #a3e635; /* lime: the summary bloom, and nothing else */
   --on-accent: #ffffff;
+  /* The accent at the same job as the semantic tints: a fill behind a small
+     surface (the practiced days in the streak week) rather than text. */
+  --accent-bg: rgba(52, 127, 0, 0.16);
 
   /* ---- semantic (full saturation, same rule: dark enough to mean it) ---- */
   /* Success is pushed toward teal so that "correct" never reads as merely
@@ -53,7 +56,7 @@
   --info: #12629e;
   --success-bg: rgba(0, 128, 108, 0.1);
   --danger-bg: rgba(207, 46, 78, 0.1);
-  --info-bg: rgba(18, 98, 158, 0.1);
+  --info-bg: rgba(18, 98, 158, 0.1)
 
   /* ---- syntax highlighting ----
      Drawn from the deep end of the track colours, never neon-on-white
