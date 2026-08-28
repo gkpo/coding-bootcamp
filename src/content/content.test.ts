@@ -383,10 +383,18 @@ describe('the authored capstones (docs/12)', () => {
     }
   });
 
-  it('holds exactly one bonus check, and it never blocks a stage', () => {
+  it('holds one bonus check per capstone, and it never blocks a stage', () => {
     const bonuses = capstones.flatMap((c) =>
       c.stages.flatMap((s) => s.checks.filter((check) => check.bonus === true)),
     );
-    expect(bonuses.map((b) => b.id)).toEqual(['f2-bonus']);
+    expect(bonuses.map((b) => b.id)).toEqual(['s3-tidy', 'f2-bonus']);
+  });
+
+  it('grades the fleet, not one server of it, where clones have to match', () => {
+    // docs/12 part F1: the interchangeability of the clones is the lesson, so
+    // the cache check has to see a server that was left out of the wiring.
+    const cache = capstones[0].stages[1].checks.find((c) => c.id === 's2-cache');
+    expect(cache?.when).toEqual({ op: 'eachConnected', each: 'server', to: 'cache' });
+    expect(cache?.label.toLowerCase()).toContain('every server');
   });
 });

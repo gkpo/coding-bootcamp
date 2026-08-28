@@ -198,6 +198,17 @@ export function trace(build: Build, predicate: Predicate): Trace {
       if (!directlyJoined(graph, predicate.a, predicate.b)) return { route: [], stopsAt: null };
       // The edge that should not be there is exactly what to walk.
       return { route: [predicate.a, predicate.b], stopsAt: predicate.b };
+    case 'eachConnected': {
+      const { each, to } = predicate;
+      const wired =
+        isPlaced(graph, each) &&
+        isPlaced(graph, to) &&
+        unwiredInstances(build, each, to).length === 0;
+      if (wired) return { route: [each, to], stopsAt: null };
+      // The failure sits on one of the clones, so the dot stops on that side
+      // and the board picks the instance that is missing its connection.
+      return stall(each).stopsAt === null ? stall(to) : stall(each);
+    }
     case 'path': {
       const route = shortestRoute(graph, predicate.from, predicate.to);
       if (route) return { route, stopsAt: null };
@@ -220,6 +231,22 @@ export function trace(build: Build, predicate: Predicate): Trace {
 /** Whether any instance of one kind is wired to any instance of another. */
 export function hasKindEdge(build: Build, a: PartKind, b: PartKind): boolean {
   return directlyJoined(kindGraph(build), a, b);
+}
+
+/**
+ * The instances of one kind with no direct connection to any instance of
+ * another, by part id and in placement order.
+ *
+ * The one place grading looks past the kind graph (docs/12 part F1). Clones
+ * are meant to be interchangeable, so a fleet where one server can reach the
+ * cache and the next one cannot is a real design flaw, and collapsing the two
+ * into a single node is exactly what hides it.
+ */
+export function unwiredInstances(build: Build, each: PartKind, to: PartKind): number[] {
+  const targets = build.parts.filter((p) => p.kind === to).map((p) => p.id);
+  return build.parts
+    .filter((p) => p.kind === each && !targets.some((id) => hasEdge(build, p.id, id)))
+    .map((p) => p.id);
 }
 
 /**
@@ -288,6 +315,7 @@ export type Predicate =
   | { op: 'notPlaced'; kind: PartKind }
   | { op: 'edge'; a: PartKind; b: PartKind }
   | { op: 'noEdge'; a: PartKind; b: PartKind }
+  | { op: 'eachConnected'; each: PartKind; to: PartKind }
   | { op: 'path'; from: PartKind; to: PartKind }
   | { op: 'pathVia'; from: PartKind; to: PartKind; via: PartKind }
   | { op: 'maxParts'; n: number };
@@ -306,6 +334,11 @@ function test(build: Build, graph: KindGraph, predicate: Predicate): boolean {
       return directlyJoined(graph, predicate.a, predicate.b);
     case 'noEdge':
       return !directlyJoined(graph, predicate.a, predicate.b);
+    case 'eachConnected': {
+      const { each, to } = predicate;
+      if (!isPlaced(graph, each) || !isPlaced(graph, to)) return false;
+      return unwiredInstances(build, each, to).length === 0;
+    }
     case 'path':
       return reaches(graph, predicate.from, predicate.to);
     case 'pathVia': {
@@ -553,6 +586,15 @@ export function validateCapstone(capstone: CapstoneSpec): string[] {
       problems.push(
         `${capstone.id} check "${check.id}" forbids ${check.when.kind}, which no tray offers`,
       );
+    }
+    // A check about wiring every clone is unsatisfiable unless the user can
+    // get both kinds onto the board in the first place.
+    if (check.when.op === 'eachConnected') {
+      for (const kind of [check.when.each, check.when.to]) {
+        if (!trayKinds.has(kind)) {
+          problems.push(`${capstone.id} check "${check.id}" wires ${kind}, which no tray offers`);
+        }
+      }
     }
   }
 

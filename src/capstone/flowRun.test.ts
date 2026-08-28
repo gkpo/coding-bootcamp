@@ -38,6 +38,30 @@ describe('planRun', () => {
     const build = buildOf(['client', 'server'], [[1, 2]]);
     const last = planRun(build, checksThrough(0)).steps.at(-1);
     expect(last?.stopsAt).toBe('client');
+    expect(last?.stopsAtPart).toBe(1);
+  });
+
+  it('marks the server that is missing the cache, not the first one on the board', () => {
+    // Stage 2 solved except that the second server never got its own line to
+    // the cache. Marking server one would point at the half that works.
+    const build = buildOf(
+      ['client', 'lb', 'server', 'server', 'db', 'blob', 'cache'],
+      [
+        [1, 2],
+        [2, 3],
+        [2, 4],
+        [3, 5],
+        [4, 5],
+        [3, 6],
+        [4, 6],
+        [3, 7],
+      ],
+    );
+    const last = planRun(build, checksThrough(1)).steps.at(-1);
+    expect(last?.checkId).toBe('s2-cache');
+    expect(last?.pass).toBe(false);
+    expect(last?.stopsAt).toBe('server');
+    expect(last?.stopsAtPart).toBe(4);
   });
 
   it('walks a route on the checks that have one and none on the counting ones', () => {

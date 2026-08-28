@@ -241,13 +241,12 @@ function CapstoneRun({ capstone }: { capstone: Capstone }) {
    * One cue per run, never one per check: the run is the answer, and a sound
    * for every ring would turn a two-second beat into a slot machine.
    */
-  const finish = (halted: boolean, stoppedAt: PartKind | null) => {
+  const finish = (halted: boolean, stoppedAtPart: number | null) => {
     setRunning(false);
     stopRun.current = null;
 
     if (halted) {
-      const part = stoppedAt ? build.parts.find((p) => p.kind === stoppedAt) : undefined;
-      setHitPartId(part?.id ?? null);
+      setHitPartId(stoppedAtPart);
       playTone('wrong', sound);
       vibrate('wrong', haptics);
       return;
@@ -298,7 +297,7 @@ function CapstoneRun({ capstone }: { capstone: Capstone }) {
       dot: dotRef.current,
       reduceMotion: motionOff(),
       onResolve: (step) => setResolved((current) => ({ ...current, [step.checkId]: step.pass })),
-      onFinish: () => finish(plan.halted, plan.steps.at(-1)?.stopsAt ?? null),
+      onFinish: () => finish(plan.halted, plan.steps.at(-1)?.stopsAtPart ?? null),
     });
   };
 

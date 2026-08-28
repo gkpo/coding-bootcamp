@@ -130,17 +130,17 @@ const photoSharing: Capstone = {
         },
         {
           id: 's2-cache',
-          label: 'Popular reads come from memory',
-          when: { op: 'edge', a: 'server', b: 'cache' },
+          label: 'Every server reads from the cache',
+          when: { op: 'eachConnected', each: 'server', to: 'cache' },
           hintNudge:
-            'The same twenty photos are being asked for thousands of times a minute. Does the database need to answer every one of them?',
+            'The same twenty photos are being asked for thousands of times a minute. If only one of your servers can see the cache, what happens to the requests that land on the other one?',
           hintPoint: {
-            highlight: ['cache'],
-            text: 'The data lane has room for something faster than the database.',
+            highlight: ['cache', 'server'],
+            text: 'The data lane has room for something faster than the database, and every server needs its own line to it.',
           },
           hintMoves: [{ place: 'cache' }, { connect: ['server', 'cache'] }],
           sayIt:
-            'Read-heavy points at a cache: check it first, and on a miss read the database and put the answer back.',
+            'Every server checks the cache first and only reads the database on a miss, so it does not matter which server a request lands on.',
         },
       ],
       clearLine:
@@ -211,6 +211,21 @@ const photoSharing: Capstone = {
           },
           hintMoves: [],
           sayIt: 'I would rather defend nine parts I need than draw fifteen I half-need.',
+        },
+        {
+          id: 's3-tidy',
+          label: 'Storage and database never talk',
+          when: { op: 'noEdge', a: 'db', b: 'blob' },
+          hintNudge:
+            'A photo has a row in the database and a file in storage. Which of the two goes and fetches the other?',
+          hintPoint: {
+            highlight: ['db', 'blob'],
+            text: 'Neither of those two calls the other. The code you wrote is what keeps them in step.',
+          },
+          hintMoves: [],
+          sayIt:
+            'The database and the file storage never talk to each other. The app writes the file, then writes the row that points at it.',
+          bonus: true,
         },
       ],
       clearLine:
