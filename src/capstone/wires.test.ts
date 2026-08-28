@@ -64,11 +64,23 @@ describe('planWires', () => {
     expect(wire.to).toEqual({ x: 189, y: 50 });
   });
 
-  it('sits each dot just inside the chip, so it overlaps the box it belongs to', () => {
-    const centres = { 1: { x: 100, y: 50 }, 2: { x: 100, y: 150 } };
-    const [wire] = planWires([[1, 2]], centres, CHIP);
-    expect(wire.fromPort).toEqual({ x: 100, y: 79 });
-    expect(wire.toPort).toEqual({ x: 100, y: 121 });
+  it('puts every anchor exactly on the border, however far along the edge it fanned', () => {
+    // Half in and half out is what makes a dot read as plugged in. Nudging it
+    // toward the chip centre instead pulled the fanned ones inward as well.
+    const centres = {
+      1: { x: 100, y: 50 },
+      2: { x: 40, y: 150 },
+      3: { x: 160, y: 150 },
+    };
+    const plans = planWires(
+      [
+        [1, 2],
+        [1, 3],
+      ],
+      centres,
+      CHIP,
+    );
+    for (const wire of plans) expect(wire.from.y).toBe(81);
   });
 
   it('runs straight between two chips in the same row', () => {

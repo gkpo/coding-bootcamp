@@ -193,9 +193,9 @@ describe('token contrast', () => {
       expect(ratio(token(name), token('paper'))).toBeGreaterThanOrEqual(AA_TEXT);
     });
 
-    it('--ink is visible as a drawn connection on --paper', () => {
+    it.each(['ink', 'wire'] as const)('--%s is visible as a drawn line on --paper', (name) => {
       // A stroke is a UI component, not text, so 3:1 is the bar it has to clear.
-      expect(ratio(token('ink'), token('paper'))).toBeGreaterThanOrEqual(AA_NON_TEXT);
+      expect(ratio(token(name), token('paper'))).toBeGreaterThanOrEqual(AA_NON_TEXT);
     });
 
     it.each(['accent', 'danger'] as const)('--%s reads as a chip state on paper', (name) => {

@@ -60,8 +60,8 @@ export function BuildRender({ build }: { build: Build }) {
       })}
       {wires.map((wire) => (
         <g key={wire.key}>
-          <circle className="mini__port" cx={wire.fromPort.x} cy={wire.fromPort.y} r={1.8} />
-          <circle className="mini__port" cx={wire.toPort.x} cy={wire.toPort.y} r={1.8} />
+          <circle className="mini__port" cx={wire.from.x} cy={wire.from.y} r={1.8} />
+          <circle className="mini__port" cx={wire.to.x} cy={wire.to.y} r={1.8} />
         </g>
       ))}
     </svg>

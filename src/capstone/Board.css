@@ -38,21 +38,21 @@
 
 .board__edge {
   fill: none;
-  stroke: var(--ink);
+  stroke: var(--wire);
   stroke-width: 1.6;
   stroke-linecap: round;
   stroke-linejoin: round;
-  opacity: 0.55;
 }
 
 .board__port {
-  fill: var(--ink);
+  fill: var(--wire);
 }
 
 .lane {
   position: relative;
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   height: 80px;
 }
 
@@ -60,13 +60,20 @@
   border-top: 1px solid var(--paper-line);
 }
 
-/* The lane name sits above its row rather than in a column beside it. A rail
-   on the left costs 64px of every row and pushes every part right of the
-   card's centre line, which is most of why the board read as unbalanced. */
+/* The lane name straddles the rule at the top of its row, the way a legend
+   sits on a fieldset: out of the row's own height entirely, so the parts can
+   centre on the band a reader actually sees. In the flow above them instead,
+   every chip sat 10px low.
+   A rail on the left is the other way to do this, and costs 64px of every row
+   while pushing every part right of the card's centre line. */
 .lane__label {
-  flex: 0 0 auto;
-  line-height: 20px;
-  padding-left: 2px;
+  position: absolute;
+  top: -9px;
+  left: 0;
+  z-index: 1;
+  padding-right: 8px;
+  background: var(--paper);
+  line-height: 16px;
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.08em;
@@ -77,8 +84,6 @@
 /* Parts space themselves across the full width. Three to a lane is the cap,
    which is what guarantees a lane never has to scroll on a 390px screen. */
 .lane__parts {
-  flex: 1 1 auto;
-  min-width: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -100,10 +105,17 @@
   border: 1px solid var(--paper-edge);
   border-radius: 14px;
   box-shadow: 0 1px 2px rgba(70, 58, 34, 0.1);
-  color: var(--ink-strong);
+  color: var(--ink);
   transition:
     border-color var(--dur-micro) var(--ease),
     box-shadow var(--dur-micro) var(--ease);
+}
+
+/* Thinner and a step lighter than the app's icons. A part glyph is read at a
+   glance beside eight others, so it wants to be quiet; the presentation
+   attribute on the svg loses to this rule, which is the point. */
+.part svg {
+  stroke-width: 1.5;
 }
 
 .part__label {

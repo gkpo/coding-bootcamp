@@ -15,21 +15,20 @@ export interface WirePlan {
   a: number;
   b: number;
   d: string;
-  /** Where the line meets each chip. */
+  /**
+   * Where the line meets each chip, and where its dot sits: exactly on the
+   * border, half in and half out, so the dot reads as plugged into the box.
+   */
   from: Point;
   to: Point;
-  /**
-   * Where the dot sits: the anchor nudged onto the chip, so it reads as
-   * plugged into the box rather than floating beside it.
-   */
-  fromPort: Point;
-  toPort: Point;
 }
 
-/** How much of a chip edge the anchors may spread across. */
-const FAN_INSET = 26;
-/** How far a dot sits inside the edge, so it overlaps the box it belongs to. */
-const PORT_INSET = 2;
+/**
+ * How much of a chip edge the anchors may NOT spread across: enough to keep
+ * them off the rounded corners, and no more. A server carrying four
+ * connections is the case this is set for.
+ */
+const FAN_INSET = 18;
 
 export function wireKey(a: number, b: number): string {
   return a < b ? `${a}-${b}` : `${b}-${a}`;
@@ -104,24 +103,10 @@ export function planWires(
       b,
       from,
       to,
-      fromPort: inset(from, centres[a]),
-      toPort: inset(to, centres[b]),
       d: link(from, to),
     });
   }
   return plans;
-}
-
-/** The dot's centre: a nudge from the edge toward the middle of its chip. */
-function inset(anchor: Point, centre: Point | undefined): Point {
-  if (!centre) return anchor;
-  const dx = centre.x - anchor.x;
-  const dy = centre.y - anchor.y;
-  const length = Math.hypot(dx, dy) || 1;
-  return {
-    x: r(anchor.x + (dx / length) * PORT_INSET),
-    y: r(anchor.y + (dy / length) * PORT_INSET),
-  };
 }
 
 /**

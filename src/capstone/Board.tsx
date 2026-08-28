@@ -132,8 +132,8 @@ export function Board({
       <svg className="board__ports" aria-hidden>
         {wires.map((wire) => (
           <g key={wire.key}>
-            <circle className="board__port" cx={wire.fromPort.x} cy={wire.fromPort.y} r={2.5} />
-            <circle className="board__port" cx={wire.toPort.x} cy={wire.toPort.y} r={2.5} />
+            <circle className="board__port" cx={wire.from.x} cy={wire.from.y} r={2.5} />
+            <circle className="board__port" cx={wire.to.x} cy={wire.to.y} r={2.5} />
           </g>
         ))}
       </svg>
@@ -184,7 +184,7 @@ export function Board({
                   }
                   onClick={() => onTapPart(part.id)}
                 >
-                  <PartGlyph kind={part.kind} size={26} />
+                  <PartGlyph kind={part.kind} size={24} />
                   <span className="part__label">{PART_LABEL[part.kind]}</span>
                 </button>
               ))}
@@ -253,10 +253,16 @@ function useDrawnWires(
       drawn.current.add(wire.key);
       const length = path.getTotalLength();
       path.style.strokeDasharray = `${length}`;
-      path.animate([{ strokeDashoffset: length }, { strokeDashoffset: 0 }], {
+      const drawing = path.animate([{ strokeDashoffset: length }, { strokeDashoffset: 0 }], {
         duration: MICRO,
         easing: EASE,
       });
+      // Clear the dash once it has been drawn on. Left behind, it is a pattern
+      // measured against a path length that stops being true the moment a
+      // chip moves, and the line comes back visibly cut.
+      drawing.onfinish = () => {
+        path.style.strokeDasharray = '';
+      };
     }
     for (const wire of exiting) {
       const path = paths.current.get(wire.key);

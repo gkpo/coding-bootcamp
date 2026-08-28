@@ -5,7 +5,7 @@
   display: block;
   width: 100%;
   height: auto;
-  color: var(--ink-strong);
+  color: var(--ink);
   overflow: visible;
 }
 
@@ -17,13 +17,16 @@
 
 .mini__edge {
   fill: none;
-  stroke: var(--ink);
+  stroke: var(--wire);
   stroke-width: 1.2;
   stroke-linecap: round;
   stroke-linejoin: round;
-  opacity: 0.55;
 }
 
 .mini__port {
-  fill: var(--ink);
+  fill: var(--wire);
+}
+
+.mini svg {
+  stroke-width: 1.5;
 }
