@@ -192,3 +192,11 @@
   margin-top: auto;
   padding-top: var(--sp-5);
 }
+
+/* Stands where the streak line stands on a session summary: the capstone is
+   what was just built, and it does not touch the streak. */
+.summary__built {
+  font-size: var(--fs-heading);
+  font-weight: 600;
+  color: var(--text-dim);
+}

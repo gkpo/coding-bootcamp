@@ -1,0 +1,99 @@
+/* The capstone board screen (docs/12 part C). Presented like the session
+   player: full screen, no tab bar, one way out and it asks first. */
+
+.capstone {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  background: var(--bg);
+}
+
+.capstone__bar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--gutter);
+  padding-top: calc(var(--sp-3) + env(safe-area-inset-top));
+}
+
+.capstone__close {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  margin-left: calc(var(--sp-3) * -1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-dim);
+}
+
+.capstone__stages {
+  display: flex;
+  gap: 4px;
+  flex: 1 1 auto;
+}
+
+.capstone__stage {
+  flex: 1 1 0;
+  height: 6px;
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
+  transition: background-color var(--dur-standard) var(--ease);
+}
+
+.capstone__stage.is-done {
+  background: var(--accent);
+}
+
+.capstone__body {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  /* Room under the tray for the run button to pin over without covering the
+     last row of parts while the board is mid-scroll. */
+  padding: var(--sp-2) var(--gutter) var(--sp-8);
+}
+
+.capstone__brief {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.capstone__kicker {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.capstone__scenario {
+  font-size: var(--fs-secondary);
+  line-height: 1.5;
+  color: var(--text-dim);
+}
+
+/* The interviewer's ask. It is the one thing on the screen that has to be
+   read before anything is tapped, so it is the only body-size prose here. */
+.capstone__requirement {
+  font-size: var(--fs-body);
+  line-height: 1.5;
+}
+
+.capstone__return {
+  width: auto;
+  align-self: flex-start;
+  padding: 0;
+}
+
+/* The run button stays within reach of a thumb however far the board has
+   scrolled: it is the only thing on the screen that grades anything. */
+.capstone__cta {
+  position: sticky;
+  bottom: 0;
+  padding: var(--sp-3) var(--gutter);
+  padding-bottom: calc(var(--sp-3) + env(safe-area-inset-bottom));
+  background: linear-gradient(to bottom, transparent, var(--bg) var(--sp-3));
+}

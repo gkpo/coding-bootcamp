@@ -17,6 +17,14 @@ interface SummaryState {
   streakDays: number;
   toughestId?: string;
   conceptIds: string[];
+  /**
+   * Set when a build-mode capstone sends the user here (docs/12 part D). The
+   * celebration is the same one; what changes is what the figures count, and
+   * that a capstone pays XP without touching the streak.
+   */
+  capstone?: { title: string };
+  /** Capstones only: the XP actually awarded, which is nothing on a replay. */
+  totalXp?: number;
 }
 
 export function SessionSummaryScreen() {
@@ -45,7 +53,9 @@ export function SessionSummaryScreen() {
   const results = state?.results ?? [];
   const right = results.filter((r) => r === 'right').length;
   const answerXp = results.reduce((sum, r) => sum + (r === 'right' ? 10 : 5), 0);
-  const totalXp = answerXp + (state?.xpEarned ?? 0);
+  // A capstone hands over the figure it actually paid; a session's is the sum
+  // of its answers plus the completion and streak bonuses.
+  const totalXp = state?.capstone ? (state.totalXp ?? 0) : answerXp + (state?.xpEarned ?? 0);
   const shownXp = useCountUp(totalXp);
 
   if (!state) {
@@ -54,7 +64,7 @@ export function SessionSummaryScreen() {
     return null;
   }
 
-  const { streakDays, toughestId, conceptIds } = state;
+  const { streakDays, toughestId, conceptIds, capstone } = state;
   const toughest = toughestId ? getExercise(toughestId) : undefined;
   const cards = conceptIds.map((id) => getCard(id)).filter((c) => c !== undefined);
 
@@ -64,17 +74,30 @@ export function SessionSummaryScreen() {
         {/* One soft breath of accent behind the figure, the whole of the
             celebration now that there are no particles (docs/06 §Motion). */}
         <span className="summary__bloom" aria-hidden />
-        <p className="summary__kicker">Session complete</p>
-        <p className="summary__xp">+{shownXp} XP</p>
-        <p className="summary__streak">
-          <span className="summary__flame">
-            <FlameIcon size={20} />
-          </span>
-          Day {streakDays}
-          {streakDays === 7 && ' · a full week'}
-          {streakDays === 30 && ' · thirty days'}
-          {streakDays > 2 && streakDays !== 7 && streakDays !== 30 && ' · this is becoming a habit'}
-        </p>
+        <p className="summary__kicker">{capstone ? 'Capstone complete' : 'Session complete'}</p>
+        {/* A replay pays nothing by design, and "+0 XP" as the hero figure
+            reads as a bug rather than as a rule. */}
+        {capstone && totalXp === 0 ? (
+          <p className="summary__xp">Built again</p>
+        ) : (
+          <p className="summary__xp">+{shownXp} XP</p>
+        )}
+        {capstone ? (
+          <p className="summary__built">{capstone.title}</p>
+        ) : (
+          <p className="summary__streak">
+            <span className="summary__flame">
+              <FlameIcon size={20} />
+            </span>
+            Day {streakDays}
+            {streakDays === 7 && ' · a full week'}
+            {streakDays === 30 && ' · thirty days'}
+            {streakDays > 2 &&
+              streakDays !== 7 &&
+              streakDays !== 30 &&
+              ' · this is becoming a habit'}
+          </p>
+        )}
       </div>
 
       <section className="card summary__score">
@@ -82,7 +105,7 @@ export function SessionSummaryScreen() {
           <strong>
             {right} of {results.length}
           </strong>{' '}
-          first try
+          {capstone ? 'stages without a hint' : 'first try'}
         </p>
         <div className="summary__dots">
           {results.map((r, i) => (

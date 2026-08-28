@@ -1,0 +1,36 @@
+/* The parts tray. Shares the .part chip with the board, so a part looks the
+   same in the hand as it does on the table. */
+
+.tray {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+}
+
+.tray__part {
+  background: var(--surface);
+}
+
+.tray__count {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-dim);
+}
+
+.tray__empty {
+  font-size: var(--fs-secondary);
+  color: var(--text-dim);
+}

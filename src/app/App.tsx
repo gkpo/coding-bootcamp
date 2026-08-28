@@ -10,6 +10,7 @@ import { ProfileScreen } from '../screens/ProfileScreen';
 import { OnboardingScreen } from '../screens/OnboardingScreen';
 import { SessionScreen } from '../screens/SessionScreen';
 import { SessionSummaryScreen } from '../screens/SessionSummaryScreen';
+import { CapstoneScreen } from '../screens/CapstoneScreen';
 
 /**
  * Hash routing on purpose: GitHub Pages has no SPA rewrite, and hash routes
@@ -33,6 +34,9 @@ const router = createHashRouter([
   // you are answering (docs/01 §Screen map).
   { path: '/onboarding', element: <OnboardingScreen /> },
   { path: '/session', element: <SessionScreen /> },
+  // A capstone is the same kind of flow: full screen, no tab bar, and it asks
+  // before it lets you walk away from a half-built system (docs/12 part C).
+  { path: '/capstone/:capstoneId', element: <CapstoneScreen /> },
   { path: '/session/summary', element: <SessionSummaryScreen /> },
   // A studio for choosing cues by ear. Unlike the harness below it ships in
   // production on purpose, because the point is to hear candidates through a

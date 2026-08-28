@@ -10,6 +10,7 @@ import {
   place,
   removePart,
   runMoves,
+  startingBuild,
   testPredicate,
   toggleEdge,
   validateCapstone,
@@ -397,6 +398,35 @@ describe('runMoves', () => {
     expect(stageBuilds[0].parts).toHaveLength(3);
   });
 
+  it('opens on the pre-placed board, which is what a run starts from', () => {
+    const capstone: CapstoneSpec = {
+      id: 'x-07',
+      stages: [
+        {
+          prePlaced: ['client', 'lb'],
+          preWired: [['client', 'lb']],
+          tray: [{ kind: 'server', count: 1 }],
+          checks: [
+            {
+              id: 'a',
+              when: { op: 'edge', a: 'lb', b: 'server' },
+              hintMoves: [{ place: 'server' }, { connect: ['lb', 'server'] }],
+            },
+          ],
+        },
+      ],
+    };
+    const opening = startingBuild(capstone);
+    expect(opening.parts.map((p) => p.kind)).toEqual(['client', 'lb']);
+    expect(opening.edges).toEqual([[1, 2]]);
+    // The canonical run starts from exactly this board, then adds to it.
+    expect(runMoves(capstone).stageBuilds[0].parts).toHaveLength(3);
+  });
+
+  it('opens on an empty board when nothing is pre-placed', () => {
+    expect(startingBuild({ id: 'x-08', stages: [{ tray: [], checks: [] }] })).toEqual(emptyBuild());
+  });
+
   it('starts from the pre-placed board and its pre-wiring', () => {
     const { stageBuilds } = runMoves({
       id: 'x-04',
@@ -565,6 +595,22 @@ describe('validateCapstone', () => {
     });
     const problems = validateCapstone(capstone);
     expect(problems.join('\n')).toContain('forbids cdn, which no tray offers');
+  });
+
+  it('catches pre-placing more parts than a lane holds', () => {
+    const capstone = sound();
+    capstone.stages[0].prePlaced = ['db', 'cache', 'replica', 'blob'];
+    expect(validateCapstone(capstone).join('\n')).toContain(
+      'pre-places more parts than a lane holds',
+    );
+  });
+
+  it('catches pre-wiring two parts that are not both pre-placed', () => {
+    const capstone = sound();
+    capstone.stages[0].preWired = [['client', 'lb']];
+    expect(validateCapstone(capstone).join('\n')).toContain(
+      'pre-wires client to lb without pre-placing both',
+    );
   });
 
   it('catches pre-placing outside stage 1', () => {

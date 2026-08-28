@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { getCard, getExercise, getTrack } from '../content';
+import { capstonesForTrack, getCard, getExercise, getTrack } from '../content';
 import { useStore } from '../store/useStore';
 import { ConceptIcon } from '../components/ConceptIcon';
 import { ProgressBar } from '../components/ProgressBar';
@@ -8,7 +8,8 @@ import { ScreenBar } from '../components/ScreenBar';
 import { seenFill } from '../components/progressFill';
 import { CheckIcon } from '../components/icons';
 import { isMastered, type ExerciseProgress } from '../engine/leitner';
-import type { ConceptCard, Lesson, TrackId } from '../content/types';
+import type { Capstone, ConceptCard, Lesson, TrackId } from '../content/types';
+import type { CapstoneProgress } from '../store/persistence';
 import './TracksScreen.css';
 
 const TYPE_LABEL: Record<string, string> = {
@@ -36,6 +37,7 @@ export function TrackDetailScreen() {
   const { trackId } = useParams<{ trackId: TrackId }>();
   const track = trackId ? getTrack(trackId) : undefined;
   const progress = useStore((s) => s.exercises);
+  const capstoneProgress = useStore((s) => s.capstones);
   const trackTally = useStore((s) => s.trackTally);
   const titleRef = useRef<HTMLHeadingElement>(null);
 
@@ -129,6 +131,29 @@ export function TrackDetailScreen() {
             </section>
           </li>
         ))}
+
+        {capstonesForTrack(track.id).map((capstone) => (
+          <li className="path__station" key={capstone.id}>
+            <div className="path__rail">
+              <CapstoneNode
+                capstone={capstone}
+                saved={capstoneProgress[capstone.id]}
+                colour={colour}
+              />
+            </div>
+
+            <Link to={`/capstone/${capstone.id}`} className="card station station--capstone">
+              <p className="station__kicker">Capstone</p>
+              <div className="station__head">
+                <h2 className="station__title">{capstone.title}</h2>
+              </div>
+              <p className="station__lede">{capstone.scenario}</p>
+              <p className="station__status">
+                {capstoneStatus(capstone, capstoneProgress[capstone.id])}
+              </p>
+            </Link>
+          </li>
+        ))}
       </ol>
     </div>
   );
@@ -157,6 +182,52 @@ function PathNode({ number, state, colour }: { number: number; state: NodeState;
       </span>
     </span>
   );
+}
+
+/**
+ * The boss level at the end of a path (docs/12 part C).
+ *
+ * It sits on the same spine as the lessons because it is the same journey:
+ * the track teaches the parts, and the capstone is where the user is asked to
+ * put them together with nobody naming them first.
+ */
+function CapstoneNode({
+  capstone,
+  saved,
+  colour,
+}: {
+  capstone: Capstone;
+  saved: CapstoneProgress | undefined;
+  colour: string;
+}) {
+  const done = saved?.completedDay !== null && saved !== undefined;
+  const state: NodeState = done
+    ? 'mastered'
+    : (saved?.stagesCleared ?? 0) > 0
+      ? 'started'
+      : 'untouched';
+  const fill = state === 'mastered' ? colour : state === 'started' ? seenFill(colour) : undefined;
+
+  return (
+    <span
+      className={`path__node path__node--${state}`}
+      style={fill ? { background: fill } : undefined}
+    >
+      {done ? <CheckIcon size={14} /> : <ConceptIcon name={capstone.icon} size={15} />}
+      <span className="visually-hidden">{done ? 'Cleared' : 'Not cleared yet'}</span>
+    </span>
+  );
+}
+
+function capstoneStatus(capstone: Capstone, saved: CapstoneProgress | undefined): string {
+  const total = capstone.stages.length;
+  if (saved === undefined || saved.stagesCleared === 0) {
+    return `${total} stages, about four minutes. Build it and the checks grade it.`;
+  }
+  if (saved.completedDay !== null) {
+    return saved.assisted ? 'Cleared, with hints. Worth another run.' : 'Cleared without a hint.';
+  }
+  return `${saved.stagesCleared} of ${total} stages cleared. Pick it up where you left it.`;
 }
 
 /**

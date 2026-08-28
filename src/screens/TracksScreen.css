@@ -372,3 +372,35 @@
 .station__head + .lesson__list {
   margin-top: var(--sp-3);
 }
+
+/* ---- the capstone station (docs/12 part C) ----
+   The same card as a lesson station, doing a different job: it is a way in
+   rather than a summary, so the whole card is the target. */
+
+.station--capstone {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.station__kicker {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: var(--sp-1);
+}
+
+.station__lede {
+  margin-top: var(--sp-2);
+  font-size: var(--fs-secondary);
+  line-height: 1.5;
+  color: var(--text-dim);
+}
+
+.station__status {
+  margin-top: var(--sp-3);
+  font-size: var(--fs-secondary);
+  font-weight: 600;
+}

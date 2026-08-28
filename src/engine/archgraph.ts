@@ -117,6 +117,11 @@ export function toggleEdge(build: Build, a: number, b: number): Build {
   return { parts: build.parts, edges: [...build.edges, pair(a, b)] };
 }
 
+/** Whether any instance of one kind is wired to any instance of another. */
+export function hasKindEdge(build: Build, a: PartKind, b: PartKind): boolean {
+  return directlyJoined(kindGraph(build), a, b);
+}
+
 /**
  * The kind graph: every instance of a kind collapses to one node, and two
  * kinds are joined when any pair of their instances is.
@@ -308,6 +313,20 @@ function removeKind(build: Build, kind: PartKind): Build {
     .reduce((acc, p) => removePart(acc, p.id), build);
 }
 
+/**
+ * The board a capstone opens on: stage 1's pre-placed parts and pre-wiring,
+ * nothing else. The screen needs this to start a run, and runMoves needs it to
+ * start the canonical one, so it lives here rather than in either.
+ */
+export function startingBuild(capstone: CapstoneSpec): Build {
+  const stage = capstone.stages[0];
+  if (stage === undefined) return emptyBuild();
+  let build = emptyBuild();
+  for (const kind of stage.prePlaced ?? []) build = place(build, kind) ?? build;
+  for (const [a, b] of stage.preWired ?? []) build = connectKinds(build, a, b);
+  return build;
+}
+
 export interface CanonicalRun {
   /** The board after each stage's moves, index-aligned with the stages. */
   stageBuilds: Build[];
@@ -340,20 +359,15 @@ export function runMoves(capstone: CapstoneSpec): CanonicalRun {
     }
 
     if (index === 0) {
-      for (const kind of stage.prePlaced ?? []) {
-        const next = place(build, kind);
-        if (next === null) {
-          problems.push(`${where} pre-places ${kind} into a full ${PART_LANES[kind]} lane`);
-        } else {
-          build = next;
-        }
+      build = startingBuild(capstone);
+      const wanted = (stage.prePlaced ?? []).length;
+      if (build.parts.length !== wanted) {
+        problems.push(`${where} pre-places more parts than a lane holds`);
       }
       for (const [a, b] of stage.preWired ?? []) {
-        if (countOfKind(build, a) === 0 || countOfKind(build, b) === 0) {
+        if (!hasKindEdge(build, a, b)) {
           problems.push(`${where} pre-wires ${a} to ${b} without pre-placing both`);
-          continue;
         }
-        build = connectKinds(build, a, b);
       }
     }
 
