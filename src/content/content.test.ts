@@ -297,7 +297,7 @@ describe('one concept, several skins (docs/09)', () => {
 });
 
 describe('the authored capstones (docs/12)', () => {
-  it('ships the seven the spec calls for, on their own tracks', () => {
+  it('ships the ten the spec calls for, on their own tracks', () => {
     expect(capstones.map((c) => c.id)).toEqual([
       'c5-01',
       'c9-01',
@@ -306,13 +306,17 @@ describe('the authored capstones (docs/12)', () => {
       'c5-02',
       'c8-02',
       'c8-03',
+      'c5-03',
+      'c9-03',
+      'c9-04',
     ]);
     // A track may end on more than one, and the path renders them in order.
-    expect(capstonesForTrack('t5').map((c) => c.id)).toEqual(['c5-01', 'c5-02']);
+    expect(capstonesForTrack('t5').map((c) => c.id)).toEqual(['c5-01', 'c5-02', 'c5-03']);
     expect(capstonesForTrack('t8').map((c) => c.id)).toEqual(['c8-01', 'c8-02', 'c8-03']);
-    expect(capstonesForTrack('t9').map((c) => c.id)).toEqual(['c9-01', 'c9-02']);
+    expect(capstonesForTrack('t9').map((c) => c.id)).toEqual(['c9-01', 'c9-02', 'c9-03', 'c9-04']);
     expect(getCapstone('c5-01')?.title).toBe('The photo-sharing app');
     expect(getCapstone('c8-03')?.title).toBe('The launch site');
+    expect(getCapstone('c9-04')?.title).toBe('The standby');
   });
 
   it('marks every capstone with a difficulty its station can show', () => {
@@ -402,6 +406,11 @@ describe('the authored capstones (docs/12)', () => {
       'lb',
       'cache',
       'queue',
+      'replica',
+      'cache',
+      'replica',
+      'cache',
+      'worker',
     ]);
     for (const capstone of capstones) {
       const checks = capstone.stages.flatMap((s) => s.checks);
@@ -452,5 +461,17 @@ describe('the authored capstones (docs/12)', () => {
     const cache = capstones[0].stages[1].checks.find((c) => c.id === 's2-cache');
     expect(cache?.when).toEqual({ op: 'eachConnected', each: 'server', to: 'cache' });
     expect(cache?.label.toLowerCase()).toContain('every server');
+  });
+
+  it('wires the replica both ways and says so in both capstones', () => {
+    // docs/12 part H: c9-04 is the deliberate contrast with c9-02, same parts
+    // and opposite wiring, so each of them has to name the other reading. A
+    // user who only ever meets one still hears that the other exists.
+    const pipeline = getCapstone('c9-02')?.stages[1].checks.find((c) => c.id === 'a2-read');
+    const standby = getCapstone('c9-04')?.stages[1].checks.find((c) => c.id === 'b2-standby');
+    expect(pipeline?.when).toEqual({ op: 'edge', a: 'server', b: 'replica' });
+    expect(standby?.when).toEqual({ op: 'noEdge', a: 'server', b: 'replica' });
+    expect(pipeline?.sayIt?.toLowerCase()).toContain('standby');
+    expect(standby?.sayIt?.toLowerCase()).toContain('analytics pipeline');
   });
 });
