@@ -397,6 +397,18 @@ function playVoice(
 }
 
 /**
+ * How far ahead of the clock a cue is scheduled, in seconds.
+ *
+ * Web Audio automation clamped to the past does not run: a cue scheduled at
+ * exactly `currentTime` has already slipped behind by the time the graph is
+ * built and connected, so it loses its attack, and on the shortest cues its
+ * whole envelope. That played taps at random loudness and sometimes not at
+ * all. 30ms is below anything a thumb can feel and above a render quantum at
+ * every sample rate that ships.
+ */
+const SCHEDULE_LEAD = 0.03;
+
+/**
  * Play an arbitrary cue. `playTone` is this with the shipped notes and the
  * shipped tuning; the sound studio is this with everything else.
  */
@@ -405,22 +417,41 @@ export function playNotes(notes: Note[], enabled: boolean, tuning?: Partial<Tuni
   const ctx = audioContext();
   if (!ctx) return;
   const t = { ...DEFAULT_TUNING, ...tuning };
+
+  const schedule = () => {
+    try {
+      const b = getBus(ctx);
+      if (!b) return;
+      // Read the clock once, so every note in the cue is placed against the
+      // same instant rather than drifting as the graph is built.
+      const t0 = ctx.currentTime + SCHEDULE_LEAD;
+      notes.forEach((note) => {
+        const start = t0 + note.at;
+        if (note.spread && t.width > 0) {
+          playVoice(b, note, start, -note.spread / 2, -t.width, t);
+          playVoice(b, note, start, note.spread / 2, t.width, t);
+        } else {
+          playVoice(b, note, start, 0, 0, t);
+        }
+      });
+    } catch {
+      // Autoplay policy, a closed context, or no output device. Never fatal.
+    }
+  };
+
   try {
-    // Answers are user gestures, so a suspended context can resume here.
-    if (ctx.state === 'suspended') void ctx.resume();
-    const b = getBus(ctx);
-    if (!b) return;
-    notes.forEach((note) => {
-      const start = ctx.currentTime + note.at;
-      if (note.spread && t.width > 0) {
-        playVoice(b, note, start, -note.spread / 2, -t.width, t);
-        playVoice(b, note, start, note.spread / 2, t.width, t);
-      } else {
-        playVoice(b, note, start, 0, 0, t);
-      }
-    });
+    // A cue scheduled while the context is still waking comes out with its
+    // head cut off, so anything but a running context is played after the
+    // resume settles. Phones suspend the context aggressively, and the test is
+    // `!== 'running'` on purpose: iOS also reports a non-standard
+    // 'interrupted' state. `Promise.resolve` is there because old WebKit's
+    // `resume` returns undefined rather than a promise, and the rejection
+    // handler drops the cue where autoplay policy refuses to resume at all,
+    // which is what the old code effectively did.
+    if (ctx.state === 'running') schedule();
+    else Promise.resolve(ctx.resume()).then(schedule, () => {});
   } catch {
-    // Autoplay policy, a closed context, or no output device. Never fatal.
+    // A `resume` that throws outright rather than rejecting. Never fatal.
   }
 }
 
