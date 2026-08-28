@@ -193,7 +193,7 @@ Concepts: `design-script`, `caching`, `queues-jobs` (or the nearest existing t5 
 
 **Stage 2, 100k users** (reads must stay fast, one server is not enough). Tray: `lb`, `server`, `cache`.
 
-- `s2-two`: placed(server, atLeast 2) [horizontal scaling]. Moves: place server.
+- `s2-two`: placed(server, atLeast 2) [horizontal scaling]. Moves: place server, connect server-db, connect server-blob (the second server reaches everything the first does; part H rule 3).
 - `s2-lb`: pathVia(client, server, lb) [all traffic enters through the load balancer; the user must also delete the stage 1 direct edge, which is the lesson]. Moves: place lb, connect client-lb, connect lb-server, disconnect client-server.
 - `s2-cache`: edge(server, cache) [hot reads come from memory]. Moves: place cache, connect server-cache.
 
@@ -295,6 +295,7 @@ Two authoring rules this wave surfaced, binding for all capstones:
 
 1. **Budget and decoy checks (`maxParts`, `notPlaced`) live only in a capstone's final stage.** Earlier checks stay evaluated forever (part C), so a budget authored early is broken by later stages' own parts, and a `notPlaced` authored early forbids a part a later stage needs. The validator already catches violations; this rule says why.
 2. **The tray is itself a constraint.** A stage that offers only the right parts cannot be over-built, so an early stage teaches restraint by a small tray, not by checks. c8-03 stage 1 depends on this.
+3. **Hint moves run in authored check order, and a scale-out keeps the reference honest.** A stage's second-copy check (place the extra server or worker) is authored before any connect whose fan-out should include the new instance, and its moves also wire the new instance to everything its clones already reach, so the drawn reference build never shows a half-wired clone.
 
 ### Difficulty
 
@@ -312,7 +313,7 @@ The trap for the queue reflex. A small articles site goes viral; it is a pure re
 **Stage 2, the spike begins** (front page of a big aggregator; one server buckles). Tray: `lb`, `server`, `cache`.
 
 - `r2-lb`: pathVia(client, server, lb). Moves: place lb, connect client-lb, connect lb-server, disconnect client-server.
-- `r2-two`: placed(server, atLeast 2). Moves: place server.
+- `r2-two`: placed(server, atLeast 2), authored before `r2-lb` per rule 3. Moves: place server, connect server-db.
 - `r2-cache`: eachConnected(server, cache). Moves: place cache, connect server-cache.
 
 **Stage 3, the primary is still hot** (cache misses hammer one database; there is no work to defer). Tray: `replica`, decoys `queue` and `worker`.
@@ -334,7 +335,7 @@ The stateless-servers lesson, with the bug appearing because you scaled. Concept
 **Stage 2, random logouts** (a second server was added for traffic and now users lose their session at random). Tray: `lb`, `server`, `cache`, decoy `ext-api`.
 
 - `l2-lb`: pathVia(client, server, lb). Moves: place lb, connect client-lb, connect lb-server, disconnect client-server.
-- `l2-two`: placed(server, atLeast 2). Moves: place server.
+- `l2-two`: placed(server, atLeast 2), authored before `l2-lb` per rule 3. Moves: place server, connect server-db.
 - `l2-session`: eachConnected(server, cache) [the session lives in a store every server can reach, never in one server's memory]. Moves: place cache, connect server-cache.
 - `l2-decoy`: notPlaced(ext-api) [outsourcing auth does not fix where the session lives]. Moves: remove ext-api.
 
