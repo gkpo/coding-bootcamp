@@ -47,6 +47,12 @@ import type { Capstone } from './types';
  *    wired to the one server that existed when its moves ran and the second
  *    server would hang off nothing in the reference build the debrief panel
  *    draws. c5-01 stage 2 already ships in this order for the same reason.
+ * 7. Part H rule 3 also asks a scale-out check to wire the new copy to
+ *    everything its clones already reach, so the reference build never draws a
+ *    half-wired one. The three shipped scale-out checks (c5-01 `s2-two`,
+ *    c5-02 `r2-two`, c8-02 `l2-two`) carry the extra connect moves for that.
+ *    A connect only ever adds the pairs that are missing, so the moves are
+ *    safe to repeat over wiring the earlier stages already drew.
  */
 
 const photoSharing: Capstone = {
@@ -135,7 +141,11 @@ const photoSharing: Capstone = {
             highlight: ['server'],
             text: 'The compute lane has room for another server beside the first.',
           },
-          hintMoves: [{ place: 'server' }],
+          hintMoves: [
+            { place: 'server' },
+            { connect: ['server', 'db'] },
+            { connect: ['server', 'blob'] },
+          ],
           sayIt:
             'I would scale out rather than up: more servers, none of them holding anything the others need.',
         },
@@ -854,7 +864,7 @@ const readStorm: Capstone = {
             highlight: ['server'],
             text: 'The compute lane has room for another server beside the first one.',
           },
-          hintMoves: [{ place: 'server' }],
+          hintMoves: [{ place: 'server' }, { connect: ['server', 'db'] }],
           sayIt:
             'Two servers, and either of them can serve any reader, so a third one is the whole capacity plan.',
         },
@@ -1045,7 +1055,7 @@ const loginRush: Capstone = {
             highlight: ['server'],
             text: 'The compute lane still holds one server, and the story says there are two of them now.',
           },
-          hintMoves: [{ place: 'server' }],
+          hintMoves: [{ place: 'server' }, { connect: ['server', 'db'] }],
           sayIt:
             'There are two servers now, and a request can land on either of them. That is the whole reason for running two.',
         },
