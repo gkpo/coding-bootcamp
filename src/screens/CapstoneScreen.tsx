@@ -65,6 +65,10 @@ function CapstoneRun({ capstone }: { capstone: Capstone }) {
   const clearStage = useStore((s) => s.clearCapstoneStage);
   const sound = useStore((s) => s.settings.sound);
   const haptics = useStore((s) => s.settings.haptics);
+  // Subscribed to as well as read from the document, because the offer to
+  // watch the run again is decided at render: motionOff() alone would still
+  // be reading the old attribute on the render that flips the in-app toggle.
+  const reduceMotionSetting = useStore((s) => s.settings.reduceMotion);
 
   // Resolved once, on mount. The store moves as stages clear, and re-reading
   // it would restart the run under the user's hands.
@@ -120,6 +124,9 @@ function CapstoneRun({ capstone }: { capstone: Capstone }) {
   const visibleChecks = checksSoFar.filter((c) => c.bonus !== true || resolved[c.id] === true);
   const hintTarget =
     cleared || running || outcome === null ? null : firstFailing(checksSoFar, outcome);
+  // Nothing to watch when motion is off: the rings resolve by fade and no
+  // packet ever leaves a part, so the offer is not made at all (docs/12 G).
+  const canWatchAgain = cleared && !reduceMotionSetting && !motionOff();
   const highlight = hintLevel >= 2 ? hintedKinds(checksSoFar, hintTarget) : [];
 
   const linksOf = (id: number | null) => {
@@ -253,10 +260,15 @@ function CapstoneRun({ capstone }: { capstone: Capstone }) {
   /**
    * One cue per run, never one per check: the run is the answer, and a sound
    * for every ring would turn a two-second beat into a slot machine.
+   *
+   * A replay ends here too, and ends here only: it is theatre on demand, so
+   * everything that celebrates or records belongs to a real run (docs/12
+   * part G).
    */
-  const finish = (halted: boolean, stoppedAtPart: number | null) => {
+  const finish = (halted: boolean, stoppedAtPart: number | null, replay: boolean) => {
     setRunning(false);
     stopRun.current = null;
+    if (replay) return;
 
     if (halted) {
       setHitPartId(stoppedAtPart);
@@ -279,15 +291,25 @@ function CapstoneRun({ capstone }: { capstone: Capstone }) {
     setCleared(true);
   };
 
-  const runIt = () => {
+  /**
+   * The visual run over the board as it stands (docs/12 parts D and G).
+   *
+   * A replay takes the same path with the grading taken out. Re-planning the
+   * run from the build is pure, so the packets walk every authored check
+   * again, but nothing is written to the outcome the strip is judged on and
+   * nothing is banked when it ends.
+   */
+  const startRun = (replay: boolean) => {
     if (running) return;
     const plan = planRun(build, checksSoFar);
-    setOutcome(evaluate(build, checksSoFar));
+    if (!replay) {
+      setOutcome(evaluate(build, checksSoFar));
+      setHitPartId(null);
+      setHintLevel(0);
+      setArmedPart(null);
+      setPlacing(null);
+    }
     setResolved({});
-    setHitPartId(null);
-    setHintLevel(0);
-    setArmedPart(null);
-    setPlacing(null);
     setRunning(true);
 
     stopRun.current?.();
@@ -308,9 +330,12 @@ function CapstoneRun({ capstone }: { capstone: Capstone }) {
       dots: Array.from(flowRef.current?.children ?? []) as HTMLElement[],
       reduceMotion: motionOff(),
       onResolve: (step) => setResolved((current) => ({ ...current, [step.checkId]: step.pass })),
-      onFinish: () => finish(plan.halted, plan.steps.at(-1)?.stopsAtPart ?? null),
+      onFinish: () => finish(plan.halted, plan.steps.at(-1)?.stopsAtPart ?? null, replay),
     });
   };
+
+  const runIt = () => startRun(false);
+  const watchAgain = () => startRun(true);
 
   const goOn = () => {
     if (isFinalStage) {
@@ -379,14 +404,29 @@ function CapstoneRun({ capstone }: { capstone: Capstone }) {
               what keeps the worked solution out of reach while it would be an
               answer key rather than a debrief (docs/12 part F2). */}
           {cleared && (
-            <Button
-              variant="ghost"
-              className="capstone__debrief"
-              aria-expanded={debriefOpen}
-              onClick={() => setDebriefOpen((open) => !open)}
-            >
-              {debriefOpen ? 'Hide the reference build' : 'See the reference build'}
-            </Button>
+            <div className="capstone__cleared-tools">
+              <Button
+                variant="ghost"
+                className="capstone__cleared-tool"
+                aria-expanded={debriefOpen}
+                onClick={() => setDebriefOpen((open) => !open)}
+              >
+                {debriefOpen ? 'Hide the reference build' : 'See the reference build'}
+              </Button>
+              {/* The run again, for the pleasure of it. Nothing is graded,
+                  banked or saved by it, so it stays a ghost beside the
+                  debrief rather than competing with the stage's next step. */}
+              {canWatchAgain && (
+                <Button
+                  variant="ghost"
+                  className="capstone__cleared-tool"
+                  onClick={watchAgain}
+                  disabled={running}
+                >
+                  Watch it run
+                </Button>
+              )}
+            </div>
           )}
         </section>
 

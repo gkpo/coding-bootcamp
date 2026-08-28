@@ -97,11 +97,19 @@
   }
 }
 
-/* The way into the debrief, under the line that clears the stage. A ghost
-   link rather than a button: the stage is already won, and this is an offer
-   to read on rather than the next thing to press. */
-.capstone__debrief {
-  align-self: flex-start;
+/* What a cleared stage offers under the line that clears it: read the
+   reference build, or watch the run again. Ghost links rather than buttons,
+   because the stage is already won and neither is the next thing to press. */
+.capstone__cleared-tools {
+  display: flex;
+  flex-wrap: wrap;
+  /* Tighter between rows than along one: side by side they are two offers,
+     stacked they are a short list, and 16px of air would read as a gap. */
+  gap: var(--sp-1) var(--sp-4);
+}
+
+.capstone__cleared-tool {
+  flex: 0 0 auto;
   width: auto;
   min-height: 44px;
   padding: 0;
