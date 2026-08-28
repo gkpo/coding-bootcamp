@@ -257,12 +257,19 @@ function CapstoneRun({ capstone }: { capstone: Capstone }) {
     noteHint(capstone.id);
   };
 
+  // Seconds per cling, slower than the strip's 45ms ring cascade because
+  // audibility beats per-ring sync: at the strip's pace the whole climb is
+  // over before the ear separates it from the landing. The rings finish
+  // confirming a beat ahead, which is fine; the sound is the celebration,
+  // not a metronome.
+  const CLING_STEP = 0.08;
+
   /**
    * One cue per run, never one per check: the run is the answer, and a sound
    * for every ring would turn a two-second beat into a slot machine. The
-   * clear cue is still one cue; its clings just climb in time with the check
-   * strip's cascade, one note per green ring and a held landing after the
-   * last, so the strip and the jingle read as the same event.
+   * clear cue is still one cue; its clings just climb at the cue's own pace,
+   * one note per green ring and a held landing after the last, so the strip
+   * and the jingle read as the same event.
    *
    * A replay ends here too, and ends here only: it is theatre on demand, so
    * everything that celebrates or records belongs to a real run (docs/12
@@ -279,7 +286,7 @@ function CapstoneRun({ capstone }: { capstone: Capstone }) {
       vibrate('wrong', haptics);
       return;
     }
-    const jingle = clearedCue(plan.steps.filter((step) => step.pass).length, STAGGER / 1000);
+    const jingle = clearedCue(plan.steps.filter((step) => step.pass).length, CLING_STEP);
     playNotes(jingle.notes, sound, jingle.tuning);
     vibrate('right', haptics);
     // Banked here rather than inside a state updater: an updater runs during

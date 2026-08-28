@@ -366,7 +366,7 @@ describe('playNotes tuning', () => {
 });
 
 describe('clearedCue', () => {
-  const STEP = 0.045;
+  const STEP = 0.08;
   /** The climb is the notes before the landing chunk's three. */
   const clings = (rings: number) => clearedCue(rings, STEP).notes.slice(0, -3);
   /** The held note the climb resolves onto: the loudest of the last three. */
@@ -388,7 +388,7 @@ describe('clearedCue', () => {
     expect(landing(6).freq).toBeGreaterThan(freqs[freqs.length - 1]);
   });
 
-  it('paces the clings to the cascade stagger, landing after the last', () => {
+  it("paces the clings to the cue's own step, landing after the last", () => {
     const cue = clearedCue(4, STEP);
     cue.notes.slice(0, 4).forEach((n, i) => expect(n.at).toBeCloseTo(i * STEP, 8));
     expect(landing(4).at).toBeCloseTo(4 * STEP, 8);
