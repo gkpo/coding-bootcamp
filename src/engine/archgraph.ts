@@ -118,9 +118,9 @@ export function toggleEdge(build: Build, a: number, b: number): Build {
 }
 
 /**
- * The route the flow dot walks for one check (docs/12 part D).
+ * The route the flow packets walk for one check (docs/12 part D).
  *
- * Kinds rather than parts: the dot is a cursor over the story the check
+ * Kinds rather than parts: the traffic is a cursor over the story the check
  * tells, and the renderer decides which instance of a kind it lands on. An
  * empty route is a check with nothing to walk, which is most of the counting
  * ones; those resolve their ring where they stand.
@@ -167,7 +167,7 @@ function shortestRoute(
 }
 
 /**
- * What the dot does for this check, on this build.
+ * What the traffic does for this check, on this build.
  *
  * On a pass it walks the thing the check is asserting. On a failure it walks
  * as much of the story as exists and stops where it breaks, which for a

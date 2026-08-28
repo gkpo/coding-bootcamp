@@ -18,6 +18,7 @@ import {
 import { PartGlyph } from '../components/PartGlyph';
 import { EASE, MICRO, motionOff } from './motion';
 import { LANE_LABEL, PART_LABEL, PART_NAME } from './parts';
+import { PACKET_SLOTS } from './playRun';
 import { nearestWire, planWires, type WirePlan } from './wires';
 import './Board.css';
 
@@ -31,8 +32,16 @@ export type Centers = Record<number, Point>;
  * Matches .part in Board.css. The wire geometry works from the chip's real
  * size and corner radius, so a dot lands on the border rather than near it.
  */
-const CHIP = 62;
-const CHIP_RADIUS = 14;
+const CHIP = 64;
+const CHIP_RADIUS = 16;
+
+/**
+ * Which of the three columns a lane's parts take, by how many it holds. One
+ * sits in the middle and two take the outside pair, so every lane stays
+ * balanced about the board's centre line and a part always shares a column
+ * with the parts above and below it.
+ */
+const COLUMNS: Record<number, number[]> = { 1: [2], 2: [1, 3], 3: [1, 2, 3] };
 /**
  * How far from a line a tap still counts as meaning it. Wider than the line by
  * a long way, because a 1px stroke is not a target; the tap is then given to
@@ -50,8 +59,8 @@ interface Props {
   highlight: PartKind[];
   /** The part a failed run stopped on. */
   hitPartId: number | null;
-  /** The flow dot, moved by the run driver rather than by React. */
-  dotRef: RefObject<HTMLSpanElement | null>;
+  /** The packet layer, moved by the run driver rather than by React. */
+  flowRef: RefObject<HTMLSpanElement | null>;
   /** Called when the chips move, so the run driver knows where they are. */
   onGeometry: (centers: Centers) => void;
   /** The drawn wires, so the run driver can follow one rather than cut across it. */
@@ -82,7 +91,7 @@ export function Board({
   placing,
   highlight,
   hitPartId,
-  dotRef,
+  flowRef,
   onGeometry,
   onWires,
   onPlace,
@@ -198,11 +207,18 @@ export function Board({
         ))}
       </svg>
 
-      {/* The one new moving element in the app. A cursor, not a character. */}
-      <span className="board__dot" ref={dotRef} aria-hidden />
+      {/* The traffic. A convoy per check rather than a single cursor, so a
+          run reads as a system carrying load; the driver owns every transform
+          in here (docs/12 part D). */}
+      <span className="board__flow" ref={flowRef} aria-hidden>
+        {Array.from({ length: PACKET_SLOTS }, (_, i) => (
+          <span key={i} className="board__packet" />
+        ))}
+      </span>
 
       {LANE_IDS.map((lane) => {
         const parts = build.parts.filter((part) => PART_LANES[part.kind] === lane);
+        const columns = COLUMNS[parts.length] ?? [1, 2, 3];
         const open = placing !== null && PART_LANES[placing] === lane && canPlace(build, placing);
         const pointed = highlight.some(
           (kind) => PART_LANES[kind] === lane && countOfKind(build, kind) === 0,
@@ -219,11 +235,12 @@ export function Board({
           >
             <span className="lane__label">{LANE_LABEL[lane]}</span>
             <div className="lane__parts">
-              {parts.map((part) => (
+              {parts.map((part, index) => (
                 <button
                   type="button"
                   key={part.id}
                   data-part={part.id}
+                  style={{ gridColumn: columns[index] }}
                   ref={(el) => {
                     if (el) chips.current.set(part.id, el);
                     else chips.current.delete(part.id);

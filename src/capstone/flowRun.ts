@@ -19,9 +19,9 @@ import {
 export interface FlowStep {
   checkId: string;
   pass: boolean;
-  /** Kinds the dot walks. Empty for a check with nothing to walk. */
+  /** Kinds the packets walk. Empty for a check with nothing to walk. */
   route: PartKind[];
-  /** Where the dot stops on a failure, if anything is there to stop on. */
+  /** Where the packets stop on a failure, if anything is there to stop on. */
   stopsAt: PartKind | null;
   /**
    * Which instance of that kind takes the failure, by part id.
@@ -68,20 +68,4 @@ function instanceOf(build: Build, predicate: Predicate, stopsAt: PartKind | null
     if (unwired.length > 0) return unwired[0];
   }
   return build.parts.find((part) => part.kind === stopsAt)?.id ?? null;
-}
-
-/**
- * What one step costs: the dot's hops, or a flat rest for a check with
- * nothing to walk.
- *
- * The ring fills as the dot arrives rather than after it, so a travelled
- * check costs its hops and nothing more.
- */
-export function stepDuration(step: FlowStep, hopMs: number, restMs: number): number {
-  return step.route.length > 1 ? (step.route.length - 1) * hopMs : restMs;
-}
-
-/** What the whole run is going to cost, in milliseconds. */
-export function runDuration(plan: RunPlan, hopMs: number, restMs: number): number {
-  return plan.steps.reduce((total, step) => total + stepDuration(step, hopMs, restMs), 0);
 }
