@@ -298,6 +298,7 @@ const capstone = (over: Partial<Capstone> = {}): Capstone => ({
   trackId: 't1',
   title: 'A small system',
   scenario: 'Build me something.',
+  difficulty: 2,
   icon: 'blocks',
   conceptIds: ['big-o'],
   stages: [

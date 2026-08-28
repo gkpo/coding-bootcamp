@@ -307,6 +307,14 @@ describe('the authored capstones (docs/12)', () => {
     expect(getCapstone('c8-01')?.title).toBe('The global storefront');
   });
 
+  it('marks every capstone with a difficulty its station can show', () => {
+    // docs/12 part H: the path station carries it, on the same 1-3 scale the
+    // exercise rows above it use.
+    for (const capstone of capstones) {
+      expect([1, 2, 3], capstone.id).toContain(capstone.difficulty);
+    }
+  });
+
   it('is solvable by following its own hints, every stage of it', () => {
     // The point of the canonical run: a capstone that ships can be finished
     // by a user who takes every level-3 hint, and no check contradicts an

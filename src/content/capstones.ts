@@ -43,6 +43,7 @@ const photoSharing: Capstone = {
   id: 'c5-01',
   trackId: 't5',
   title: 'The photo-sharing app',
+  difficulty: 2,
   icon: 'blocks',
   conceptIds: ['design-script', 'caching', 'queues'],
   scenario:
@@ -261,6 +262,7 @@ const flashSale: Capstone = {
   id: 'c9-01',
   trackId: 't9',
   title: 'The flash-sale checkout',
+  difficulty: 2,
   icon: 'coins',
   conceptIds: ['queues', 'caching', 'replication', 'indexes'],
   scenario:
@@ -424,6 +426,7 @@ const globalStorefront: Capstone = {
   id: 'c8-01',
   trackId: 't8',
   title: 'The global storefront',
+  difficulty: 2,
   icon: 'globe',
   conceptIds: ['http-verbs', 'caching-headers', 'idempotency'],
   scenario:
@@ -627,6 +630,7 @@ const analyticsPipeline: Capstone = {
   id: 'c9-02',
   trackId: 't9',
   title: 'The analytics pipeline',
+  difficulty: 2,
   icon: 'gauge',
   conceptIds: ['queues', 'replication', 'indexes'],
   scenario:
