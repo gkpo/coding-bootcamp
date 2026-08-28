@@ -36,19 +36,3 @@ export function planRun(build: Build, checks: CheckSpec[]): RunPlan {
   }
   return { steps, halted: false };
 }
-
-/**
- * What one step costs: the route's hops, or a flat rest for a check with
- * nothing to walk.
- *
- * The ring fills as the lead packet arrives rather than after it, so a travelled
- * check costs its hops and nothing more.
- */
-export function stepDuration(step: FlowStep, hopMs: number, restMs: number): number {
-  return step.route.length > 1 ? (step.route.length - 1) * hopMs : restMs;
-}
-
-/** What the whole run is going to cost, in milliseconds. */
-export function runDuration(plan: RunPlan, hopMs: number, restMs: number): number {
-  return plan.steps.reduce((total, step) => total + stepDuration(step, hopMs, restMs), 0);
-}
