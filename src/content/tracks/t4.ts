@@ -145,7 +145,8 @@ export const t4Exercises: Exercise[] = [
     type: 'parsons',
     difficulty: 2,
     conceptId: 'guard-clause',
-    prompt: 'Rebuild that function using guard clauses.',
+    prompt:
+      "`getCity` returns a user's city, but only when the user exists, is active, and has an address. **Rebuild it with guard clauses.**",
     lines: [
       { code: 'function getCity(user) {', indent: 0 },
       { code: 'if (!user) return null;', indent: 1 },

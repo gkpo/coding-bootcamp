@@ -33,7 +33,7 @@ export const t6Exercises: Exercise[] = [
     type: 'match',
     difficulty: 1,
     conceptId: 'decoder',
-    prompt: 'Round two. Pair the phrase with the term.',
+    prompt: 'Everyday habits under their formal names. Pair each phrase with the term.',
     pairs: [
       { left: 'The second call is free', right: 'Memoization' },
       { left: 'Cap how often the handler is allowed to fire', right: 'Throttle' },
@@ -268,7 +268,7 @@ export const t6Exercises: Exercise[] = [
     type: 'match',
     difficulty: 2,
     conceptId: 'decoder',
-    prompt: 'Round three, the full stack phrases.',
+    prompt: 'Full stack phrases. Pair each one with the term.',
     pairs: [
       { left: 'One place that owns the value', right: 'State management' },
       { left: 'Keep the long job off the main thread', right: 'Async or worker' },
@@ -315,7 +315,7 @@ export const t6Exercises: Exercise[] = [
     type: 'match',
     difficulty: 2,
     conceptId: 'decoder',
-    prompt: 'Round four. Same patterns, phrases you have not been shown before.',
+    prompt: 'The usual patterns, in wordings you have not been shown. Pair each one up.',
     pairs: [
       {
         left: 'A stretch that grows on one side and shrinks on the other',
