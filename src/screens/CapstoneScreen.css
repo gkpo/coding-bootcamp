@@ -103,10 +103,58 @@
   color: var(--text-dim);
 }
 
-.capstone__return {
+.capstone__tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-4);
+}
+
+.capstone__tools:empty {
+  display: none;
+}
+
+.capstone__tool {
   width: auto;
-  align-self: flex-start;
+  min-height: 44px;
   padding: 0;
+}
+
+/* Every link the part in hand has, named. The board shows the same ones in
+   ink at the same moment, so the row and the picture read as one thing. */
+.capstone__links {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.capstone__links-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.capstone__links-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+
+.capstone__link {
+  min-height: 44px;
+  padding: 0 var(--sp-4);
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  font-size: var(--fs-secondary);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.capstone__link:active {
+  background: var(--surface-2);
+  border-color: var(--danger);
 }
 
 /* The run button stays within reach of a thumb however far the board has

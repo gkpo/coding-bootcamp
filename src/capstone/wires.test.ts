@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { boundaryPoint, planWires, wireKey } from './wires';
+import { boundaryPoint, nearestWire, planWires, wireKey, type WireSamples } from './wires';
+import type { Point } from './Board';
 
 const CHIP = 62;
 const RADIUS = 14;
@@ -171,5 +172,41 @@ describe('boundaryPoint', () => {
 
   it('has nowhere to go for a ray of no length', () => {
     expect(boundaryPoint(HALF, RADIUS, 0, 0)).toEqual({ x: 0, y: 0 });
+  });
+});
+
+describe('nearestWire', () => {
+  const line = (key: string, from: Point, to: Point): WireSamples => ({
+    key,
+    points: Array.from({ length: 21 }, (_, i) => ({
+      x: from.x + ((to.x - from.x) * i) / 20,
+      y: from.y + ((to.y - from.y) * i) / 20,
+    })),
+  });
+  const left = line('left', { x: 0, y: 0 }, { x: 0, y: 100 });
+  const right = line('right', { x: 30, y: 0 }, { x: 30, y: 100 });
+
+  it('picks the wire the tap was closest to', () => {
+    expect(nearestWire([left, right], { x: 4, y: 50 }, 24)).toBe('left');
+    expect(nearestWire([left, right], { x: 26, y: 50 }, 24)).toBe('right');
+  });
+
+  it('picks the nearest even when both are within reach', () => {
+    // The case a fat transparent stroke gets wrong: both targets cover this
+    // tap, and whichever drew last would win instead of the closer one.
+    expect(nearestWire([left, right], { x: 14, y: 50 }, 24)).toBe('left');
+    expect(nearestWire([left, right], { x: 16, y: 50 }, 24)).toBe('right');
+  });
+
+  it('does not care what order the wires arrive in', () => {
+    expect(nearestWire([right, left], { x: 14, y: 50 }, 24)).toBe('left');
+  });
+
+  it('takes nothing when the tap is out of reach of every wire', () => {
+    expect(nearestWire([left, right], { x: 200, y: 50 }, 24)).toBeNull();
+  });
+
+  it('takes nothing when there is nothing on the board', () => {
+    expect(nearestWire([], { x: 0, y: 0 }, 24)).toBeNull();
   });
 });
