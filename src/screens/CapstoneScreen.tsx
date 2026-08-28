@@ -3,7 +3,7 @@ import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { Board, type Centers } from '../capstone/Board';
 import { wireKey } from '../capstone/wires';
 import { CheckStrip, type CheckState } from '../capstone/CheckStrip';
-import { ReferenceSheet } from '../capstone/ReferenceSheet';
+import { ReferencePanel } from '../capstone/ReferencePanel';
 import { Tray } from '../capstone/Tray';
 import { planRun } from '../capstone/flowRun';
 import { playRun } from '../capstone/playRun';
@@ -382,9 +382,10 @@ function CapstoneRun({ capstone }: { capstone: Capstone }) {
             <Button
               variant="ghost"
               className="capstone__debrief"
-              onClick={() => setDebriefOpen(true)}
+              aria-expanded={debriefOpen}
+              onClick={() => setDebriefOpen((open) => !open)}
             >
-              See the reference build
+              {debriefOpen ? 'Hide the reference build' : 'See the reference build'}
             </Button>
           )}
         </section>
@@ -402,6 +403,11 @@ function CapstoneRun({ capstone }: { capstone: Capstone }) {
           onTapPart={tapPart}
           onTapWire={unlink}
         />
+
+        {/* Directly under the board it is being compared with, so both
+            drawings are on screen together and the user scrolls between them
+            instead of switching (docs/12 part F2). */}
+        {cleared && debriefOpen && <ReferencePanel capstone={capstone} stageIndex={stageIndex} />}
 
         <div className="capstone__tools">
           {history.length > 0 && (
@@ -465,15 +471,6 @@ function CapstoneRun({ capstone }: { capstone: Capstone }) {
           {cleared ? (isFinalStage ? 'Finish' : 'Next stage') : 'Run it'}
         </Button>
       </footer>
-
-      {cleared && (
-        <ReferenceSheet
-          capstone={capstone}
-          stageIndex={stageIndex}
-          open={debriefOpen}
-          onClose={() => setDebriefOpen(false)}
-        />
-      )}
 
       {confirmExit && (
         <ConfirmDialog
