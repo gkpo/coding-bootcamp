@@ -7,7 +7,7 @@ import { stripMarkdown } from '../engine/markdown';
 import { promptFor } from '../engine/prompts';
 import { getCard } from '../content';
 import { HelpIcon } from '../components/icons';
-import { muscleLabels } from './muscleLabels';
+import { muscleLabelFor } from './muscleLabels';
 import { useStore } from '../store/useStore';
 import type { Exercise } from '../content/types';
 import './ExerciseFrame.css';
@@ -63,7 +63,7 @@ export function ExerciseFrame({
   return (
     <div className="frame">
       <div className="frame__prompt">
-        <p className="frame__kicker">{muscleLabels[exercise.type]}</p>
+        <p className="frame__kicker">{muscleLabelFor(exercise)}</p>
         <p className="frame__question">
           <RichText text={promptFor(exercise, seed)} />
         </p>
