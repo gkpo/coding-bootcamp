@@ -9,6 +9,157 @@ import type { Capstone, ConceptCard, Exercise, ParsonsExercise, Track } from './
  * up as a concept chip that opens nothing. A silent hole in the learning path.
  */
 
+/**
+ * Names that belong to the language, the framework or the protocol rather than
+ * to an exercise. A prompt may lean on these without showing them, because the
+ * user is expected to arrive already knowing them.
+ */
+const BUILTIN_NAMES = new Set([
+  // JavaScript values, arrays, objects, strings
+  'indexOf',
+  'lastIndexOf',
+  'forEach',
+  'includes',
+  'toString',
+  'valueOf',
+  'unshift',
+  'splice',
+  'slice',
+  'concat',
+  'flatMap',
+  'localeCompare',
+  'Array',
+  'Object',
+  'String',
+  'Number',
+  'Boolean',
+  'Symbol',
+  'BigInt',
+  'Set',
+  'Map',
+  'WeakMap',
+  'WeakSet',
+  'Promise',
+  'Math',
+  'Date',
+  'JSON',
+  'RegExp',
+  'Error',
+  'TypeError',
+  'Infinity',
+  'NaN',
+  'setTimeout',
+  'setInterval',
+  'clearTimeout',
+  'clearInterval',
+  'queueMicrotask',
+  'structuredClone',
+  'parseInt',
+  'parseFloat',
+  'localStorage',
+  'sessionStorage',
+  'XMLHttpRequest',
+  'AbortController',
+  // React
+  'useState',
+  'useEffect',
+  'useMemo',
+  'useCallback',
+  'useRef',
+  'useReducer',
+  'useContext',
+  'useLayoutEffect',
+  'useTransition',
+  'createContext',
+  'StrictMode',
+  'Suspense',
+  'Fragment',
+  'onChange',
+  'onClick',
+  'onSubmit',
+  'onInput',
+  'onBlur',
+  'onFocus',
+  'defaultValue',
+  'dangerouslySetInnerHTML',
+  // HTTP and the web platform
+  'GET',
+  'POST',
+  'PUT',
+  'PATCH',
+  'DELETE',
+  'OPTIONS',
+  'HEAD',
+  'Cache-Control',
+  'Content-Type',
+  'ETag',
+  'SameSite',
+  'CORS',
+  // SQL
+  'SELECT',
+  'INSERT',
+  'UPDATE',
+  'WHERE',
+  'GROUP',
+  'ORDER',
+  'HAVING',
+  'LIMIT',
+  'OFFSET',
+  'JOIN',
+  'LEFT',
+  'INNER',
+  'COUNT',
+  'SUM',
+  'EXPLAIN',
+]);
+
+/** Backticked `camelCase` or `PascalCase` names, which always name code. */
+function codeNamesIn(text: string): string[] {
+  const names: string[] = [];
+  for (const [, quoted] of text.matchAll(/`([^`]+)`/g)) {
+    const name = quoted.trim();
+    if (!/^[A-Za-z_$][A-Za-z0-9_$]*$/.test(name)) continue;
+    const isCamel = /[a-z][A-Z]/.test(name);
+    const isPascal = name[0] === name[0].toUpperCase() && name !== name.toLowerCase();
+    if (isCamel || isPascal) names.push(name);
+  }
+  return names;
+}
+
+/**
+ * Everything an exercise puts in front of the user *before* they answer.
+ *
+ * `whyWrong` and `explanation` are deliberately absent: they only appear once
+ * the question has been answered, so they cannot introduce a name the question
+ * itself depends on.
+ */
+function shownBeforeAnswering(exercise: Exercise): string {
+  const parts: string[] = [];
+  if (exercise.code) parts.push(exercise.code.source);
+  switch (exercise.type) {
+    case 'mcq':
+    case 'ladder':
+      parts.push(...exercise.options.map((o) => o.text));
+      break;
+    case 'parsons':
+      parts.push(...exercise.lines.map((l) => l.code));
+      break;
+    case 'blank':
+      parts.push(exercise.template, ...exercise.bank);
+      break;
+    case 'match':
+      parts.push(...exercise.pairs.flatMap((p) => [p.left, p.right]));
+      break;
+    case 'steps':
+      parts.push(...exercise.steps);
+      break;
+    case 'complexity':
+      parts.push(exercise.answer, ...(exercise.optionSet ?? []));
+      break;
+  }
+  return parts.join('\n');
+}
+
 export interface ContentBundle {
   tracks: Track[];
   exercises: Exercise[];
@@ -46,6 +197,17 @@ export function findContentProblems({
         if (typeof variant !== 'string' || !variant.trim()) {
           problems.push(`${exercise.id} has a blank prompt variant`);
         }
+      }
+    }
+
+    // A prompt must not name code the user cannot see. Sessions shuffle
+    // presentation order, so an exercise can never borrow a snippet from the
+    // one authored before it (docs/09).
+    const visible = shownBeforeAnswering(exercise);
+    for (const prompt of [exercise.prompt, ...(exercise.promptVariants ?? [])]) {
+      for (const name of codeNamesIn(prompt)) {
+        if (BUILTIN_NAMES.has(name) || visible.includes(name)) continue;
+        problems.push(`${exercise.id} prompt names \`${name}\`, which the exercise never shows`);
       }
     }
 
