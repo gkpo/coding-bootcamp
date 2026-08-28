@@ -6,7 +6,7 @@ Duolingo for coding interviews: 5-minute daily reps on your phone that turn inte
 
 ## The user
 
-A senior full stack engineer: 10+ years of experience, confident on real-world problems, applying to full stack roles. Single-user by design for now. Tuned for one person's daily practice, not a classroom. The gap it closes is not engineering ability but the _meta-game_:
+Anyone training for coding interviews, with content currently tuned to full stack JS/TS roles. Single-user by design for now: built for one person's daily practice, not a classroom. The premise: interview performance is a skill of its own, separate from engineering ability, and like any skill it is built and kept sharp with regular repetitions. The reps target:
 
 1. **Pattern blindness under pressure.** Given "make change for an amount with these coin denominations", you invent an ad-hoc loop instead of recognizing "this is the greedy pattern (and its dynamic-programming sibling when greedy fails)". Interviews reward recognizing the problem's _shape_ in the first 60 seconds.
 2. **Vocabulary gaps.** You can see a function is inefficient, but the interviewer is waiting for the words "it grows linearly / it's O(n)". Interviewers often score you on saying the canonical term.

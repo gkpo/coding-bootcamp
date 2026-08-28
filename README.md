@@ -1,12 +1,12 @@
 # Interview Reps
 
-A Duolingo-style, mobile-first training app for coding interviews. For experienced full stack engineers who are great at the job and rusty at the _interview game_. Five-minute daily sessions on your phone, no code typing, focused on the patterns, vocabulary and reflexes interviews actually test.
+A Duolingo-style, mobile-first training app for coding interviews. Five-minute daily sessions on your phone, no code typing: regular repetitions of the patterns, vocabulary and reflexes interviews actually test, until they are second nature.
 
 **→ [gkpo.github.io/coding-bootcamp](https://gkpo.github.io/coding-bootcamp/)**. Installable to a home screen, works offline.
 
 ## The problem this app solves
 
-Experienced engineers lose coding interviews for reasons that have nothing to do with engineering ability:
+Coding interviews are lost for reasons that have nothing to do with engineering ability:
 
 - **Pattern blindness under pressure.** You attack "make change for an amount" with an ad-hoc loop instead of recognizing the known _greedy_ pattern, and burn the interview on the wrong approach.
 - **Vocabulary gaps.** You can see a function is slow, but the interviewer is waiting for the phrase **"it grows linearly"**. That's a vocabulary failure, not a knowledge failure.

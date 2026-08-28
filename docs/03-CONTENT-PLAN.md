@@ -269,4 +269,4 @@ _(Count note: a few cards serve two tracks; total distinct cards ≈ 45 in this 
 
 ## Lesson grouping
 
-Within each track, group exercises into **lessons of 3–5** in manifest order (the order above is pedagogical). Lesson names are authored freely (e.g. Track 2: "Greedy, and where it breaks", "Splitting a message", "Windows & pointers"). Tracks unlock nothing. Everything is available from day one; the daily session just defaults to the frontier. No artificial gating: the user is a senior engineer, not a student.
+Within each track, group exercises into **lessons of 3–5** in manifest order (the order above is pedagogical). Lesson names are authored freely (e.g. Track 2: "Greedy, and where it breaks", "Splitting a message", "Windows & pointers"). Tracks unlock nothing. Everything is available from day one; the daily session just defaults to the frontier. No artificial gating: everything stays open, and the daily session supplies the structure.
