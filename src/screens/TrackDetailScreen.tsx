@@ -39,7 +39,8 @@ export function TrackDetailScreen() {
       <div className="stack">
         <h1 className="screen-title">Not found</h1>
         <Link to="/tracks" className="track-detail__back">
-          <BackIcon /> All tracks
+          <BackIcon size={20} />
+          <span>All tracks</span>
         </Link>
       </div>
     );
@@ -51,7 +52,8 @@ export function TrackDetailScreen() {
   return (
     <div className="stack">
       <Link to="/tracks" className="track-detail__back">
-        <BackIcon /> All tracks
+        <BackIcon size={20} />
+        <span>All tracks</span>
       </Link>
       <div>
         <h1 className="screen-title track-detail__title">
