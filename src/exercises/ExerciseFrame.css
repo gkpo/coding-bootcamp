@@ -11,6 +11,17 @@
   gap: var(--sp-3);
 }
 
+/* Names the muscle the rep trains, in the same micro-label style the answer
+   areas use (.parsons__label, .options__label), so it reads as a section
+   marker rather than as part of the question. */
+.frame__kicker {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
 .frame__question {
   font-size: 17px;
   line-height: 1.5;
