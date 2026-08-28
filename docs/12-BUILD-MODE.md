@@ -295,6 +295,17 @@ Concepts: `queues-jobs`, `replication`, `indexes` (resolve against `concepts.ts`
 - **M-BM4, refinements (F1 + F2).** The `eachConnected` op with tests and trace behavior; the c5-01 check changes and tidiness bonus; the `debrief` field authored for c5-01 and c9-01; `canonicalBuild` in the engine; the reference-build panel on stage clear and on the summary. Acceptance: replaying c5-01 stage 2 with one cache-less server now fails with the unwired server highlighted; the debrief panel is unreachable before a stage clears; lint, tests and build pass.
 - **M-BM5, capstones three and four (F3).** c8-01 and c9-02 authored with debriefs, passing `validateCapstone`; track 8's path shows its first capstone station. Acceptance: both completable end to end at 390x844; content tests scan them; no code changes beyond content unless the station rendering genuinely needs one.
 
+## Part G: watch it run (v1.6)
+
+The green run is the mode's best moment, and today it plays exactly once per stage. Users want to replay it for pure satisfaction, and satisfaction is a legitimate feature (docs/00: an app that does not get opened teaches nothing).
+
+- In a stage's **cleared** state (the clear line is showing, "Next stage" or the finish is available), a ghost button "Watch it run" sits with the stage-clear controls. Tapping it replays the full visual run on the current build over every check authored so far: rings empty, the packet convoy walks each route, rings refill, the final cascade plays. It is theater on demand, so: **no sound, no haptics, no XP, no persisted change of any kind**, and grading is not re-consulted for state (re-planning the run from the build is fine, it is pure).
+- Repeatable without limit; the button disables while a run is animating (replay or original).
+- Reduced motion: the button does not render. There is nothing to watch; rings already resolve by fade.
+- Scope stays the capstone screen's cleared state. If reopening a completed capstone lands on a playable final-stage cleared state, the button is simply there too; do not build a separate summary replay in this wave.
+
+Milestone **M-BM6**: Part G alone. Acceptance: replay changes nothing in localStorage; a replay is silent; the packet driver and ring animations are reused, not duplicated; lint, tests and build pass.
+
 ## V2 ideas (do NOT build now)
 
 Drag placement from tray to lane (tap stays the co-equal path; edge drawing stays tap-tap); directed edges with arrowheads and direction-aware predicates; a failure drill (tap a part to kill it and re-run the checks); capstone entries in the review pile; freeform check authoring beyond the eight ops.
