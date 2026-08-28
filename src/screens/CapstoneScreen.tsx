@@ -417,19 +417,6 @@ function CapstoneRun({ capstone }: { capstone: Capstone }) {
               >
                 {debriefOpen ? 'Hide the reference build' : 'See the reference build'}
               </Button>
-              {/* The run again, for the pleasure of it. Nothing is graded,
-                  banked or saved by it, so it stays a ghost beside the
-                  debrief rather than competing with the stage's next step. */}
-              {canWatchAgain && (
-                <Button
-                  variant="ghost"
-                  className="capstone__cleared-tool"
-                  onClick={watchAgain}
-                  disabled={running}
-                >
-                  Watch it run
-                </Button>
-              )}
             </div>
           )}
         </section>
@@ -452,6 +439,11 @@ function CapstoneRun({ capstone }: { capstone: Capstone }) {
             drawings are on screen together and the user scrolls between them
             instead of switching (docs/12 part F2). */}
         {cleared && debriefOpen && <ReferencePanel capstone={capstone} stageIndex={stageIndex} />}
+
+        {/* The parts sit against the board they are going onto, so the hand
+            travels the shortest distance between picking one up and putting
+            it down, and both ends of a placement are in one glance. */}
+        <Tray counts={tray} armed={placing} arriving={arriving} onTap={tapTray} />
 
         <div className="capstone__tools">
           {history.length > 0 && (
@@ -506,11 +498,17 @@ function CapstoneRun({ capstone }: { capstone: Capstone }) {
           sayItFor={stage.checks.map((check) => check.id)}
           cascade={cleared}
         />
-
-        <Tray counts={tray} armed={placing} arriving={arriving} onTap={tapTray} />
       </main>
 
       <footer className="capstone__cta">
+        {/* The run again, for the pleasure of it, beside the way on rather
+            than above it: nothing is graded, banked or saved by it, so it
+            takes the quieter half of the bar and none of the board's room. */}
+        {canWatchAgain && (
+          <Button variant="secondary" onClick={watchAgain} disabled={running}>
+            Watch it run
+          </Button>
+        )}
         <Button onClick={cleared ? goOn : runIt} quiet disabled={running}>
           {cleared ? (isFinalStage ? 'Finish' : 'Next stage') : 'Run it'}
         </Button>

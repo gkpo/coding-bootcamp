@@ -97,14 +97,12 @@
   }
 }
 
-/* What a cleared stage offers under the line that clears it: read the
-   reference build, or watch the run again. Ghost links rather than buttons,
-   because the stage is already won and neither is the next thing to press. */
+/* What a cleared stage offers under the line that clears it: the reference
+   build. A ghost link rather than a button, because the stage is already won
+   and this is not the next thing to press. */
 .capstone__cleared-tools {
   display: flex;
   flex-wrap: wrap;
-  /* Tighter between rows than along one: side by side they are two offers,
-     stacked they are a short list, and 16px of air would read as a gap. */
   gap: var(--sp-1) var(--sp-4);
 }
 
@@ -185,7 +183,21 @@
      document is not enough to beat that. Without this the tray's last row
      scrolled straight over the button that grades the board. */
   z-index: 6;
+  display: flex;
+  gap: var(--sp-3);
   padding: var(--sp-3) var(--gutter);
   padding-bottom: calc(var(--sp-3) + env(safe-area-inset-bottom));
   background: linear-gradient(to bottom, transparent, var(--bg) var(--sp-3));
+}
+
+/* One button fills the bar; two split it down the middle, the replay on the
+   left and the way on where the single button has always been. Equal halves
+   rather than a wide primary and a narrow second: at 390 a narrow half cannot
+   hold its own label, and the variants already say which one leads. */
+.capstone__cta > .btn {
+  flex: 1 1 0;
+  min-width: 0;
+  /* The full 20px of side padding leaves a half-width button too little room
+     for its label; the label is the button here, not the air around it. */
+  padding: 0 var(--sp-2);
 }
