@@ -53,14 +53,6 @@
   color: var(--accent-text);
 }
 
-.feedback__why {
-  align-self: flex-start;
-  min-height: 44px;
-  color: var(--info);
-  font-weight: 600;
-  font-size: var(--fs-secondary);
-}
-
 .feedback__cta {
   margin-top: var(--sp-1);
 }
