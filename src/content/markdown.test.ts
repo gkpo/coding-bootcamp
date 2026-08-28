@@ -56,6 +56,7 @@ function userVisibleStrings(): { where: string; text: string }[] {
     capstone.stages.forEach((stage, s) => {
       out.push({ where: `${capstone.id}.stages[${s}].requirement`, text: stage.requirement });
       out.push({ where: `${capstone.id}.stages[${s}].clearLine`, text: stage.clearLine });
+      out.push({ where: `${capstone.id}.stages[${s}].debrief`, text: stage.debrief });
       for (const check of stage.checks) {
         const at = `${capstone.id}.${check.id}`;
         out.push({ where: `${at}.label`, text: check.label });

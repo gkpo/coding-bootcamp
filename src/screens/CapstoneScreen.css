@@ -97,6 +97,16 @@
   }
 }
 
+/* The way into the debrief, under the line that clears the stage. A ghost
+   link rather than a button: the stage is already won, and this is an offer
+   to read on rather than the next thing to press. */
+.capstone__debrief {
+  align-self: flex-start;
+  width: auto;
+  min-height: 44px;
+  padding: 0;
+}
+
 .capstone__blocked {
   font-size: var(--fs-secondary);
   line-height: 1.5;

@@ -185,6 +185,12 @@ export interface CapstoneStage extends StageSpec {
   checks: CapstoneCheck[];
   /** Shown on stage clear, interviewer voice. */
   clearLine: string;
+  /**
+   * The reference build explained: why this shape is the usual answer and
+   * what each part of it buys, in 1-3 plain sentences. Read only after the
+   * stage has been cleared (docs/12 part F2).
+   */
+  debrief: string;
 }
 
 export interface Capstone extends CapstoneSpec {

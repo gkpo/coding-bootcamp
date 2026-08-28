@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '../components/Button';
 import { RichText } from '../components/RichText';
@@ -6,7 +6,8 @@ import { FlameIcon } from '../components/icons';
 import { ConceptIcon } from '../components/ConceptIcon';
 import { useCountUp } from '../components/useCountUp';
 import { BuildRender } from '../capstone/BuildRender';
-import { getCard, getExercise } from '../content';
+import { ReferenceSheet } from '../capstone/ReferenceSheet';
+import { getCapstone, getCard, getExercise } from '../content';
 import type { Build } from '../engine/archgraph';
 import type { Result } from '../engine/leitner';
 import { playTone, vibrate } from '../engine/feedback';
@@ -24,7 +25,7 @@ interface SummaryState {
    * celebration is the same one; what changes is what the figures count, and
    * that a capstone pays XP without touching the streak.
    */
-  capstone?: { title: string; build: Build };
+  capstone?: { id: string; title: string; build: Build };
   /** Capstones only: the XP actually awarded, which is nothing on a replay. */
   totalXp?: number;
 }
@@ -34,6 +35,7 @@ export function SessionSummaryScreen() {
   const state = (useLocation().state ?? null) as SummaryState | null;
   const sound = useStore((s) => s.settings.sound);
   const haptics = useStore((s) => s.settings.haptics);
+  const [debriefOpen, setDebriefOpen] = useState(false);
 
   // This is the one moment in the app that has earned the full cue, so it gets
   // it, once, on arrival. The ref is what keeps it to once: StrictMode runs
@@ -67,6 +69,7 @@ export function SessionSummaryScreen() {
   }
 
   const { streakDays, toughestId, conceptIds, capstone } = state;
+  const builtCapstone = capstone ? getCapstone(capstone.id) : undefined;
   const toughest = toughestId ? getExercise(toughestId) : undefined;
   const cards = conceptIds.map((id) => getCard(id)).filter((c) => c !== undefined);
 
@@ -126,7 +129,27 @@ export function SessionSummaryScreen() {
         <section className="card summary__build">
           <h2 className="summary__label">What you built</h2>
           <BuildRender build={capstone.build} />
+          {/* The debrief, reachable only from here: the capstone is finished,
+              so the reference build has nothing left to give away. */}
+          {builtCapstone && (
+            <Button
+              variant="ghost"
+              className="summary__debrief"
+              onClick={() => setDebriefOpen(true)}
+            >
+              See the reference build
+            </Button>
+          )}
         </section>
+      )}
+
+      {builtCapstone && (
+        <ReferenceSheet
+          capstone={builtCapstone}
+          stageIndex={builtCapstone.stages.length - 1}
+          open={debriefOpen}
+          onClose={() => setDebriefOpen(false)}
+        />
       )}
 
       {toughest && (

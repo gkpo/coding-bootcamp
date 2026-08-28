@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  canonicalBuild,
   canPlace,
   emptyBuild,
   evaluate,
@@ -563,6 +564,72 @@ describe('runMoves', () => {
     expect(problems).toEqual([
       'x-06 stage 1 check "early" connects server to db, which changes nothing',
     ]);
+  });
+});
+
+describe('canonicalBuild', () => {
+  /** Two stages, the second of which moves a connection the first drew. */
+  const capstone: CapstoneSpec = {
+    id: 'x-09',
+    stages: [
+      {
+        prePlaced: ['client'],
+        tray: [{ kind: 'server', count: 1 }],
+        checks: [
+          {
+            id: 's1-api',
+            when: { op: 'path', from: 'client', to: 'server' },
+            hintMoves: [{ place: 'server' }, { connect: ['client', 'server'] }],
+          },
+        ],
+      },
+      {
+        tray: [{ kind: 'lb', count: 1 }],
+        checks: [
+          {
+            id: 's2-lb',
+            when: { op: 'pathVia', from: 'client', to: 'server', via: 'lb' },
+            hintMoves: [
+              { place: 'lb' },
+              { connect: ['client', 'lb'] },
+              { connect: ['lb', 'server'] },
+              { disconnect: ['client', 'server'] },
+            ],
+          },
+        ],
+      },
+    ],
+  };
+
+  it('returns the board the hints arrive at by the end of a stage', () => {
+    const stage1 = canonicalBuild(capstone, 0);
+    expect(stage1.parts.map((p) => p.kind)).toEqual(['client', 'server']);
+    expect(stage1.edges).toEqual([[1, 2]]);
+
+    const stage2 = canonicalBuild(capstone, 1);
+    expect(stage2.parts.map((p) => p.kind)).toEqual(['client', 'server', 'lb']);
+    // The direct line is gone: the reference build is the one the later
+    // stage's checks accept, not the sum of everything ever drawn.
+    expect(stage2.edges).toEqual([
+      [1, 3],
+      [2, 3],
+    ]);
+  });
+
+  it('passes every check authored up to that stage', () => {
+    capstone.stages.forEach((_, index) => {
+      const build = canonicalBuild(capstone, index);
+      const soFar = capstone.stages.slice(0, index + 1).flatMap((s) => s.checks);
+      expect(evaluate(build, soFar).every((r) => r.pass)).toBe(true);
+    });
+  });
+
+  it('stops at the last stage rather than running off the end', () => {
+    expect(canonicalBuild(capstone, 9)).toEqual(canonicalBuild(capstone, 1));
+  });
+
+  it('has nothing to draw before the first stage is played', () => {
+    expect(canonicalBuild(capstone, -1)).toEqual(emptyBuild());
   });
 });
 

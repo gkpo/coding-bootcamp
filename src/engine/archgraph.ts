@@ -551,6 +551,21 @@ export function runMoves(capstone: CapstoneSpec): CanonicalRun {
 }
 
 /**
+ * The board the author's own hints arrive at, from the start through the
+ * given stage (docs/12 part F2).
+ *
+ * The debrief sheet draws this after a stage is cleared, as the shape an
+ * interviewer usually draws rather than as the answer: grading never consults
+ * it, and nothing reaches it until the user's own build has already passed.
+ */
+export function canonicalBuild(capstone: CapstoneSpec, throughStage: number): Build {
+  if (throughStage < 0) return emptyBuild();
+  const { stageBuilds } = runMoves(capstone);
+  const last = stageBuilds.length - 1;
+  return stageBuilds[Math.min(throughStage, last)] ?? emptyBuild();
+}
+
+/**
  * Everything that has to hold for a capstone to be shippable. Problems are
  * returned rather than thrown: content/validate.ts collects them alongside
  * the rest so one broken build reports every fault at once.

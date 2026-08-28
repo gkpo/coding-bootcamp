@@ -4,6 +4,12 @@ import { PART_NAME } from './parts';
 import { planWires } from './wires';
 import './BuildRender.css';
 
+interface Props {
+  build: Build;
+  /** What the drawing is of, for a reader who cannot see it. */
+  label?: string;
+}
+
 const LANE_HEIGHT = 32;
 const CHIP = 22;
 const CHIP_RADIUS = 6;
@@ -19,8 +25,11 @@ const WIDTH = 280;
  *
  * Positions are arithmetic here rather than measured: nothing on this drawing
  * moves, and it has to render the same on a screen the user never scrolled.
+ *
+ * The debrief sheet draws the reference build with the same component and its
+ * own label (docs/12 part F2), so the two pictures are the same picture.
  */
-export function BuildRender({ build }: { build: Build }) {
+export function BuildRender({ build, label = 'The system you built' }: Props) {
   const height = LANE_IDS.length * LANE_HEIGHT;
   const centres: Record<number, { x: number; y: number }> = {};
 
@@ -42,7 +51,7 @@ export function BuildRender({ build }: { build: Build }) {
       className="mini"
       viewBox={`0 0 ${WIDTH} ${height}`}
       role="img"
-      aria-label={`The system you built: ${named}`}
+      aria-label={`${label}: ${named}`}
     >
       {wires.map((wire) => (
         <path key={wire.key} className="mini__edge" d={wire.d} />

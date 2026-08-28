@@ -207,3 +207,13 @@
   background: var(--paper);
   border: 1px solid var(--paper-edge);
 }
+
+/* The way into the debrief, under the drawing it talks about (docs/12 part
+   F2). Ghost, and left-aligned with the label above it: the capstone is over,
+   so this is an offer to read on rather than a next step. */
+.summary__debrief {
+  width: auto;
+  min-height: 44px;
+  margin-top: var(--sp-2);
+  padding: 0;
+}

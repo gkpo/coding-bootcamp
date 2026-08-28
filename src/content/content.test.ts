@@ -332,6 +332,18 @@ describe('the authored capstones (docs/12)', () => {
     }
   });
 
+  it('explains the reference build of every stage in a few real sentences', () => {
+    // docs/12 part F2: the debrief is read after the stage is already won, so
+    // it has to earn the tap by saying why the shape is the usual one.
+    for (const capstone of capstones) {
+      for (const stage of capstone.stages) {
+        expect(stage.debrief.length, capstone.id).toBeGreaterThan(80);
+        const sentences = stage.debrief.split('. ').length;
+        expect(sentences, `${capstone.id}: ${stage.debrief}`).toBeLessThanOrEqual(3);
+      }
+    }
+  });
+
   it('keeps every check label short enough for a 44px row', () => {
     for (const capstone of capstones) {
       for (const stage of capstone.stages) {

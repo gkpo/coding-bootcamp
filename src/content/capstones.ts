@@ -85,6 +85,8 @@ const photoSharing: Capstone = {
       ],
       clearLine:
         'That is the shape of most apps: something to talk to, somewhere to keep the records, somewhere to put the big files.',
+      debrief:
+        'Almost every app starts as these four boxes. The API sits in the middle so there is one place that checks who is asking for what, and the photos themselves stay out of the database, which keeps the rows small and the reads quick.',
     },
     {
       requirement:
@@ -145,6 +147,8 @@ const photoSharing: Capstone = {
       ],
       clearLine:
         'That is the standard read-heavy answer, and you got there before I had to ask for it.',
+      debrief:
+        'Two servers behind one door is what scaling out looks like: the load balancer hands each request to whichever server is free, so more traffic means one more server rather than a rewrite. The cache answers the popular photos from memory, and both servers are wired to it, because a request that lands on the server without it would still be waiting on the database.',
     },
     {
       requirement:
@@ -230,6 +234,8 @@ const photoSharing: Capstone = {
       ],
       clearLine:
         'That is the whole system, and every piece of it went on the board because something made you put it there.',
+      debrief:
+        'The queue and the worker cut the upload in two. The API takes the file, writes down a job and answers straight away, and the worker makes the thumbnails in its own time. Nothing else on the board changed shape, which is the lesson: slow work moves off the path the user is waiting on, rather than the design being redrawn around it.',
     },
   ],
 };
@@ -317,6 +323,8 @@ const flashSale: Capstone = {
       ],
       clearLine:
         'Good. The spike lands on the queue instead of the database, and nothing gets dropped on the floor.',
+      debrief:
+        'The queue is what makes the rush survivable. Accepting an order onto it takes a moment, so the customer gets an order id straight away, and the worker writes the orders down at whatever pace the database can take. Reads stay direct, because a product page has nothing to wait for.',
     },
     {
       requirement:
@@ -389,6 +397,8 @@ const flashSale: Capstone = {
       ],
       clearLine:
         'The reads are off the primary and the writes are paced. That is a checkout that survives ten on a Friday.',
+      debrief:
+        'Two fixes for two different reads. The cache answers the same few popular pages from memory, and the replica, a copy of the database that keeps itself up to date, takes the reads that still get through, which leaves the main database free to work through the orders.',
     },
   ],
 };

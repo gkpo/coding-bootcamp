@@ -320,6 +320,7 @@ const capstone = (over: Partial<Capstone> = {}): Capstone => ({
         }),
       ],
       clearLine: 'That is the shape of it.',
+      debrief: 'The API sits in the middle so one place decides who may read what.',
     },
     {
       requirement: 'Now take ten times the traffic.',
@@ -343,6 +344,7 @@ const capstone = (over: Partial<Capstone> = {}): Capstone => ({
         }),
       ],
       clearLine: 'That is the standard answer.',
+      debrief: 'The cache answers the popular reads, so the database sees far fewer of them.',
     },
   ],
   ...over,
@@ -417,6 +419,14 @@ describe('capstones (docs/12)', () => {
       hintMoves: [],
     });
     expect(findContentProblems(bundle({ capstones: [budgeted] }))).toEqual([]);
+  });
+
+  it('catches a stage with nothing to say once it is cleared', () => {
+    const silent = capstone();
+    silent.stages[1].debrief = '   ';
+    expect(findContentProblems(bundle({ capstones: [silent] })).join('\n')).toContain(
+      'c1-01 stage 2 has no debrief',
+    );
   });
 
   it('catches two checks sharing an id, which would collide in the strip', () => {
