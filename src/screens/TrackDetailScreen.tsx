@@ -1,9 +1,12 @@
+import { useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { getCard, getExercise, getTrack } from '../content';
 import { useStore } from '../store/useStore';
 import { ConceptIcon } from '../components/ConceptIcon';
+import { ProgressBar } from '../components/ProgressBar';
+import { ScreenBar } from '../components/ScreenBar';
 import { seenFill } from '../components/progressFill';
-import { BackIcon, CheckIcon } from '../components/icons';
+import { CheckIcon } from '../components/icons';
 import { isMastered, type ExerciseProgress } from '../engine/leitner';
 import type { ConceptCard, Lesson, TrackId } from '../content/types';
 import './TracksScreen.css';
@@ -33,15 +36,14 @@ export function TrackDetailScreen() {
   const { trackId } = useParams<{ trackId: TrackId }>();
   const track = trackId ? getTrack(trackId) : undefined;
   const progress = useStore((s) => s.exercises);
+  const trackTally = useStore((s) => s.trackTally);
+  const titleRef = useRef<HTMLHeadingElement>(null);
 
   if (!track) {
     return (
       <div className="stack">
+        <ScreenBar to="/tracks" label="Tracks" watch={titleRef} />
         <h1 className="screen-title">Not found</h1>
-        <Link to="/tracks" className="track-detail__back">
-          <BackIcon size={20} />
-          <span>All tracks</span>
-        </Link>
       </div>
     );
   }
@@ -51,12 +53,19 @@ export function TrackDetailScreen() {
 
   return (
     <div className="stack">
-      <Link to="/tracks" className="track-detail__back">
-        <BackIcon size={20} />
-        <span>All tracks</span>
-      </Link>
+      <ScreenBar to="/tracks" label="Tracks" watch={titleRef}>
+        <span className="screen-bar__icon" style={{ color: colour }}>
+          <ConceptIcon name={track.icon} size={18} />
+        </span>
+        <span className="screen-bar__title">{track.title}</span>
+        <ProgressBar
+          className="screen-bar__meter"
+          tally={trackTally(track.id)}
+          trackId={track.id}
+        />
+      </ScreenBar>
       <div>
-        <h1 className="screen-title track-detail__title">
+        <h1 className="screen-title track-detail__title" ref={titleRef}>
           <span style={{ color: colour }}>
             <ConceptIcon name={track.icon} size={24} />
           </span>

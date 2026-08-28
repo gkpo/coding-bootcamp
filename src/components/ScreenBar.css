@@ -1,0 +1,101 @@
+/* ---------------------------------------------------------------------------
+   The detail-screen bar (docs/06 §Core components)
+
+   It breaks out of .app-main's padding with negative margins so the surface
+   runs edge to edge, and takes the screen's top padding as its own height:
+   the content underneath starts exactly where it did before.
+   --------------------------------------------------------------------------- */
+
+.screen-bar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  height: 52px;
+  margin: calc(-1 * var(--sp-5)) calc(-1 * var(--gutter)) 0;
+  /* The chevron carries its own padding, so the row is inset by that much
+     less on the left and the glyph still lines up with the gutter. */
+  padding: 0 var(--gutter) 0 calc(var(--gutter) - var(--sp-2));
+  background: var(--bg);
+  border-bottom: 1px solid transparent;
+  transition: border-color var(--dur-standard) var(--ease);
+}
+
+/* Frosted only where the browser can actually frost. Without the fallback the
+   bar would be a see-through band with text scrolling through it. */
+@supports (backdrop-filter: blur(14px)) {
+  .screen-bar {
+    background: color-mix(in srgb, var(--bg) 90%, transparent);
+    backdrop-filter: blur(14px);
+  }
+}
+
+/* The hairline only appears once something has scrolled under the bar. At the
+   top of a screen there is nothing to divide. */
+.screen-bar.is-past {
+  border-bottom-color: var(--border);
+}
+
+.screen-bar__back {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  min-height: 44px;
+  padding: 0 var(--sp-2);
+  border-radius: var(--r-code);
+  color: var(--text);
+  font-size: var(--fs-body);
+  font-weight: 600;
+  transition: background var(--dur-micro) var(--ease);
+}
+
+.screen-bar__back:active {
+  background: var(--surface-2);
+}
+
+.screen-bar__back:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.screen-bar__context {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--fs-secondary);
+  font-weight: 600;
+  opacity: 0;
+  transform: translateY(4px);
+  transition:
+    opacity var(--dur-standard) var(--ease),
+    transform var(--dur-standard) var(--ease);
+}
+
+.screen-bar.is-past .screen-bar__context {
+  opacity: 1;
+  transform: none;
+}
+
+.screen-bar__title {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.screen-bar__icon {
+  flex: 0 0 auto;
+  display: flex;
+}
+
+/* Placement only. The bar's two fills live in ProgressBar.css. */
+.screen-bar__meter {
+  flex: 0 0 auto;
+  width: 44px;
+  margin-left: auto;
+}
