@@ -2,10 +2,6 @@ import { type FlowStep, type RunPlan } from './flowRun';
 import { PACKETS, opacityOf, planPackets, progressOf } from './packets';
 import type { PartKind } from '../engine/archgraph';
 
-/** Per hop, and per check with nothing to walk. The docs/12 micro duration. */
-export const HOP_MS = 150;
-export const REST_MS = 150;
-
 /**
  * How many packet elements the board keeps.
  *
@@ -32,10 +28,10 @@ export interface PlayOptions {
   /**
    * How long that drawn connection is, in pixels.
    *
-   * The route is flown at a constant speed in distance, so the packets need
-   * to know which hops are the long ones. Given a flat time per hop instead,
-   * a packet crosses a short connection slowly and a long one fast, and
-   * visibly lurches at every part on the way.
+   * Traffic moves at a fixed speed, so a route's length is what decides both
+   * how long its check takes and where each packet is at any moment. Given a
+   * flat time per hop instead, a packet crosses a short connection slowly and
+   * a long one fast, and lurches at every part on the way.
    */
   lengthOf: (from: PartKind, to: PartKind) => number | null;
   /** The packet elements. Written to directly: they are the things moving. */
@@ -79,12 +75,9 @@ export function playRun({
   onResolve,
   onFinish,
 }: PlayOptions): () => void {
-  const timeline = planPackets(plan, {
-    hopMs: HOP_MS,
-    restMs: REST_MS,
-    packets: !reduceMotion,
-  });
-
+  // Measured first, planned second: at a constant speed a route's length is
+  // what decides how long its check takes, so the geometry has to be in hand
+  // before there is a schedule at all.
   const legs: Leg[] = plan.steps.map((step) => {
     const hops = hopsOf(step.route);
     const lengths = hops.map(([a, b]) => lengthOf(a, b) ?? span(positionOf(a), positionOf(b)));
@@ -95,6 +88,12 @@ export function playRun({
       anchor: step.route.length > 0 ? positionOf(step.route[0]) : null,
     };
   });
+
+  const timeline = planPackets(
+    plan,
+    legs.map((leg) => leg.total),
+    !reduceMotion,
+  );
 
   let frame = 0;
   let cancelled = false;

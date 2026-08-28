@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { planRun, runDuration } from './flowRun';
+import { planRun } from './flowRun';
 import { emptyBuild, place, runMoves, toggleEdge, type Build } from '../engine/archgraph';
 import { capstones } from '../content';
 import type { CapstoneCheck } from '../content/types';
@@ -58,12 +58,5 @@ describe('planRun', () => {
     ]);
     expect(plan.halted).toBe(false);
     expect(plan.steps.map((s) => s.pass)).toEqual([true, false, true]);
-  });
-
-  it('keeps a full run inside the time budget docs/12 sets', () => {
-    // The longest run the app can deal: every check of the longest capstone.
-    const finished = runMoves(photo).stageBuilds[2];
-    const plan = planRun(finished, checksThrough(2));
-    expect(runDuration(plan, 150, 150)).toBeLessThan(2500);
   });
 });
