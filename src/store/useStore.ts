@@ -9,7 +9,7 @@ import {
   type TrackTally,
 } from '../engine/leitner';
 import { completeSession as advanceStreak, decayStreak } from '../engine/streak';
-import { xpForResult, xpForStreak, XP_SESSION_COMPLETE } from '../engine/xp';
+import { xpForCapstoneStage, xpForResult, xpForStreak, XP_SESSION_COMPLETE } from '../engine/xp';
 import { todayKey } from '../engine/dates';
 import { trackExerciseIds } from '../content';
 import type { TrackId } from '../content/types';
@@ -26,6 +26,13 @@ interface StoreState extends Persisted {
 
   recordAnswer: (exerciseId: string, result: Result) => void;
   finishSession: (results: Result[]) => { xpEarned: number; streakDays: number };
+  /** A hint taken anywhere in a capstone, recorded the moment it is taken. */
+  noteCapstoneHint: (capstoneId: string) => void;
+  /** Banks a cleared stage and returns the XP it paid. */
+  clearCapstoneStage: (
+    capstoneId: string,
+    stage: { index: number; total: number; hintTaken: boolean },
+  ) => number;
   openConceptCard: (cardId: string) => void;
   setLastOpenedTrack: (trackId: TrackId) => void;
   updateSettings: (patch: Partial<Settings>) => void;
@@ -39,6 +46,10 @@ interface StoreState extends Persisted {
 
 const persist = debounce((state: Persisted) => save(state), 500);
 
+function blankCapstone() {
+  return { stagesCleared: 0, assisted: false, completedDay: null };
+}
+
 function persistable(state: StoreState): Persisted {
   return {
     schemaVersion: state.schemaVersion,
@@ -47,6 +58,7 @@ function persistable(state: StoreState): Persisted {
     streak: state.streak,
     exercises: state.exercises,
     conceptCardsOpened: state.conceptCardsOpened,
+    capstones: state.capstones,
     settings: state.settings,
   };
 }
@@ -102,6 +114,44 @@ export const useStore = create<StoreState>((set, get) => {
       return { xpEarned: bonus, streakDays: nextStreak.current };
     },
 
+    noteCapstoneHint: (capstoneId) => {
+      const state = get();
+      const before = state.capstones[capstoneId] ?? blankCapstone();
+      if (before.assisted) return;
+      commit({ capstones: { ...state.capstones, [capstoneId]: { ...before, assisted: true } } });
+    },
+
+    clearCapstoneStage: (capstoneId, stage) => {
+      const today = todayKey();
+      const state = get();
+      const before = state.capstones[capstoneId] ?? blankCapstone();
+      // A finished capstone stays replayable, and a replay pays nothing: the
+      // practice is the point, and paying twice would make it a farm.
+      const replay = before.completedDay !== null;
+      const isFinalStage = stage.index === stage.total - 1;
+      const earned = xpForCapstoneStage({ hintTaken: stage.hintTaken, isFinalStage, replay });
+
+      const after = {
+        stagesCleared: Math.max(before.stagesCleared, stage.index + 1),
+        assisted: before.assisted || stage.hintTaken,
+        completedDay: isFinalStage ? (before.completedDay ?? today) : before.completedDay,
+      };
+
+      // Capstones pay XP but do not touch the streak: the streak is the daily
+      // session's promise, and a boss level is not session material (docs/12).
+      commit({
+        capstones: { ...state.capstones, [capstoneId]: after },
+        xp:
+          earned === 0
+            ? state.xp
+            : {
+                lifetime: state.xp.lifetime + earned,
+                byDay: { ...state.xp.byDay, [today]: (state.xp.byDay[today] ?? 0) + earned },
+              },
+      });
+      return earned;
+    },
+
     openConceptCard: (cardId) => {
       const state = get();
       if (state.conceptCardsOpened.includes(cardId)) return;
@@ -122,6 +172,7 @@ export const useStore = create<StoreState>((set, get) => {
         streak: { current: 0, best: 0, lastActiveDay: null, freezes: 0 },
         exercises: {},
         conceptCardsOpened: [],
+        capstones: {},
         settings: get().settings,
       };
       commit(cleared);

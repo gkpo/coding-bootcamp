@@ -145,3 +145,19 @@ pre,
   clip-path: inset(50%);
   white-space: nowrap;
 }
+
+/* The app has one shake: a wrong answer, and now a build the checks rejected
+   (docs/06 §Motion, 250ms and 4px). Kept here rather than beside either
+   caller so the two cannot drift apart. */
+@keyframes shake-x {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-4px);
+  }
+  75% {
+    transform: translateX(4px);
+  }
+}

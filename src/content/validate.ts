@@ -1,4 +1,5 @@
-import type { ConceptCard, Exercise, Track } from './types';
+import { PART_LANES, validateCapstone, type PartKind } from '../engine/archgraph';
+import type { Capstone, ConceptCard, Exercise, Track } from './types';
 
 /**
  * Runtime checks the type system cannot express: cross-references resolving,
@@ -12,9 +13,15 @@ export interface ContentBundle {
   tracks: Track[];
   exercises: Exercise[];
   cards: ConceptCard[];
+  capstones?: Capstone[];
 }
 
-export function findContentProblems({ tracks, exercises, cards }: ContentBundle): string[] {
+export function findContentProblems({
+  tracks,
+  exercises,
+  cards,
+  capstones = [],
+}: ContentBundle): string[] {
   const problems: string[] = [];
   const cardIds = new Set(cards.map((c) => c.id));
   const exerciseIds = new Set<string>();
@@ -167,6 +174,104 @@ export function findContentProblems({ tracks, exercises, cards }: ContentBundle)
         );
       }
     }
+  }
+
+  problems.push(...findCapstoneProblems(capstones, cards, tracks));
+
+  return problems;
+}
+
+/**
+ * Capstone rules (docs/12 part B). The graph half, solvability and the hint
+ * moves matching the checks, is the engine's job; what is checked here is the
+ * authoring around it.
+ */
+function findCapstoneProblems(
+  capstones: Capstone[],
+  cards: ConceptCard[],
+  tracks: Track[],
+): string[] {
+  const problems: string[] = [];
+  const cardIds = new Set(cards.map((c) => c.id));
+  const trackIds = new Set(tracks.map((t) => t.id));
+  const seenIds = new Set<string>();
+
+  for (const capstone of capstones) {
+    if (seenIds.has(capstone.id)) problems.push(`Duplicate capstone id "${capstone.id}"`);
+    seenIds.add(capstone.id);
+
+    if (!trackIds.has(capstone.trackId)) {
+      problems.push(`${capstone.id} belongs to unknown track "${capstone.trackId}"`);
+    }
+    for (const conceptId of capstone.conceptIds) {
+      if (!cardIds.has(conceptId)) {
+        problems.push(`${capstone.id} links to unknown concept card "${conceptId}"`);
+      }
+    }
+    if (capstone.conceptIds.length === 0) {
+      problems.push(`${capstone.id} links to no concept cards`);
+    }
+    if (capstone.stages.length < 2 || capstone.stages.length > 3) {
+      problems.push(`${capstone.id} has ${capstone.stages.length} stages, expected 2–3`);
+    }
+
+    const offered = new Set<PartKind>();
+    const checkIds = new Set<string>();
+
+    capstone.stages.forEach((stage, index) => {
+      const where = `${capstone.id} stage ${index + 1}`;
+      for (const kind of stage.prePlaced ?? []) offered.add(kind);
+      for (const part of stage.tray) offered.add(part.kind);
+
+      if (!stage.requirement.trim()) problems.push(`${where} has no requirement line`);
+      if (!stage.clearLine.trim()) problems.push(`${where} has no clear line`);
+
+      const ordinary = stage.checks.filter((c) => c.bonus !== true);
+      const bonus = stage.checks.filter((c) => c.bonus === true);
+      if (ordinary.length < 2 || ordinary.length > 4) {
+        problems.push(`${where} has ${ordinary.length} ordinary checks, expected 2–4`);
+      }
+      if (bonus.length > 1) {
+        problems.push(`${where} has ${bonus.length} bonus checks, expected at most 1`);
+      }
+
+      for (const check of stage.checks) {
+        const at = `${where} check "${check.id}"`;
+        if (checkIds.has(check.id))
+          problems.push(`Duplicate check id "${check.id}" in ${capstone.id}`);
+        checkIds.add(check.id);
+
+        const words = check.label.trim().split(/\s+/).filter(Boolean);
+        if (words.length === 0) problems.push(`${at} has no label`);
+        if (words.length > 8)
+          problems.push(`${at} has a ${words.length}-word label, expected 8 or fewer`);
+
+        // A nudge that states the answer is not a nudge. Asking is the rule.
+        if (!check.hintNudge.trim().endsWith('?')) {
+          problems.push(`${at} has a level-1 hint that is not a question`);
+        }
+        if (!check.hintPoint.text.trim()) problems.push(`${at} has no level-2 hint text`);
+        if (check.hintPoint.highlight.length === 0 && check.when.op !== 'maxParts') {
+          problems.push(`${at} points at nothing on the board`);
+        }
+        for (const kind of check.hintPoint.highlight) {
+          if (!offered.has(kind)) {
+            problems.push(`${at} highlights ${kind}, which is in no tray by this stage`);
+          }
+        }
+        if (check.sayIt !== undefined && !check.sayIt.trim()) {
+          problems.push(`${at} has an empty sayIt, drop the field instead`);
+        }
+      }
+    });
+
+    for (const kind of offered) {
+      // Not a graph rule, a board rule: a lane the renderer cannot draw.
+      if (PART_LANES[kind] === undefined)
+        problems.push(`${capstone.id} offers unknown part "${kind}"`);
+    }
+
+    problems.push(...validateCapstone(capstone));
   }
 
   return problems;

@@ -1,9 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import {
   XP_AFTER_RETRY,
+  XP_CAPSTONE_COMPLETE,
+  XP_CAPSTONE_STAGE,
+  XP_CAPSTONE_STAGE_ASSISTED,
   XP_FIRST_TRY,
   XP_SESSION_COMPLETE,
   XP_STREAK_BONUS,
+  xpForCapstoneStage,
   xpForResult,
   xpForSession,
   xpForStreak,
@@ -61,5 +65,35 @@ describe('xpForSession', () => {
     const allRight = xpForSession(['right', 'right'], 1).total;
     const oneMissed = xpForSession(['right', 'wrong'], 1).total;
     expect(allRight).toBeGreaterThan(oneMissed);
+  });
+});
+
+describe('xpForCapstoneStage', () => {
+  it('pays a full stage for one cleared without a hint', () => {
+    expect(xpForCapstoneStage({ hintTaken: false, isFinalStage: false })).toBe(XP_CAPSTONE_STAGE);
+  });
+
+  it('pays the assisted rate when a hint was taken. Hints cost nothing else', () => {
+    expect(xpForCapstoneStage({ hintTaken: true, isFinalStage: false })).toBe(
+      XP_CAPSTONE_STAGE_ASSISTED,
+    );
+  });
+
+  it('pays the finishing bonus on top of the last stage, assisted or not', () => {
+    expect(xpForCapstoneStage({ hintTaken: false, isFinalStage: true })).toBe(
+      XP_CAPSTONE_STAGE + XP_CAPSTONE_COMPLETE,
+    );
+    expect(xpForCapstoneStage({ hintTaken: true, isFinalStage: true })).toBe(
+      XP_CAPSTONE_STAGE_ASSISTED + XP_CAPSTONE_COMPLETE,
+    );
+  });
+
+  it('pays nothing for a replay. The practice is the point, not the number', () => {
+    expect(xpForCapstoneStage({ hintTaken: false, isFinalStage: true, replay: true })).toBe(0);
+  });
+
+  it('stays on the same scale as answering an exercise', () => {
+    expect(XP_CAPSTONE_STAGE).toBe(XP_FIRST_TRY);
+    expect(XP_CAPSTONE_STAGE_ASSISTED).toBe(XP_AFTER_RETRY);
   });
 });

@@ -19,12 +19,26 @@ export interface Settings {
   reduceMotion: boolean;
 }
 
+/** One per capstone the user has started (docs/12 part B). */
+export interface CapstoneProgress {
+  /** Cleared stages survive an abandon; the stage in progress restarts. */
+  stagesCleared: number;
+  /** Any hint taken anywhere in the capstone. Affects XP, nothing else. */
+  assisted: boolean;
+  completedDay: DayKey | null;
+}
+
 export interface Persisted {
   schemaVersion: number;
   xp: { lifetime: number; byDay: Record<DayKey, number> };
   streak: { current: number; best: number; lastActiveDay: DayKey | null; freezes: number };
   exercises: Record<string, ExerciseProgress>;
   conceptCardsOpened: string[];
+  /**
+   * Additive: a document saved before build mode existed simply has no key,
+   * which reconciles to an empty record, so no schemaVersion bump is needed.
+   */
+  capstones: Record<string, CapstoneProgress>;
   settings: Settings;
   /** False until the intro has been seen (or skipped) once. */
   onboarded: boolean;
@@ -37,6 +51,7 @@ export function defaultPersisted(): Persisted {
     streak: { current: 0, best: 0, lastActiveDay: null, freezes: 0 },
     exercises: {},
     conceptCardsOpened: [],
+    capstones: {},
     settings: { sound: true, haptics: true, reduceMotion: false },
     onboarded: false,
   };
@@ -81,6 +96,9 @@ export function reconcile(parsed: unknown): Persisted {
     conceptCardsOpened: Array.isArray(parsed.conceptCardsOpened)
       ? parsed.conceptCardsOpened.filter((id): id is string => typeof id === 'string')
       : [],
+    capstones: isRecord(parsed.capstones)
+      ? (parsed.capstones as Record<string, CapstoneProgress>)
+      : {},
     settings: {
       sound: typeof settings.sound === 'boolean' ? settings.sound : true,
       haptics: typeof settings.haptics === 'boolean' ? settings.haptics : true,

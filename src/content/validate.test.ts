@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { findContentProblems, type ContentBundle } from './validate';
-import type { ConceptCard, Exercise, McqExercise, Track } from './types';
+import type { Capstone, CapstoneCheck, ConceptCard, Exercise, McqExercise, Track } from './types';
 
 const card = (over: Partial<ConceptCard> = {}): ConceptCard => ({
   id: 'big-o',
@@ -279,6 +279,159 @@ describe('prompt variants', () => {
     const exercises = [mcq({ promptVariants: [] }), mcq({ id: 't1-02' }), mcq({ id: 't1-03' })];
     expect(findContentProblems(bundle({ exercises }))).toContain(
       't1-01 has an empty promptVariants list, drop the field instead',
+    );
+  });
+});
+
+const check = (over: Partial<CapstoneCheck> = {}): CapstoneCheck => ({
+  id: 'k1',
+  label: 'The app reaches an API',
+  when: { op: 'path', from: 'client', to: 'server' },
+  hintNudge: 'What is the phone supposed to be talking to?',
+  hintPoint: { highlight: ['server'], text: 'The compute lane is empty.' },
+  hintMoves: [{ place: 'server' }, { connect: ['client', 'server'] }],
+  ...over,
+});
+
+const capstone = (over: Partial<Capstone> = {}): Capstone => ({
+  id: 'c1-01',
+  trackId: 't1',
+  title: 'A small system',
+  scenario: 'Build me something.',
+  icon: 'blocks',
+  conceptIds: ['big-o'],
+  stages: [
+    {
+      requirement: 'Get the basics working.',
+      prePlaced: ['client'],
+      tray: [
+        { kind: 'server', count: 1 },
+        { kind: 'db', count: 1 },
+      ],
+      checks: [
+        check(),
+        check({
+          id: 'k2',
+          label: 'Records sit behind the API',
+          when: { op: 'pathVia', from: 'client', to: 'db', via: 'server' },
+          hintNudge: 'Who checks that this person is allowed to read it?',
+          hintPoint: { highlight: ['db'], text: 'The database belongs behind the server.' },
+          hintMoves: [{ place: 'db' }, { connect: ['server', 'db'] }],
+        }),
+      ],
+      clearLine: 'That is the shape of it.',
+    },
+    {
+      requirement: 'Now take ten times the traffic.',
+      tray: [{ kind: 'cache', count: 1 }],
+      checks: [
+        check({
+          id: 'k3',
+          label: 'Hot reads come from memory',
+          when: { op: 'edge', a: 'server', b: 'cache' },
+          hintNudge: 'Does the database need to answer the same question twice?',
+          hintPoint: { highlight: ['cache'], text: 'Nothing is holding the popular answers.' },
+          hintMoves: [{ place: 'cache' }, { connect: ['server', 'cache'] }],
+        }),
+        check({
+          id: 'k4',
+          label: 'More than one server',
+          when: { op: 'placed', kind: 'server' },
+          hintNudge: 'How many machines is that?',
+          hintPoint: { highlight: ['server'], text: 'The compute lane has room.' },
+          hintMoves: [],
+        }),
+      ],
+      clearLine: 'That is the standard answer.',
+    },
+  ],
+  ...over,
+});
+
+describe('capstones (docs/12)', () => {
+  const withCapstone = (over: Partial<Capstone> = {}) =>
+    findContentProblems(bundle({ capstones: [capstone(over)] }));
+
+  it('accepts a well-formed one', () => {
+    expect(withCapstone()).toEqual([]);
+  });
+
+  it('catches a link to a concept card that does not exist', () => {
+    expect(withCapstone({ conceptIds: ['caching'] })).toContain(
+      'c1-01 links to unknown concept card "caching"',
+    );
+  });
+
+  it('catches a capstone on a track that does not exist', () => {
+    expect(withCapstone({ trackId: 't7' })).toContain('c1-01 belongs to unknown track "t7"');
+  });
+
+  it('catches a one-stage capstone. A capstone that never grows is an exercise', () => {
+    const one = capstone();
+    one.stages = [one.stages[0]];
+    expect(findContentProblems(bundle({ capstones: [one] }))).toContain(
+      'c1-01 has 1 stages, expected 2–3',
+    );
+  });
+
+  it('catches a stage with a single check', () => {
+    const thin = capstone();
+    thin.stages[1].checks = [thin.stages[1].checks[0]];
+    expect(findContentProblems(bundle({ capstones: [thin] })).join('\n')).toContain(
+      'has 1 ordinary checks, expected 2–4',
+    );
+  });
+
+  it('catches a label too long to sit in a check row', () => {
+    const wordy = capstone();
+    wordy.stages[0].checks[0].label = 'The application on the phone can reach an API server';
+    expect(findContentProblems(bundle({ capstones: [wordy] })).join('\n')).toContain(
+      'has a 10-word label, expected 8 or fewer',
+    );
+  });
+
+  it('catches a level-1 hint that answers instead of asking', () => {
+    const told = capstone();
+    told.stages[0].checks[0].hintNudge = 'Place a server and wire the client to it.';
+    expect(findContentProblems(bundle({ capstones: [told] })).join('\n')).toContain(
+      'has a level-1 hint that is not a question',
+    );
+  });
+
+  it('catches a level-2 hint pointing at a part no tray offers', () => {
+    const lost = capstone();
+    lost.stages[0].checks[0].hintPoint = { highlight: ['cdn'], text: 'Look over here.' };
+    expect(findContentProblems(bundle({ capstones: [lost] })).join('\n')).toContain(
+      'highlights cdn, which is in no tray by this stage',
+    );
+  });
+
+  it('lets a budget check point at nothing in particular', () => {
+    const budgeted = capstone();
+    budgeted.stages[1].checks[1] = check({
+      id: 'k4',
+      label: 'Four parts, nothing spare',
+      when: { op: 'maxParts', n: 4 },
+      hintNudge: 'Is anything up there doing nothing?',
+      hintPoint: { highlight: [], text: 'Something on the board is not earning its place.' },
+      hintMoves: [],
+    });
+    expect(findContentProblems(bundle({ capstones: [budgeted] }))).toEqual([]);
+  });
+
+  it('catches two checks sharing an id, which would collide in the strip', () => {
+    const clashing = capstone();
+    clashing.stages[1].checks[0].id = 'k1';
+    expect(findContentProblems(bundle({ capstones: [clashing] })).join('\n')).toContain(
+      'Duplicate check id "k1" in c1-01',
+    );
+  });
+
+  it('runs the engine solvability check too, so a broken hint cannot ship', () => {
+    const unsolvable = capstone();
+    unsolvable.stages[0].checks[1].hintMoves = [{ place: 'db' }];
+    expect(findContentProblems(bundle({ capstones: [unsolvable] })).join('\n')).toContain(
+      'c1-01 check "k2" is red after stage 1',
     );
   });
 });

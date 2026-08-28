@@ -1,0 +1,104 @@
+/* The check strip: one row per requirement, its ring the whole verdict. */
+
+.checks {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.check {
+  padding: var(--sp-2) var(--sp-3);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  /* Pill at the 44px resting height, and still a sane shape once a hint or a
+     say-it line has pushed the row taller. */
+  border-radius: 22px;
+}
+
+.check__row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  min-height: 28px;
+}
+
+/* The same ring the mcq options use, for the same reason: the state has to
+   read from the markers alone, without reading a word. */
+.check__ring {
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border);
+  border-radius: var(--r-pill);
+  transition:
+    border-color var(--dur-micro) var(--ease),
+    background-color var(--dur-micro) var(--ease);
+}
+
+.check__label {
+  flex: 1 1 auto;
+  font-size: var(--fs-body);
+  line-height: 1.35;
+}
+
+/* Stage cleared: every ring confirms in turn, and nothing blooms. The board
+   has already told the story; this is the full stop on it. */
+.checks.is-cleared .check.is-pass .check__ring {
+  animation: ring-confirm var(--dur-micro) var(--ease) both;
+}
+
+@keyframes ring-confirm {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.12);
+  }
+}
+
+.check.is-pass .check__ring {
+  border-color: var(--success);
+  background: var(--success);
+  box-shadow: inset 0 0 0 3px var(--surface);
+}
+
+.check.is-fail .check__ring {
+  border-color: var(--danger);
+  background: var(--danger);
+  box-shadow: inset 0 0 0 3px var(--surface);
+}
+
+.check.is-fail {
+  border-color: color-mix(in srgb, var(--danger) 35%, var(--border));
+}
+
+/* The one row carrying a hint button grows to fit it: 44px is the floor for
+   anything a thumb has to find, and a 36px button beside a 44px row was the
+   easier-looking of the two wrong answers. */
+.check__hint {
+  flex: 0 0 auto;
+  width: auto;
+  min-height: 44px;
+  padding: 0 var(--sp-3);
+  font-size: var(--fs-secondary);
+}
+
+.check__hint-text,
+.check__say {
+  padding: var(--sp-1) 0 0 calc(20px + var(--sp-3));
+  font-size: var(--fs-secondary);
+  line-height: 1.5;
+  color: var(--text-dim);
+}
+
+.check__hint-text--moves {
+  color: var(--text);
+}
+
+.check__say {
+  color: var(--success);
+}

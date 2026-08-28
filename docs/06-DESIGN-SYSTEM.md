@@ -97,6 +97,7 @@ Contrast: all text/background pairs must pass WCAG AA (the values above do; keep
   Pressing an option tints its border and ring `--accent` for as long as the finger is down. That is a press receipt, not a verdict, so it does not break the rule above: without it a tap that landed and a tap that did not look identical.
 - **Bottom sheet** (concept card in-session): rounded-top 20px, drag handle, scrim `rgba(0,0,0,.5)`, spring-in 250ms.
 - **Tab bar:** 5 items, inline SVG icons 24px, active = `--accent-text` icon + 11px label (the darker step; small glyphs need more weight than a fill does), inactive `--text-dim`; respects safe-area bottom inset; hidden during sessions.
+- **Build mode board, chips and flow dot:** see docs/12 part D; the motion tokens and restraint rules above govern it.
 - **Code block:** `--surface-2`, 12px radius, 12px padding, mono 13.5, highlight theme matched to this palette (tune a Shiki/hljs _light_ theme's bg to `--surface-2`; keep token colors in the deep range of the track colors, no neon-on-white).
 
 ## Motion

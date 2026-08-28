@@ -1,5 +1,16 @@
 import { describe, expect, it } from 'vitest';
-import { cards, cardsForTrack, exercises, getCard, getExercise, trackExerciseIds } from './index';
+import {
+  capstones,
+  capstonesForTrack,
+  cards,
+  cardsForTrack,
+  exercises,
+  getCapstone,
+  getCard,
+  getExercise,
+  trackExerciseIds,
+} from './index';
+import { validateCapstone } from '../engine/archgraph';
 import { findContentProblems } from './validate';
 import { composeSession } from '../engine/sessionComposer';
 import type { ExerciseProgress } from '../engine/leitner';
@@ -12,7 +23,7 @@ import { tracks } from './index';
 
 describe('the authored content', () => {
   it('passes every validation rule', () => {
-    expect(findContentProblems({ tracks, exercises, cards })).toEqual([]);
+    expect(findContentProblems({ tracks, exercises, cards, capstones })).toEqual([]);
   });
 
   it('has the full manifest: 190 exercises across 9 tracks', () => {
@@ -97,8 +108,11 @@ describe('the authored concept cards', () => {
     }
   });
 
-  it('is reachable from an exercise, no orphan cards', () => {
-    const linked = new Set(exercises.map((e) => e.conceptId));
+  it('is reachable from an exercise or a capstone, no orphan cards', () => {
+    const linked = new Set([
+      ...exercises.map((e) => e.conceptId),
+      ...capstones.flatMap((c) => c.conceptIds),
+    ]);
     const orphans = cards.filter((c) => !linked.has(c.id)).map((c) => c.id);
     expect(orphans.join(', ')).toBe('');
   });
@@ -279,5 +293,100 @@ describe('one concept, several skins (docs/09)', () => {
     // Making change is canon and stays, but in exactly one exercise.
     const change = greedy.filter((e) => /banknote|coin/i.test(e.prompt));
     expect(change.map((e) => e.id)).toEqual(['t2-02']);
+  });
+});
+
+describe('the authored capstones (docs/12)', () => {
+  it('ships the two the spec calls for, on their own tracks', () => {
+    expect(capstones.map((c) => c.id)).toEqual(['c5-01', 'c9-01']);
+    expect(capstonesForTrack('t5').map((c) => c.id)).toEqual(['c5-01']);
+    expect(capstonesForTrack('t9').map((c) => c.id)).toEqual(['c9-01']);
+    expect(getCapstone('c5-01')?.title).toBe('The photo-sharing app');
+  });
+
+  it('is solvable by following its own hints, every stage of it', () => {
+    // The point of the canonical run: a capstone that ships can be finished
+    // by a user who takes every level-3 hint, and no check contradicts an
+    // earlier one along the way.
+    for (const capstone of capstones) {
+      expect(validateCapstone(capstone), capstone.id).toEqual([]);
+    }
+  });
+
+  it('links every capstone to cards that resolve', () => {
+    for (const capstone of capstones) {
+      expect(capstone.conceptIds.length, capstone.id).toBeGreaterThan(0);
+      for (const conceptId of capstone.conceptIds) {
+        expect(getCard(conceptId), `${capstone.id} links to ${conceptId}`).toBeDefined();
+      }
+    }
+  });
+
+  it('asks something of the user in every stage, and says something back', () => {
+    for (const capstone of capstones) {
+      expect(capstone.scenario.length, capstone.id).toBeGreaterThan(80);
+      for (const stage of capstone.stages) {
+        expect(stage.requirement.length, capstone.id).toBeGreaterThan(60);
+        expect(stage.clearLine.length, capstone.id).toBeGreaterThan(30);
+      }
+    }
+  });
+
+  it('keeps every check label short enough for a 44px row', () => {
+    for (const capstone of capstones) {
+      for (const stage of capstone.stages) {
+        for (const check of stage.checks) {
+          expect(
+            check.label.split(/\s+/).length,
+            `${capstone.id}: ${check.label}`,
+          ).toBeLessThanOrEqual(8);
+        }
+      }
+    }
+  });
+
+  it('nudges with a question and never with the answer', () => {
+    for (const capstone of capstones) {
+      for (const stage of capstone.stages) {
+        for (const check of stage.checks) {
+          expect(check.hintNudge.trim().endsWith('?'), `${capstone.id}: ${check.id}`).toBe(true);
+          expect(check.hintPoint.text.length, `${capstone.id}: ${check.id}`).toBeGreaterThan(20);
+        }
+      }
+    }
+  });
+
+  it('argues against every decoy it offers', () => {
+    const decoys = capstones.flatMap((c) =>
+      c.stages.flatMap((s) => s.tray.filter((p) => p.decoy === true).map((p) => p.kind)),
+    );
+    expect(decoys).toEqual(['replica', 'blob']);
+    for (const capstone of capstones) {
+      const forbidden = capstone.stages
+        .flatMap((s) => s.checks)
+        .filter((c) => c.when.op === 'notPlaced')
+        .map((c) => (c.when.op === 'notPlaced' ? c.when.kind : null));
+      const offered = capstone.stages.flatMap((s) =>
+        s.tray.filter((p) => p.decoy === true).map((p) => p.kind),
+      );
+      for (const kind of offered) expect(forbidden, capstone.id).toContain(kind);
+    }
+  });
+
+  it('gives the vocabulary checks a sentence to say out loud', () => {
+    // The whole production-side point: the user leaves able to narrate the
+    // diagram, not just draw it.
+    for (const capstone of capstones) {
+      const checks = capstone.stages.flatMap((s) => s.checks);
+      const withSayIt = checks.filter((c) => (c.sayIt?.length ?? 0) > 30);
+      expect(withSayIt.length, capstone.id).toBe(checks.length);
+    }
+  });
+
+  it('holds exactly one bonus check, and it never blocks a stage', () => {
+    const bonuses = capstones.flatMap((c) =>
+      c.stages.flatMap((s) => s.checks.filter((check) => check.bonus === true)),
+    );
+    expect(bonuses.map((b) => b.id)).toEqual(['f2-bonus']);
   });
 });

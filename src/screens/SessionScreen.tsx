@@ -22,6 +22,7 @@ import { todayKey } from '../engine/dates';
 import { useStore } from '../store/useStore';
 import { playTone, vibrate } from '../engine/feedback';
 import { CloseIcon } from '../components/icons';
+import { ConfirmDialog } from '../components/ConfirmDialog';
 import './SessionScreen.css';
 
 type Answered = { outcome: Outcome; whyWrong?: string } | null;
@@ -205,22 +206,14 @@ export function SessionScreen() {
       </main>
 
       {confirmExit && (
-        <div className="confirm-layer">
-          <div className="confirm" role="dialog" aria-modal="true">
-            <p className="confirm__title">Leave this session?</p>
-            <p className="confirm__body">
-              The answers you have already given are kept. The rest of the session is discarded.
-            </p>
-            <div className="confirm__actions">
-              <button type="button" className="confirm__stay" onClick={() => setConfirmExit(false)}>
-                Keep going
-              </button>
-              <button type="button" className="confirm__leave" onClick={() => navigate('/')}>
-                Leave
-              </button>
-            </div>
-          </div>
-        </div>
+        <ConfirmDialog
+          title="Leave this session?"
+          body="The answers you have already given are kept. The rest of the session is discarded."
+          stayLabel="Keep going"
+          leaveLabel="Leave"
+          onStay={() => setConfirmExit(false)}
+          onLeave={() => navigate('/')}
+        />
       )}
     </div>
   );

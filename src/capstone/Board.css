@@ -1,0 +1,164 @@
+/* The board and the parts on it (docs/12 part C). */
+
+.board {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-card);
+  overflow: hidden;
+}
+
+/* One layer for every line, under the chips and deaf to taps: the chips are
+   the targets, the lines are the record of what the taps did. */
+.board__edges {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.board__edge {
+  stroke: var(--text-dim);
+  stroke-width: 2;
+  stroke-linecap: round;
+  opacity: 0.55;
+}
+
+.lane {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  height: 60px;
+  padding: 0 var(--sp-3);
+}
+
+.lane + .lane {
+  border-top: 1px solid var(--border);
+}
+
+.lane__label {
+  /* Wide enough for "Compute" on one line. A label that overflows its column
+     ends up a pixel from the first chip in a lane holding three. */
+  flex: 0 0 auto;
+  width: 64px;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+/* Parts space themselves. Three to a lane is the cap, which is what
+   guarantees a lane never has to scroll on a 390px screen. */
+.lane__parts {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+}
+
+.part {
+  position: relative;
+  z-index: 2;
+  flex: 0 0 auto;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--text);
+  transition:
+    border-color var(--dur-micro) var(--ease),
+    box-shadow var(--dur-micro) var(--ease);
+}
+
+.part__label {
+  font-size: 12px;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  color: var(--text-dim);
+}
+
+/* Armed. A ring rather than a lift or a scale: the chip has not moved, it is
+   waiting for the second tap that says what to do with it. The inset keeps
+   the 2px inside the 56px, so nothing shifts by a pixel when it arms. */
+.part.is-armed {
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+/* The part a failed run stopped on. One shake and one colour, then silence:
+   the miss reads as a shrug, exactly like a wrong option does. */
+.part.is-hit {
+  border-color: var(--danger);
+  box-shadow: inset 0 0 0 1px var(--danger);
+  animation: shake-x var(--dur-standard) var(--ease);
+}
+
+.part.is-pointed {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+.lane.is-pointed::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: 12px;
+  border: 2px solid color-mix(in srgb, var(--accent) 25%, transparent);
+  pointer-events: none;
+}
+
+/* The lane a part belongs in, with no room left in it. A neutral ring rather
+   than the accent one: the accent ring promises that a tap will place
+   something, and this lane cannot keep that promise. */
+.lane.is-full::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: 12px;
+  border: 2px solid color-mix(in srgb, var(--text-dim) 25%, transparent);
+  pointer-events: none;
+}
+
+/* The flow dot: the one new moving element in the app (docs/12 part D). Its
+   transform is written by the run driver rather than by React, so a run costs
+   no re-renders. */
+.board__dot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 4;
+  width: 8px;
+  height: 8px;
+  margin: -4px 0 0 -4px;
+  border-radius: var(--r-pill);
+  background: var(--accent);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* The place target. It covers its lane while a tray part is armed, so the
+   whole 60px band is the tap, and only the lane the part is allowed into
+   reacts at all. */
+.lane__drop {
+  position: absolute;
+  inset: 3px;
+  z-index: 3;
+  border-radius: 12px;
+  border: 2px solid color-mix(in srgb, var(--accent) 25%, transparent);
+  background: color-mix(in srgb, var(--accent) 6%, transparent);
+}
+
+.lane__drop:active {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { hasUnrenderedMarkers, stripMarkdown } from '../engine/markdown';
-import { cards, exercises } from './index';
+import { capstones, cards, exercises } from './index';
 
 /**
  * Content is authored with a tiny markdown subset (**bold**, *italic*, `code`).
@@ -50,8 +50,35 @@ function userVisibleStrings(): { where: string; text: string }[] {
     );
   }
 
+  for (const capstone of capstones) {
+    out.push({ where: `${capstone.id}.title`, text: capstone.title });
+    out.push({ where: `${capstone.id}.scenario`, text: capstone.scenario });
+    capstone.stages.forEach((stage, s) => {
+      out.push({ where: `${capstone.id}.stages[${s}].requirement`, text: stage.requirement });
+      out.push({ where: `${capstone.id}.stages[${s}].clearLine`, text: stage.clearLine });
+      for (const check of stage.checks) {
+        const at = `${capstone.id}.${check.id}`;
+        out.push({ where: `${at}.label`, text: check.label });
+        out.push({ where: `${at}.hintNudge`, text: check.hintNudge });
+        out.push({ where: `${at}.hintPoint`, text: check.hintPoint.text });
+        if (check.sayIt) out.push({ where: `${at}.sayIt`, text: check.sayIt });
+      }
+    });
+  }
+
   return out;
 }
+
+describe('the strings this file guards', () => {
+  it('reaches the capstones as well as the exercises and the cards', () => {
+    // Guards against a new content file quietly escaping the em-dash and
+    // markdown rules by never being enumerated here.
+    const where = userVisibleStrings().map((s) => s.where);
+    expect(where.some((w) => w.startsWith('c5-01.'))).toBe(true);
+    expect(where.some((w) => w.startsWith('c9-01.'))).toBe(true);
+    expect(where.some((w) => w === 'c5-01.s3-budget.hintNudge')).toBe(true);
+  });
+});
 
 describe('authored markdown', () => {
   it('leaves no unrendered markers in any user-visible string', () => {

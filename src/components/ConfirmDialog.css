@@ -1,0 +1,61 @@
+/* The leave-this-behind dialog, shared by the session player and the capstone
+   board. Both are full-screen flows with work in progress, and both need the
+   same question asked the same way. */
+
+.confirm-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--gutter);
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.confirm {
+  width: 100%;
+  max-width: 340px;
+  background: var(--surface);
+  border-radius: var(--r-card);
+  padding: var(--sp-5);
+  box-shadow: var(--shadow-sheet);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.confirm__title {
+  font-size: var(--fs-heading);
+  font-weight: 700;
+}
+
+.confirm__body {
+  color: var(--text-dim);
+  font-size: var(--fs-secondary);
+  line-height: 1.5;
+}
+
+.confirm__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  margin-top: var(--sp-3);
+}
+
+.confirm__stay {
+  min-height: 48px;
+  border-radius: var(--r-button);
+  background: var(--accent);
+  color: var(--on-accent);
+  /* Matches .btn: the label has to be large and bold to clear 3:1 on the
+     accent fill, and this is a primary action, so it should look like one. */
+  font-size: 19px;
+  font-weight: 800;
+}
+
+.confirm__leave {
+  min-height: 44px;
+  color: var(--text-dim);
+  font-weight: 600;
+}
