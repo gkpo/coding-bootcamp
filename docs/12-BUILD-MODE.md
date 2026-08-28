@@ -426,6 +426,10 @@ Milestone **M-BM6**: Part G alone. Acceptance: replay changes nothing in localSt
 - **M-BM7, library wave one.** The `difficulty` field with its station display, and c5-02, c8-02, c8-03 authored with debriefs, passing `validateCapstone`. Acceptance: content tests scan the new entries; the station shows difficulty; lint, tests, build pass.
 - **M-BM8, library wave two.** c5-03, c9-03, c9-04 authored with debriefs, passing `validateCapstone`. Acceptance: same bar; the c9-02/c9-04 sayIt contrast is present in both directions.
 
+## Parked: how the library is organized (decided later, as a whole)
+
+The per-track split is known to be thin: `trackId` is consumed only by the track path's station rendering, and the content is all one full-stack language (the login rush is system design shelved in t8, the read storm is caching shelved in t5). The user wants this rethought as one design, not patched: no "Builds" shelf, no re-shelving, no new entry points, and nothing new keying off `trackId` until that discussion happens. Candidate ingredients when it does: stations as track endings versus one cross-track library view, browsing by difficulty and family, `trackId` demoted formally to "home path". Until then, new capstones keep being placed on their most-related track's path.
+
 ## V2 ideas (do NOT build now)
 
 Drag placement from tray to lane (tap stays the co-equal path; edge drawing stays tap-tap); directed edges with arrowheads and direction-aware predicates; a failure drill (tap a part to kill it and re-run the checks); capstone entries in the review pile; freeform check authoring beyond the eight ops.
