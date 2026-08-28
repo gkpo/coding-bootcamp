@@ -29,16 +29,17 @@ interface Props {
 
 /**
  * The shared chrome every exercise type sits inside: prompt, optional code,
- * the "?" concept chip, the answer area, and "I'm not sure".
+ * the concept chip, the answer area, and "I'm not sure".
  *
- * The "?" chip opens the concept card *without* failing the exercise. Reading
+ * The chip opens the concept card *without* failing the exercise. Reading
  * before answering is encouraged. This is a learning app, not an exam.
  *
- * It carries no label, because the concept's name is often the answer: on
- * "name the pattern" exercises a chip reading "Sliding window" or "Guard
- * clauses" hands over the option to pick, and everywhere else it decodes the
+ * Its label names the object, not the concept. That distinction is the whole
+ * rule: the concept's name is often the answer, so a chip reading "Sliding
+ * window" or "Guard clauses" would hand over the option to pick and decode the
  * interviewer's riddle before the user has had a go at it (docs/00, gap 3).
- * The help is still one tap away; it is just no longer given away unasked.
+ * "Concept card" gives away nothing and still tells a first-time user what one
+ * tap gets them, which an unlabelled glyph never did.
  */
 export function ExerciseFrame({
   exercise,
@@ -65,13 +66,9 @@ export function ExerciseFrame({
           <RichText text={promptFor(exercise, seed)} />
         </p>
         {card && (
-          <button
-            type="button"
-            className="chip chip--concept"
-            aria-label="Open the concept card for this exercise"
-            onClick={openSheet}
-          >
+          <button type="button" className="chip chip--concept" onClick={openSheet}>
             <HelpIcon size={20} />
+            Concept card
           </button>
         )}
       </div>

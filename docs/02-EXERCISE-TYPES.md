@@ -1,6 +1,6 @@
 # 02, Exercise types
 
-Eight mechanics, all touch-only. Each is a distinct renderer component keyed by `type` (see data schemas). Shared frame for all types: prompt area (may include a syntax-highlighted code block), the "?" concept chip, answer area, "I'm not sure" button, feedback panel.
+Eight mechanics, all touch-only. Each is a distinct renderer component keyed by `type` (see data schemas). Shared frame for all types: prompt area (may include a syntax-highlighted code block), the concept chip, answer area, "I'm not sure" button, feedback panel.
 
 Code blocks: mobile-legible mono font ≥ 13px, horizontal scroll _within the block_ if needed, max ~18 visible lines (taller blocks scroll vertically inside the block). Syntax highlighting via a lightweight highlighter (see architecture doc).
 

@@ -5,7 +5,7 @@ import type { ConceptCard, Exercise, Track } from './types';
  * ids being unique, per-type invariants holding.
  *
  * Content bugs must be loud (docs/04). A typo'd conceptId would otherwise show
- * up as a "?" chip that opens nothing. A silent hole in the learning path.
+ * up as a concept chip that opens nothing. A silent hole in the learning path.
  */
 
 export interface ContentBundle {

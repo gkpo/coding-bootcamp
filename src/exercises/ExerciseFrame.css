@@ -36,15 +36,44 @@
   font-weight: 600;
 }
 
-/* Icon only, so it never spells out the concept the exercise is asking for. */
+/* The label names the format, never the concept: "Concept card" gives away
+   nothing about the answer, where a chip reading "Sliding window" would hand
+   over the option to pick. Icon only was the safer version of that rule and
+   went too far, an unlabelled 20px glyph reads as punctuation left over from
+   the question rather than as a way into a whole cheat sheet.
+
+   It wears the primary button's underside so it presses like every other
+   control in the app. Same recipe, one third the travel, because this is a
+   44px chip rather than a 52px button. */
 .chip--concept {
-  width: 44px;
-  height: 44px;
+  --chip-drop: 3px;
   min-height: 44px;
-  padding: 0;
-  justify-content: center;
+  padding: 0 var(--sp-4) 0 var(--sp-3);
   background: var(--info-bg);
   color: var(--info);
+  box-shadow:
+    inset 0 0 0 1px var(--info-edge),
+    0 var(--chip-drop) 0 var(--info-edge);
+  transform: translateY(0);
+  transition:
+    transform var(--dur-micro) var(--ease),
+    box-shadow var(--dur-micro) var(--ease);
+}
+
+.chip--concept:active {
+  transform: translateY(var(--chip-drop));
+  box-shadow: inset 0 0 0 1px var(--info-edge);
+}
+
+/* Same rule as the button: the underside is shape, the travel is motion. */
+@media (prefers-reduced-motion: reduce) {
+  .chip--concept:active {
+    transform: none;
+  }
+}
+
+:root[data-reduce-motion='true'] .chip--concept:active {
+  transform: none;
 }
 
 .frame__answers {
