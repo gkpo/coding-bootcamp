@@ -217,15 +217,22 @@ export function Board({
 function useExitingWires(build: Build, wires: WirePlan[]): WirePlan[] {
   const [exiting, setExiting] = useState<WirePlan[]>([]);
   const previous = useRef<WirePlan[]>(wires);
+  const latest = useRef<WirePlan[]>(wires);
+  latest.current = wires;
+  // Which wires there are, not which array they arrived in. planWires returns
+  // a fresh array every render, so depending on the array itself re-ran this
+  // effect on every render, and its cleanup cancelled the removal it had just
+  // scheduled: the wire came off the build and stayed on the board forever.
+  const present = wires.map((w) => w.key).join(' ');
 
   useEffect(() => {
-    const present = new Set(wires.map((w) => w.key));
+    const here = new Set(latest.current.map((w) => w.key));
     const placed = new Set(build.parts.map((p) => p.id));
     const gone = previous.current.filter(
       // A wire whose part left the board goes with it, unmourned.
-      (w) => !present.has(w.key) && placed.has(w.a) && placed.has(w.b),
+      (w) => !here.has(w.key) && placed.has(w.a) && placed.has(w.b),
     );
-    previous.current = wires;
+    previous.current = latest.current;
     if (gone.length === 0) return;
 
     setExiting((current) => [...current, ...gone]);
@@ -235,7 +242,7 @@ function useExitingWires(build: Build, wires: WirePlan[]): WirePlan[] {
       motionOff() ? 0 : MICRO,
     );
     return () => clearTimeout(timer);
-  }, [build.parts, wires]);
+  }, [present, build.parts]);
 
   return exiting;
 }
