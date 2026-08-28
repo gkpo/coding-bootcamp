@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
+  clearedCue,
   CUES,
   DEFAULT_TUNING,
   playNotes,
@@ -361,5 +362,76 @@ describe('playNotes tuning', () => {
       tailSeconds: 1.1,
       sparkle: 1,
     });
+  });
+});
+
+describe('clearedCue', () => {
+  const STEP = 0.045;
+  /** The climb is the notes before the landing chunk's three. */
+  const clings = (rings: number) => clearedCue(rings, STEP).notes.slice(0, -3);
+  /** The held note the climb resolves onto: the loudest of the last three. */
+  const landing = (rings: number) =>
+    clearedCue(rings, STEP)
+      .notes.slice(-3)
+      .reduce((top, n) => (n.level > top.level ? n : top));
+
+  it('plays one cling per green ring, then the landing', () => {
+    expect(clings(3)).toHaveLength(3);
+    expect(clings(5)).toHaveLength(5);
+  });
+
+  it('climbs, every cling higher than the one before', () => {
+    const freqs = clings(6).map((n) => n.freq);
+    freqs.forEach((f, i) => {
+      if (i > 0) expect(f).toBeGreaterThan(freqs[i - 1]);
+    });
+    expect(landing(6).freq).toBeGreaterThan(freqs[freqs.length - 1]);
+  });
+
+  it('paces the clings to the cascade stagger, landing after the last', () => {
+    const cue = clearedCue(4, STEP);
+    cue.notes.slice(0, 4).forEach((n, i) => expect(n.at).toBeCloseTo(i * STEP, 8));
+    expect(landing(4).at).toBeCloseTo(4 * STEP, 8);
+  });
+
+  it('always resolves onto the same held note, however long the strip', () => {
+    expect(landing(2).freq).toBe(landing(8).freq);
+    // Held: the landing rings far longer than any cling.
+    expect(landing(8).dur).toBeGreaterThan(1);
+  });
+
+  it('survives strips beyond the ladder, and a strip of one', () => {
+    expect(clings(1)).toHaveLength(1);
+    const capped = clings(40).length;
+    expect(capped).toBeGreaterThan(2);
+    expect(capped).toBeLessThan(20);
+    const freqs = clings(40).map((n) => n.freq);
+    freqs.forEach((f, i) => {
+      if (i > 0) expect(f).toBeGreaterThan(freqs[i - 1]);
+    });
+  });
+
+  it('reuses a room length the app already generates', () => {
+    const lengths = Object.values(CUES).map((c) => c.tuning.tailSeconds);
+    expect(lengths).toContain(clearedCue(3, STEP).tuning.tailSeconds);
+  });
+
+  it('stays quieter than the session-complete fanfare', () => {
+    const loudest = (notes: Note[]) =>
+      notes.reduce((max, n) => Math.max(max, n.sparkle ? 0 : n.level), 0);
+    const cue = clearedCue(5, STEP);
+    expect(loudest(cue.notes) * cue.tuning.level).toBeLessThanOrEqual(
+      loudest(CUES.complete.notes) * CUES.complete.tuning.level,
+    );
+  });
+
+  it('is played through playNotes like any other cue', () => {
+    const ctx = stubAudio();
+    const cue = clearedCue(3, STEP);
+    playNotes(cue.notes, true, cue.tuning);
+    expect(ctx.createOscillator).toHaveBeenCalled();
+    const silent = stubAudio();
+    playNotes(cue.notes, false, cue.tuning);
+    expect(silent.createOscillator).not.toHaveBeenCalled();
   });
 });

@@ -5,7 +5,7 @@ import { wireKey } from '../capstone/wires';
 import { CheckStrip, type CheckState } from '../capstone/CheckStrip';
 import { ReferencePanel } from '../capstone/ReferencePanel';
 import { Tray } from '../capstone/Tray';
-import { planRun } from '../capstone/flowRun';
+import { planRun, type RunPlan } from '../capstone/flowRun';
 import { playRun } from '../capstone/playRun';
 import { replayFrom, slide, snapshotRects, type Rects } from '../capstone/flip';
 import { motionOff, STAGGER, STANDARD } from '../capstone/motion';
@@ -30,7 +30,7 @@ import {
   type CheckResult,
   type PartKind,
 } from '../engine/archgraph';
-import { playTone, vibrate } from '../engine/feedback';
+import { clearedCue, playNotes, playTone, vibrate } from '../engine/feedback';
 import type { CapstoneProgress } from '../store/persistence';
 import type { Result } from '../engine/leitner';
 import { useStore } from '../store/useStore';
@@ -259,24 +259,28 @@ function CapstoneRun({ capstone }: { capstone: Capstone }) {
 
   /**
    * One cue per run, never one per check: the run is the answer, and a sound
-   * for every ring would turn a two-second beat into a slot machine.
+   * for every ring would turn a two-second beat into a slot machine. The
+   * clear cue is still one cue; its clings just climb in time with the check
+   * strip's cascade, one note per green ring and a held landing after the
+   * last, so the strip and the jingle read as the same event.
    *
    * A replay ends here too, and ends here only: it is theatre on demand, so
    * everything that celebrates or records belongs to a real run (docs/12
    * part G).
    */
-  const finish = (halted: boolean, stoppedAtPart: number | null, replay: boolean) => {
+  const finish = (plan: RunPlan, replay: boolean) => {
     setRunning(false);
     stopRun.current = null;
     if (replay) return;
 
-    if (halted) {
-      setHitPartId(stoppedAtPart);
+    if (plan.halted) {
+      setHitPartId(plan.steps.at(-1)?.stopsAtPart ?? null);
       playTone('wrong', sound);
       vibrate('wrong', haptics);
       return;
     }
-    playTone('right', sound);
+    const jingle = clearedCue(plan.steps.filter((step) => step.pass).length, STAGGER / 1000);
+    playNotes(jingle.notes, sound, jingle.tuning);
     vibrate('right', haptics);
     // Banked here rather than inside a state updater: an updater runs during
     // render, where writing to the store is both a React warning and, under
@@ -330,7 +334,7 @@ function CapstoneRun({ capstone }: { capstone: Capstone }) {
       dots: Array.from(flowRef.current?.children ?? []) as HTMLElement[],
       reduceMotion: motionOff(),
       onResolve: (step) => setResolved((current) => ({ ...current, [step.checkId]: step.pass })),
-      onFinish: () => finish(plan.halted, plan.steps.at(-1)?.stopsAtPart ?? null, replay),
+      onFinish: () => finish(plan, replay),
     });
   };
 

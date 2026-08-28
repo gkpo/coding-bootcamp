@@ -181,6 +181,54 @@ export const CUES: Record<CueName, Cue> = {
   },
 };
 
+/**
+ * The stage-clear jingle: one short note per green ring, then a held landing
+ * note once the last ring has confirmed.
+ *
+ * Built rather than listed in `CUES` because its length is the check strip's,
+ * not a constant: the clings climb in time with the strip's cascade, so a
+ * stage with five checks earns a longer run-up than a stage with two. The
+ * climb walks the major pentatonic, which has no wrong intervals, so any
+ * slice of it resolves cleanly onto the landing note.
+ */
+
+/** C4 up to A5 in C major pentatonic. The landing note, C6, sits above it. */
+const LADDER = [261.63, 293.66, 329.63, 392, 440, 523.25, 587.33, 659.25, 783.99, 880];
+const LANDING = 1046.5;
+
+export function clearedCue(rings: number, step: number): Cue {
+  // The climb always ends on A5 so the landing lands the same way every time;
+  // a longer strip starts lower down the ladder rather than reaching higher.
+  const count = Math.min(Math.max(rings, 1), LADDER.length);
+  const climb = LADDER.slice(LADDER.length - count);
+
+  const notes: Note[] = climb.map((freq, i) => {
+    const t = count === 1 ? 1 : i / (count - 1);
+    return {
+      freq,
+      at: i * step,
+      dur: 0.14,
+      level: 0.04 + 0.006 * t,
+      spread: Math.round(6 + 4 * t),
+      send: 0.5 + 0.3 * t,
+    };
+  });
+
+  // The landing: the held note, its bright octave on top, and a root
+  // underneath, the same anatomy as the other celebration cues.
+  const at = count * step;
+  notes.push(
+    { freq: LANDING, at, dur: 1.5, level: 0.055, spread: 14, send: 1 },
+    { freq: LANDING * 2, at: at + 0.02, dur: 1, level: 0.011, spread: 22, send: 1, sparkle: true },
+    { freq: 130.81, at, dur: 0.9, level: 0.036, type: 'triangle', send: 0.25 },
+  );
+
+  // The correct answer's room, deliberately: the jingle is that cue grown up,
+  // and reusing the length means no new impulse response is ever generated
+  // for it. The session summary keeps the biggest room in the app.
+  return { notes, tuning: { level: 1, width: 0.6, tail: 0.8, tailSeconds: 2.4, sparkle: 1.6 } };
+}
+
 type AudioCtor = typeof AudioContext;
 
 interface Bus {
