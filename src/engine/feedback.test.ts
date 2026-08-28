@@ -389,14 +389,18 @@ describe('playNotes tuning', () => {
 });
 
 describe('climb and landing', () => {
-  /** The one note a ring turns green on. */
-  const note = (ring: number, rings: number) => climbNote(ring, rings).notes[0];
+  /** The rung a ring turns green on, without the sparkle stacked on top of it. */
+  const note = (ring: number, rings: number) =>
+    climbNote(ring, rings).notes.filter((n) => !n.sparkle)[0];
   /** The held note the climb resolves onto: the loudest of the landing's three. */
   const landing = () => landingCue().notes.reduce((top, n) => (n.level > top.level ? n : top));
 
-  it('plays one note per green ring, from the moment it resolves', () => {
-    expect(climbNote(0, 5).notes).toHaveLength(1);
+  it('rings a rung and its octave per green ring, from the moment it resolves', () => {
+    expect(climbNote(0, 5).notes).toHaveLength(2);
     expect(note(3, 5).at).toBe(0);
+    const sparkle = climbNote(3, 5).notes.filter((n) => n.sparkle);
+    expect(sparkle).toHaveLength(1);
+    expect(sparkle[0].freq).toBe(note(3, 5).freq * 2);
   });
 
   it('climbs, every ring higher than the one before', () => {

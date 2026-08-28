@@ -196,12 +196,14 @@ export const CUES: Record<CueName, Cue> = {
 const LADDER = [261.63, 293.66, 329.63, 392, 440, 523.25, 587.33, 659.25, 783.99, 880];
 const LANDING = 1046.5;
 
-// The correct answer's room, deliberately: the climb is that cue grown up, and
-// reusing the length means no new impulse response is ever generated for it.
-// The session summary keeps the biggest room in the app.
-const CLEARED_TUNING: Tuning = { level: 1, width: 0.6, tail: 0.8, tailSeconds: 2.4, sparkle: 1.6 };
+// A big wet room, deliberately: the climb is the correct answer's cue grown up,
+// and it wants to ring rather than beep. 3 seconds is the length the miss and
+// the session fanfare already generate, so this still costs no new impulse
+// response. The landing shares the treatment, so the whole clear, every rung
+// and the note it resolves onto, sits in the one bigger room.
+const CLEARED_TUNING: Tuning = { level: 1, width: 0.6, tail: 1, tailSeconds: 3, sparkle: 1.6 };
 
-/** One rung of the climb, played the moment its ring turns green. */
+/** One rung of the climb and its sparkle octave, played as its ring turns green. */
 export function climbNote(ring: number, rings: number): Cue {
   // The climb always ends on A5 so the landing lands the same way every time;
   // a longer strip starts lower down the ladder rather than reaching higher,
@@ -216,10 +218,21 @@ export function climbNote(ring: number, rings: number): Cue {
       {
         freq: climb[idx],
         at: 0,
-        dur: 0.2,
-        level: 0.046 + 0.006 * t,
-        spread: Math.round(6 + 4 * t),
-        send: 0.5 + 0.3 * t,
+        dur: 0.45,
+        level: 0.048 + 0.006 * t,
+        spread: Math.round(9 + 5 * t),
+        send: 0.7 + 0.3 * t,
+      },
+      // The octave on top, quiet enough to be heard as brightness rather than
+      // as a second note. This is most of what separates a chime from a beep.
+      {
+        freq: climb[idx] * 2,
+        at: 0.01,
+        dur: 0.3,
+        level: 0.009,
+        spread: Math.round(16 + 6 * t),
+        send: 1,
+        sparkle: true,
       },
     ],
     tuning: CLEARED_TUNING,
