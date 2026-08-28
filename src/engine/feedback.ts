@@ -186,10 +186,10 @@ export const CUES: Record<CueName, Cue> = {
  * note once the last ring has confirmed.
  *
  * Built rather than listed in `CUES` because its length is the check strip's,
- * not a constant: the clings climb in time with the strip's cascade, so a
- * stage with five checks earns a longer run-up than a stage with two. The
- * climb walks the major pentatonic, which has no wrong intervals, so any
- * slice of it resolves cleanly onto the landing note.
+ * not a constant: one cling per green ring at the cue's own pace, so a stage
+ * with five checks earns a longer run-up than a stage with two. The climb
+ * walks the major pentatonic, which has no wrong intervals, so any slice of
+ * it resolves cleanly onto the landing note.
  */
 
 /** C4 up to A5 in C major pentatonic. The landing note, C6, sits above it. */
@@ -207,8 +207,8 @@ export function clearedCue(rings: number, step: number): Cue {
     return {
       freq,
       at: i * step,
-      dur: 0.14,
-      level: 0.04 + 0.006 * t,
+      dur: 0.2,
+      level: 0.046 + 0.006 * t,
       spread: Math.round(6 + 4 * t),
       send: 0.5 + 0.3 * t,
     };
