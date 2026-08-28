@@ -11,33 +11,33 @@ The energy comes from **saturation and form, not from lightness**. Fully saturat
 
 ## Color tokens (CSS custom properties in `styles/tokens.css`)
 
-| Token                                        | Value                                    | Use                                                                                                                              |
-| -------------------------------------------- | ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| `--bg`                                       | `#F4F5F6`                                | App background (very light neutral grey)                                                                                         |
-| `--surface`                                  | `#FFFFFF`                                | Cards, tab bar, sheets                                                                                                           |
-| `--surface-2`                                | `#EAECEF`                                | Nested surfaces (code blocks, pressed states, bar tracks)                                                                        |
-| `--border`                                   | `#E2E5E8`                                | Hairline borders, dividers                                                                                                       |
-| `--text`                                     | `#1A1D21`                                | Primary text (near-black)                                                                                                        |
-| `--text-dim`                                 | `#5D646C`                                | Secondary text, captions (AA on all three surfaces)                                                                              |
-| `--accent`                                   | `#49970A`                                | THE accent (grass green): button fills, progress fills, streak dots and flame, the toggle's on state, active tab icon             |
-| `--accent-pressed`                           | `#37740A`                                | Pressed state, the solid underside every button sits on, and any **small** text on an accent fill (see "The large-label rule")    |
-| `--accent-text`                              | `#2F7300`                                | Accent used _as text or small icons_ on light bg. Always use this darker step for text and strokes                               |
-| `--accent-bright`                            | `#A3E635`                                | Lime. **Decoration only**: the session-summary bloom, and nothing else. Never text, never state (see "Accent split")             |
-| `--on-accent`                                | `#FFFFFF`                                | Text on accent-filled surfaces                                                                                                   |
-| `--success`                                  | `#00806C`                                | Correct answers, mastered checks. Pushed toward teal so it never reads as "the accent again" (see below)                          |
-| `--danger`                                   | `#CF2E4E`                                | Wrong answers (used gently. Border/tint, never full red panels)                                                                  |
-| `--info`                                     | `#12629E`                                | Links, and the concept chip's help mark                                                                                          |
-| `--success-bg` / `--danger-bg` / `--info-bg` | the above at ~10% opacity on `--surface` | Feedback panel tints                                                                                                             |
+| Token                                        | Value                                    | Use                                                                                                                            |
+| -------------------------------------------- | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `--bg`                                       | `#F4F5F6`                                | App background (very light neutral grey)                                                                                       |
+| `--surface`                                  | `#FFFFFF`                                | Cards, tab bar, sheets                                                                                                         |
+| `--surface-2`                                | `#EAECEF`                                | Nested surfaces (code blocks, pressed states, bar tracks)                                                                      |
+| `--border`                                   | `#E2E5E8`                                | Hairline borders, dividers                                                                                                     |
+| `--text`                                     | `#1A1D21`                                | Primary text (near-black)                                                                                                      |
+| `--text-dim`                                 | `#5D646C`                                | Secondary text, captions (AA on all three surfaces)                                                                            |
+| `--accent`                                   | `#49970A`                                | THE accent (grass green): button fills, progress fills, streak dots and flame, the toggle's on state, active tab icon          |
+| `--accent-pressed`                           | `#37740A`                                | Pressed state, the solid underside every button sits on, and any **small** text on an accent fill (see "The large-label rule") |
+| `--accent-text`                              | `#2F7300`                                | Accent used _as text or small icons_ on light bg. Always use this darker step for text and strokes                             |
+| `--accent-bright`                            | `#A3E635`                                | Lime. **Decoration only**: the session-summary bloom, and nothing else. Never text, never state (see "Accent split")           |
+| `--on-accent`                                | `#FFFFFF`                                | Text on accent-filled surfaces                                                                                                 |
+| `--success`                                  | `#00806C`                                | Correct answers, mastered checks. Pushed toward teal so it never reads as "the accent again" (see below)                       |
+| `--danger`                                   | `#CF2E4E`                                | Wrong answers (used gently. Border/tint, never full red panels)                                                                |
+| `--info`                                     | `#12629E`                                | Links, and the concept chip's help mark                                                                                        |
+| `--success-bg` / `--danger-bg` / `--info-bg` | the above at ~10% opacity on `--surface` | Feedback panel tints                                                                                                           |
 
 ### Accent split
 
 The accent is split by **job, not by hue**: `--accent` carries anything that means something, `--accent-bright` carries only decoration. Measurement forced this, and the rule is binding because breaking it silently reintroduces the exact bug it was written for. The original bright amber `#F59E0B` could do neither job on warm paper:
 
-| Where it was used   | Measured                    | What went wrong                       |
-| ------------------- | --------------------------- | ------------------------------------- |
-| Primary button fill | 1.97:1 against `--bg`       | the control never sat forward         |
+| Where it was used   | Measured                     | What went wrong                          |
+| ------------------- | ---------------------------- | ---------------------------------------- |
+| Primary button fill | 1.97:1 against `--bg`        | the control never sat forward            |
 | Progress-bar fill   | 1.85:1 against `--surface-2` | the fill was invisible against its track |
-| Toggle "on" state   | 2.15:1 against `--surface`  | the state could not be read           |
+| Toggle "on" state   | 2.15:1 against `--surface`   | the state could not be read              |
 
 Its dark-brown label passed at 7.06:1, so the button cleared AAA on paper while reading as low contrast to every actual user. **The label was never the problem.** A bright fill on a bright ground is the problem, and the only fix is to darken the fill, at which point the label flips to white.
 
@@ -97,7 +97,7 @@ Contrast: all text/background pairs must pass WCAG AA (the values above do; keep
   Pressing an option tints its border and ring `--accent` for as long as the finger is down. That is a press receipt, not a verdict, so it does not break the rule above: without it a tap that landed and a tap that did not look identical.
 - **Bottom sheet** (concept card in-session): rounded-top 20px, drag handle, scrim `rgba(0,0,0,.5)`, spring-in 250ms.
 - **Tab bar:** 5 items, inline SVG icons 24px, active = `--accent-text` icon + 11px label (the darker step; small glyphs need more weight than a fill does), inactive `--text-dim`; respects safe-area bottom inset; hidden during sessions.
-- **Build mode board, chips and flow dot:** see docs/12 part D; the motion tokens and restraint rules above govern it.
+- **Build mode board, chips and flow dot:** see docs/12 parts C and D; the motion tokens and restraint rules above govern it. The board is the one surface in the app that is not a white card: it stands in for a whiteboard, so it takes warm paper (`--paper`) with a faint dot grid, drawn connections in `--ink`, and chips as white cards with a warm edge. The paper tokens are measured against each other in `tokens.test.ts` exactly like the greys; the lane caption was drawn three steps lighter first, measured 2.51:1, and was darkened until it was legal rather than until it looked legal.
 - **Code block:** `--surface-2`, 12px radius, 12px padding, mono 13.5, highlight theme matched to this palette (tune a Shiki/hljs _light_ theme's bg to `--surface-2`; keep token colors in the deep range of the track colors, no neon-on-white).
 
 ## Motion

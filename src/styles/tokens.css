@@ -51,6 +51,29 @@
      surface (the practiced days in the streak week) rather than text. */
   --accent-bg: rgba(73, 151, 10, 0.16);
 
+  /* ---- the build-mode board (docs/12 part D) ----
+     The one surface in the app that is not a white card: a capstone board
+     stands in for a whiteboard, and warm paper under drawn ink is what says
+     so. Measured on --paper, and asserted in tokens.test.ts like every other
+     pair: --ink-strong 15.00, --ink 9.90, --paper-text 5.35, --paper-dim
+     4.68. The lane caption started three steps lighter, which looked right
+     and measured 2.51, so it was darkened until it was legal rather than
+     until it looked legal. */
+  --paper: #fbfaf7;
+  --paper-edge: #ded7c8;
+  --paper-line: #efebe1;
+  --paper-grid: #e9e4d9;
+  --ink: #43403a;
+  --ink-strong: #26231e;
+  --paper-text: #6f675a;
+  --paper-dim: #797060;
+  /* Drawn connections and their end dots: close to the chip border rather
+     than to black, which is what stops the wiring shouting over the parts it
+     joins. 3.22 on --paper, painted at full opacity so the colour that was
+     measured is the colour on screen: the same value at 55% would land near
+     1.9 and fail the same rule quietly. */
+  --wire: #948b7c;
+
   /* ---- semantic (full saturation, same rule: dark enough to mean it) ---- */
   /* Success is pushed toward teal so that "correct" never reads as merely
      "the accent again": on a green-accented app the two would blur, and the

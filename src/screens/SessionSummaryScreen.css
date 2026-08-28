@@ -200,3 +200,10 @@
   font-weight: 600;
   color: var(--text-dim);
 }
+
+/* The finished build sits on the board's own paper, not on a white card: it
+   is a picture of the whiteboard, and a white ground would lose the join. */
+.summary__build {
+  background: var(--paper);
+  border: 1px solid var(--paper-edge);
+}
