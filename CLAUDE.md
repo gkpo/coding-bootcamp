@@ -2,6 +2,10 @@
 
 You are implementing a mobile-first interview-training web app that is fully specified in `docs/`. The planning was done deliberately and in detail; your job is execution, not re-design.
 
+## Delegation
+
+Implementation work (feature builds, content authoring, refactors, bug fixes) is delegated to the `opus-implementer` agent defined in `.claude/agents/opus-implementer.md`, which runs on Opus. The top-level session coordinates: it scopes the request, delegates the build, reviews the result against the docs, and handles verification follow-ups, git, and pull requests itself. Trivial one-line answers or read-only questions do not need delegation.
+
 ## How to work in this repo
 
 1. **Read the docs in numeric order** (`docs/00-…` through `docs/07-…`) before writing any code. `docs/07-ROADMAP.md` tells you what to build in which order, with acceptance criteria per milestone.
