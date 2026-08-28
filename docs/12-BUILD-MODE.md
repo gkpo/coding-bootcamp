@@ -266,7 +266,7 @@ Concepts: `caching-headers`, `idempotency`, `http-verbs` (resolve against `conce
 - `g3-provider`: pathVia(server, ext-api, worker) [only the worker talks to the payment provider; the request thread never waits on it]. Moves: place ext-api, connect worker-ext-api.
 - `g3-decoy`: notPlaced(lb) [nothing said traffic was the problem; the reflex to scale compute is the trap]. Moves: remove lb.
 - `g3-budget`: maxParts(8) [canonical: client, cdn, server, cache, db, queue, worker, ext-api]. Moves: none.
-- `g3-bonus` (bonus): pathVia(client, db, server) [nothing reaches the database except through the app]. Moves: none.
+- `g3-bonus` (bonus): pathVia(client, db, server) [nothing reaches the database except through the app. Duplicates `g1-data`'s predicate, accepted deliberately: as a bonus it resurfaces the sentence at the moment payments arrive, with its own sayIt]. Moves: none.
 
 #### c9-02, track 9: "The analytics pipeline"
 
@@ -274,9 +274,9 @@ Concepts: `queues-jobs`, `replication`, `indexes` (resolve against `concepts.ts`
 
 **Stage 1, track events without slowing the app.** Pre-placed: `client`, `server`; pre-wired: client-server. Tray: `queue`, `worker`, `db`.
 
-- `a1-queue`: pathVia(server, worker, queue) [events are fired into a queue and forgotten]. Moves: place queue, place worker, connect server-queue, connect queue-worker.
+- `a1-queue`: edge(server, queue) [events are fired into a queue and forgotten. Specced as pathVia(server, worker, queue), but stage 2's replica wiring joins server to worker around the queue in the undirected kind graph, so pathVia would fail a correct build; the same downgrade the part E capstones carry]. Moves: place queue, place worker, connect server-queue, connect queue-worker.
 - `a1-write`: edge(worker, db) [the worker batches events into the database at its own pace]. Moves: place db, connect worker-db.
-- `a1-inline`: noEdge(server, db) [the request thread never writes analytics inline; directness is the lesson, so `noEdge` and not a route op]. Moves: disconnect server-db.
+- `a1-inline`: noEdge(server, db) [the request thread never writes analytics inline; directness is the lesson, so `noEdge` and not a route op]. Moves: none (the canonical run never draws the edge, and a no-op disconnect fails move validation; the level-3 hint falls back to `hintPoint.text`, which names the action).
 
 **Stage 2, the dashboard queries are strangling the primary.** Tray: `replica`, decoy `ext-api`.
 
