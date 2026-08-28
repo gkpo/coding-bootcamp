@@ -340,7 +340,14 @@ function CapstoneRun({ capstone }: { capstone: Capstone }) {
       lengthOf: (from, to) => wireBetween(from, to)?.getTotalLength() ?? null,
       dots: Array.from(flowRef.current?.children ?? []) as HTMLElement[],
       reduceMotion: motionOff(),
-      onResolve: (step) => setResolved((current) => ({ ...current, [step.checkId]: step.pass })),
+      // A tick as each ring turns green, trialling per-step sound against the
+      // one-cue rule that finish documents; the tap is the one cue proven to
+      // survive the shortest window. Nothing else changes: replays also pass
+      // through here, which is accepted for this experiment.
+      onResolve: (step) => {
+        setResolved((current) => ({ ...current, [step.checkId]: step.pass }));
+        if (step.pass) playTone('tap', sound);
+      },
       onFinish: () => finish(plan, replay),
     });
   };
