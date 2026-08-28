@@ -36,16 +36,19 @@
   z-index: 3;
 }
 
+/* An odd stroke width and an odd dot diameter share a centre line, so the
+   dot sits concentric on the end of its connection at any zoom. An even
+   width straddles the axis by half a pixel and the two stop agreeing. */
 .board__edge {
   fill: none;
   stroke: var(--wire);
-  stroke-width: 1.6;
+  stroke-width: 1;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
 
 .board__port {
-  fill: var(--wire);
+  fill: var(--paper-edge);
 }
 
 .lane {

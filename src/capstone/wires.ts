@@ -24,11 +24,46 @@ export interface WirePlan {
 }
 
 /**
- * How much of a chip edge the anchors may NOT spread across: enough to keep
- * them off the rounded corners, and no more. A server carrying four
- * connections is the case this is set for.
+ * The straight run of a chip edge is what the anchors spread across: past
+ * that the border is curving away, and an anchor placed by edge arithmetic
+ * alone stops being on the border at all. boundaryPoint below is what makes
+ * that a guarantee rather than an intention.
  */
-const FAN_INSET = 18;
+function fanSpan(chip: number, radius: number): number {
+  return Math.max(chip - 2 * radius, 0);
+}
+
+/**
+ * Where a ray leaving the middle of a chip crosses its rounded border.
+ *
+ * Exact, not approximate: on the flat run it is the square's edge, and around
+ * a corner it is the corner circle, solved. This is the whole reason a dot
+ * can be trusted to sit on the border however many connections a chip carries
+ * and wherever they are heading.
+ *
+ * The chip is square, which is why one half-extent is enough.
+ */
+export function boundaryPoint(half: number, radius: number, dx: number, dy: number): Point {
+  const longest = Math.max(Math.abs(dx), Math.abs(dy));
+  if (longest === 0) return { x: 0, y: 0 };
+
+  // Where the ray leaves the plain square.
+  const t = half / longest;
+  const x = dx * t;
+  const y = dy * t;
+  const flat = half - radius;
+  if (Math.abs(x) <= flat || Math.abs(y) <= flat) return { x, y };
+
+  // Past the flat run, so it leaves through a corner: meet that circle.
+  const cx = Math.sign(x) * flat;
+  const cy = Math.sign(y) * flat;
+  const a = dx * dx + dy * dy;
+  const b = -2 * (dx * cx + dy * cy);
+  const c = cx * cx + cy * cy - radius * radius;
+  const root = Math.sqrt(Math.max(b * b - 4 * a * c, 0));
+  const hit = (-b + root) / (2 * a);
+  return { x: dx * hit, y: dy * hit };
+}
 
 export function wireKey(a: number, b: number): string {
   return a < b ? `${a}-${b}` : `${b}-${a}`;
@@ -38,9 +73,10 @@ export function planWires(
   edges: [number, number][],
   centres: Record<number, Point>,
   chip: number,
+  radius: number,
 ): WirePlan[] {
   const half = chip / 2;
-  const span = Math.max(chip - FAN_INSET, 0);
+  const span = fanSpan(chip, radius);
   const anchors = new Map<string, Point>();
 
   // Group by the edge of the chip each connection leaves from, so they can be

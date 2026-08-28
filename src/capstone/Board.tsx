@@ -19,8 +19,12 @@ export interface Point {
 }
 export type Centers = Record<number, Point>;
 
-/** Matches .part in Board.css. The wire geometry needs it as a number. */
+/**
+ * Matches .part in Board.css. The wire geometry works from the chip's real
+ * size and corner radius, so a dot lands on the border rather than near it.
+ */
 const CHIP = 62;
+const CHIP_RADIUS = 14;
 
 interface Props {
   build: Build;
@@ -99,7 +103,7 @@ export function Board({
     return () => observer.disconnect();
   }, [measure]);
 
-  const wires = planWires(build.edges, centers, CHIP);
+  const wires = planWires(build.edges, centers, CHIP, CHIP_RADIUS);
   const exiting = useExitingWires(build, wires);
   const paths = useRef(new Map<string, SVGPathElement>());
   useDrawnWires(paths, wires, exiting);

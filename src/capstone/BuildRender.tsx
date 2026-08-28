@@ -6,6 +6,7 @@ import './BuildRender.css';
 
 const LANE_HEIGHT = 32;
 const CHIP = 22;
+const CHIP_RADIUS = 6;
 const WIDTH = 280;
 
 /**
@@ -33,7 +34,7 @@ export function BuildRender({ build }: { build: Build }) {
     });
   });
 
-  const wires = planWires(build.edges, centres, CHIP);
+  const wires = planWires(build.edges, centres, CHIP, CHIP_RADIUS);
   const named = build.parts.map((part) => PART_NAME[part.kind]).join(', ');
 
   return (
@@ -51,7 +52,7 @@ export function BuildRender({ build }: { build: Build }) {
         if (!at) return null;
         return (
           <g key={part.id} transform={`translate(${at.x - CHIP / 2}, ${at.y - CHIP / 2})`}>
-            <rect className="mini__chip" width={CHIP} height={CHIP} rx="6" />
+            <rect className="mini__chip" width={CHIP} height={CHIP} rx={CHIP_RADIUS} />
             <g transform={`translate(${(CHIP - 14) / 2}, ${(CHIP - 14) / 2})`}>
               <PartGlyph kind={part.kind} size={14} />
             </g>

@@ -18,13 +18,13 @@
 .mini__edge {
   fill: none;
   stroke: var(--wire);
-  stroke-width: 1.2;
+  stroke-width: 1;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
 
 .mini__port {
-  fill: var(--wire);
+  fill: var(--paper-edge);
 }
 
 .mini svg {
