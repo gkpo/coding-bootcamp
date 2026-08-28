@@ -47,6 +47,7 @@ function persistable(state: StoreState): Persisted {
     streak: state.streak,
     exercises: state.exercises,
     conceptCardsOpened: state.conceptCardsOpened,
+    capstones: state.capstones,
     settings: state.settings,
   };
 }
@@ -122,6 +123,7 @@ export const useStore = create<StoreState>((set, get) => {
         streak: { current: 0, best: 0, lastActiveDay: null, freezes: 0 },
         exercises: {},
         conceptCardsOpened: [],
+        capstones: {},
         settings: get().settings,
       };
       commit(cleared);

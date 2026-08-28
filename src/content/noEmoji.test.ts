@@ -41,6 +41,7 @@ describe('no emoji anywhere', () => {
     expect(files.some((f) => f.includes('screens/HomeScreen'))).toBe(true);
     // Same-directory matches come back as './concepts.ts', not '../content/...'.
     expect(files.some((f) => f.endsWith('concepts.ts'))).toBe(true);
+    expect(files.some((f) => f.endsWith('capstones.ts'))).toBe(true);
   });
 
   it('catches one if it creeps back', () => {

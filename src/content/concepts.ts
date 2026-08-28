@@ -1758,4 +1758,24 @@ HAVING COUNT(*) > 3`,
     ],
     related: ['idempotency', 'resilience', 'sql-reading'],
   },
+  {
+    id: 'replication',
+    title: 'Read replicas',
+    icon: 'database',
+    trackIds: ['t9'],
+    plainWords:
+      'A replica is a second database that copies everything the first one does, a moment behind. Reads can be answered by the copy, which leaves the original free to get on with the writes.',
+    analogy:
+      'A shop that photocopies the stock book every few seconds and leaves the copies at the front counter. Anyone who just wants to look something up reads a copy. Only the manager writes in the real book, so the queue to write never gets stuck behind people browsing.',
+    interviewerSays: [
+      'the reads are killing the database',
+      'could you split reads and writes?',
+      'what is a read replica for?',
+    ],
+    sayThis: [
+      'I would send reads to a replica and keep writes on the primary, so the two stop competing.',
+      'The catch is that a replica is slightly behind, so anything that has to read its own write goes to the primary.',
+    ],
+    related: ['scaling', 'caching', 'transactions'],
+  },
 ];

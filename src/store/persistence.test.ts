@@ -21,10 +21,27 @@ describe('reconcile', () => {
         't1-01': { box: 2, dueDay: '2026-08-29', seen: 3, lapses: 1, lastResult: 'right' },
       },
       conceptCardsOpened: ['big-o'],
+      capstones: { 'c5-01': { stagesCleared: 2, assisted: false, completedDay: null } },
       settings: { sound: false, haptics: true, reduceMotion: true },
       onboarded: true,
     };
     expect(reconcile(doc)).toEqual(doc);
+  });
+
+  it('adds the capstone record to a document saved before build mode existed', () => {
+    // docs/12 part B: the field is additive, which is why there is no
+    // schemaVersion bump to go with it.
+    const before = { ...defaultPersisted(), xp: { lifetime: 90, byDay: {} } };
+    delete (before as Partial<typeof before>).capstones;
+    const after = reconcile(before);
+    expect(after.capstones).toEqual({});
+    expect(after.xp.lifetime).toBe(90);
+    expect(after.schemaVersion).toBe(SCHEMA_VERSION);
+  });
+
+  it('refuses a capstone record of the wrong shape', () => {
+    expect(reconcile({ capstones: 'none' }).capstones).toEqual({});
+    expect(reconcile({ capstones: [] }).capstones).toEqual({});
   });
 
   it('fills in fields a partial document is missing', () => {

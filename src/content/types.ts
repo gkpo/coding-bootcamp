@@ -1,4 +1,5 @@
 import type { IconName } from '../components/iconNames';
+import type { CapstoneSpec, CheckSpec, PartKind, StageSpec } from '../engine/archgraph';
 /**
  * Content shapes: the contract from docs/04-DATA-SCHEMAS.md.
  *
@@ -155,4 +156,46 @@ export interface ConceptCard {
   /** 1–2 canonical sentences to say out loud. */
   sayThis: string[];
   related: string[];
+}
+
+/**
+ * Build-mode capstones (docs/12 part B). A capstone is not an Exercise: it has
+ * its own frame, its own progress and its own entry point, so it gets its own
+ * collection rather than an eighth exercise type.
+ *
+ * The graph half of each shape (the predicate, the moves, the tray) lives in
+ * engine/archgraph.ts, which knows how to grade it. What is added here is the
+ * prose an author writes around it.
+ */
+
+export interface CapstoneCheck extends CheckSpec {
+  /** Plain words, at most 8, shown in the check row. */
+  label: string;
+  /** Level 1: a question, never the answer. */
+  hintNudge: string;
+  /** Level 2: where to look. */
+  hintPoint: { highlight: PartKind[]; text: string };
+  /** The interviewer-approved sentence, shown once the check passes. */
+  sayIt?: string;
+}
+
+export interface CapstoneStage extends StageSpec {
+  /** The interviewer's ask for this stage, 1-2 sentences. */
+  requirement: string;
+  checks: CapstoneCheck[];
+  /** Shown on stage clear, interviewer voice. */
+  clearLine: string;
+}
+
+export interface Capstone extends CapstoneSpec {
+  /** "c5-01", stable, progress keys off it. */
+  id: string;
+  trackId: TrackId;
+  title: string;
+  /** 2-3 sentences of setup, interviewer voice. */
+  scenario: string;
+  icon: IconName;
+  /** Cards linked from the summary. */
+  conceptIds: string[];
+  stages: CapstoneStage[];
 }
