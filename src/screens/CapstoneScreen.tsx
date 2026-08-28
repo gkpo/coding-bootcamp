@@ -94,7 +94,7 @@ function CapstoneRun({ capstone }: { capstone: Capstone }) {
   const [confirmExit, setConfirmExit] = useState(false);
 
   const bodyRef = useRef<HTMLElement>(null);
-  const dotRef = useRef<HTMLSpanElement>(null);
+  const flowRef = useRef<HTMLSpanElement>(null);
   const geometry = useRef<Centers>({});
   const wires = useRef(new Map<string, SVGPathElement>());
   const pendingFlip = useRef<PendingFlip | null>(null);
@@ -137,10 +137,21 @@ function CapstoneRun({ capstone }: { capstone: Capstone }) {
     wires.current = paths;
   }, []);
 
-  /** The first part of a kind: the one the dot visits when a kind has two. */
+  /** The first part of a kind: the one packets visit when a kind has two. */
   const partOf = useCallback(
     (kind: PartKind) => build.parts.find((part) => part.kind === kind),
     [build.parts],
+  );
+
+  /** The drawn connection between two kinds, to be flown along and measured. */
+  const wireBetween = useCallback(
+    (from: PartKind, to: PartKind) => {
+      const a = partOf(from);
+      const b = partOf(to);
+      if (!a || !b) return null;
+      return wires.current.get(wireKey(a.id, b.id)) ?? null;
+    },
+    [partOf],
   );
 
   useEffect(() => () => stopRun.current?.(), []);
@@ -287,15 +298,13 @@ function CapstoneRun({ capstone }: { capstone: Capstone }) {
       },
       // Walk the connection the user actually drew, curve and all.
       along: (from, to, t) => {
-        const a = partOf(from);
-        const b = partOf(to);
-        if (!a || !b) return null;
-        const path = wires.current.get(wireKey(a.id, b.id));
+        const path = wireBetween(from, to);
         if (!path) return null;
         const at = path.getPointAtLength(path.getTotalLength() * t);
         return { x: at.x, y: at.y };
       },
-      dot: dotRef.current,
+      lengthOf: (from, to) => wireBetween(from, to)?.getTotalLength() ?? null,
+      dots: Array.from(flowRef.current?.children ?? []) as HTMLElement[],
       reduceMotion: motionOff(),
       onResolve: (step) => setResolved((current) => ({ ...current, [step.checkId]: step.pass })),
       onFinish: () => finish(plan.halted, plan.steps.at(-1)?.stopsAt ?? null),
@@ -372,7 +381,7 @@ function CapstoneRun({ capstone }: { capstone: Capstone }) {
           placing={placing}
           highlight={highlight}
           hitPartId={hitPartId}
-          dotRef={dotRef}
+          flowRef={flowRef}
           onGeometry={rememberGeometry}
           onWires={rememberWires}
           onPlace={placeIn}

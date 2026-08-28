@@ -18,6 +18,7 @@ import {
 import { PartGlyph } from '../components/PartGlyph';
 import { EASE, MICRO, motionOff } from './motion';
 import { LANE_LABEL, PART_LABEL, PART_NAME } from './parts';
+import { PACKET_SLOTS } from './playRun';
 import { nearestWire, planWires, type WirePlan } from './wires';
 import './Board.css';
 
@@ -58,8 +59,8 @@ interface Props {
   highlight: PartKind[];
   /** The part a failed run stopped on. */
   hitPartId: number | null;
-  /** The flow dot, moved by the run driver rather than by React. */
-  dotRef: RefObject<HTMLSpanElement | null>;
+  /** The packet layer, moved by the run driver rather than by React. */
+  flowRef: RefObject<HTMLSpanElement | null>;
   /** Called when the chips move, so the run driver knows where they are. */
   onGeometry: (centers: Centers) => void;
   /** The drawn wires, so the run driver can follow one rather than cut across it. */
@@ -90,7 +91,7 @@ export function Board({
   placing,
   highlight,
   hitPartId,
-  dotRef,
+  flowRef,
   onGeometry,
   onWires,
   onPlace,
@@ -206,8 +207,14 @@ export function Board({
         ))}
       </svg>
 
-      {/* The one new moving element in the app. A cursor, not a character. */}
-      <span className="board__dot" ref={dotRef} aria-hidden />
+      {/* The traffic. A convoy per check rather than a single cursor, so a
+          run reads as a system carrying load; the driver owns every transform
+          in here (docs/12 part D). */}
+      <span className="board__flow" ref={flowRef} aria-hidden>
+        {Array.from({ length: PACKET_SLOTS }, (_, i) => (
+          <span key={i} className="board__packet" />
+        ))}
+      </span>
 
       {LANE_IDS.map((lane) => {
         const parts = build.parts.filter((part) => PART_LANES[part.kind] === lane);
