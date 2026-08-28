@@ -66,5 +66,5 @@ Used for: the system design interview script ("clarify requirements → estimate
 
 - Exactly one attempt semantic per type as specified above; when attempts are exhausted → reveal + explanation + re-queue in session + Leitner box drop.
 - Feedback copy tone: warm, brief, never sarcastic, never "Incorrect!". Correct-answer affirmations rotate from a small pool ("That's the one", "Second nature yet?", "Interviewer nods").
-- Every exercise's `explanation` field is shown on miss _and_ is tappable after a correct answer ("Why?" link). Some users want the reasoning even when right.
+- Every exercise's `explanation` field is shown in the feedback panel every time, on a miss and after a correct answer alike. Getting it right is when the reasoning is cheapest to take in, so it is not something the user has to ask for.
 - All randomization (option shuffle, parsons shuffle) must be re-derived per presentation, not baked into content.

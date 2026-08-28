@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { RichText } from '../components/RichText';
 import { Button } from '../components/Button';
 import type { ReactNode } from 'react';
@@ -32,7 +32,6 @@ export function FeedbackPanel({
   isLast,
   reveal,
 }: Props) {
-  const [showWhy, setShowWhy] = useState(outcome !== 'right');
   const affirmation = useMemo(() => AFFIRMATIONS[seed % AFFIRMATIONS.length], [seed]);
 
   const heading =
@@ -61,15 +60,15 @@ export function FeedbackPanel({
         </p>
       )}
 
-      {showWhy ? (
-        <p className="feedback__explanation">
-          <RichText text={explanation} />
-        </p>
-      ) : (
-        <button type="button" className="feedback__why" onClick={() => setShowWhy(true)}>
-          Why?
-        </button>
-      )}
+      {/* Always shown, including after a correct answer. It used to hide behind
+          a "Why?" link there, to keep the reward beat short. That traded the
+          thing the app exists to teach against two lines of prose, and put the
+          explanation behind a 41px-wide tap target that read as a caption.
+          Getting it right is exactly when the reasoning is cheapest to take
+          in, so it is no longer something to ask for. */}
+      <p className="feedback__explanation">
+        <RichText text={explanation} />
+      </p>
 
       <div className="feedback__cta">
         <Button quiet={isLast} onClick={onContinue}>

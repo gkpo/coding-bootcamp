@@ -33,7 +33,7 @@ interface ExerciseBase {
   prompt: string; // may contain **bold** (tiny markdown subset: bold + inline code)
   promptVariants?: string[]; // alternate phrasings, same answer/options/code; one picked per presentation
   code?: CodeBlock; // optional snippet shown under the prompt
-  explanation: string; // 2–4 sentences, plain words; shown on miss and via "Why?"
+  explanation: string; // 2–4 sentences, plain words; always shown in the feedback panel
 }
 
 interface CodeBlock {
