@@ -190,11 +190,33 @@ describe('playTone', () => {
     expect(ctx.createOscillator).toHaveBeenCalled();
   });
 
-  it('resumes a context suspended by the autoplay policy', () => {
+  it('schedules every note with a lead so no envelope starts in the past', () => {
     const ctx = stubAudio();
+    playTone('tap', true);
+    const first = ctx.createOscillator.mock.results[0].value as { start: Fn };
+    expect(first.start.mock.calls[0][0] as number).toBeGreaterThanOrEqual(0.03);
+  });
+
+  it('resumes a context suspended by the autoplay policy, and waits for the clock', async () => {
+    const ctx = stubAudio();
+    ctx.resume = vi.fn(() => Promise.resolve());
     ctx.state = 'suspended';
     playTone('right', true);
     expect(ctx.resume).toHaveBeenCalled();
+    expect(ctx.createOscillator).not.toHaveBeenCalled();
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(ctx.createOscillator).toHaveBeenCalled();
+  });
+
+  it('stays silent without throwing when resume is refused', async () => {
+    const ctx = stubAudio();
+    ctx.resume = vi.fn(() => Promise.reject(new Error('no gesture')));
+    ctx.state = 'suspended';
+    expect(() => playTone('right', true)).not.toThrow();
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(ctx.createOscillator).not.toHaveBeenCalled();
   });
 
   it('is a no-op where the platform has no audio', () => {
