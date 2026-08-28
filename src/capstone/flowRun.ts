@@ -11,9 +11,9 @@ import { evaluate, trace, type Build, type CheckSpec, type PartKind } from '../e
 export interface FlowStep {
   checkId: string;
   pass: boolean;
-  /** Kinds the dot walks. Empty for a check with nothing to walk. */
+  /** Kinds the packets walk. Empty for a check with nothing to walk. */
   route: PartKind[];
-  /** Where the dot stops on a failure, if anything is there to stop on. */
+  /** Where the packets stop on a failure, if anything is there to stop on. */
   stopsAt: PartKind | null;
 }
 
@@ -38,10 +38,10 @@ export function planRun(build: Build, checks: CheckSpec[]): RunPlan {
 }
 
 /**
- * What one step costs: the dot's hops, or a flat rest for a check with
+ * What one step costs: the route's hops, or a flat rest for a check with
  * nothing to walk.
  *
- * The ring fills as the dot arrives rather than after it, so a travelled
+ * The ring fills as the lead packet arrives rather than after it, so a travelled
  * check costs its hops and nothing more.
  */
 export function stepDuration(step: FlowStep, hopMs: number, restMs: number): number {

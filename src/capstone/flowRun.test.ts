@@ -34,7 +34,7 @@ describe('planRun', () => {
     expect(plan.steps.map((s) => s.pass)).toEqual([true, false]);
   });
 
-  it('gives the halting step somewhere for the dot to stop', () => {
+  it('gives the halting step somewhere for the traffic to stop', () => {
     const build = buildOf(['client', 'server'], [[1, 2]]);
     const last = planRun(build, checksThrough(0)).steps.at(-1);
     expect(last?.stopsAt).toBe('client');

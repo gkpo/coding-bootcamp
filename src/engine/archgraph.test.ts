@@ -633,7 +633,7 @@ describe('validateCapstone', () => {
   });
 });
 
-describe('trace, the route the flow dot walks', () => {
+describe('trace, the route the flow packets walk', () => {
   it('walks the two ends of an edge it is happy with', () => {
     const build = buildOf(['server', 'cache'], [[1, 2]]);
     expect(trace(build, { op: 'edge', a: 'server', b: 'cache' })).toEqual({
