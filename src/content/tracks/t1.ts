@@ -282,8 +282,7 @@ export const t1Exercises: Exercise[] = [
     type: 'mcq',
     difficulty: 2,
     conceptId: 'hash-lookup',
-    prompt:
-      'Same function as before. It uses `indexOf` inside a loop. **Which change makes it O(n)?**',
+    prompt: 'This one uses `indexOf` inside a loop. **Which change makes it O(n)?**',
     code: {
       lang: 'js',
       source: `function firstRepeat(items) {
@@ -640,7 +639,7 @@ for (const item of items) {
     difficulty: 1,
     conceptId: 'big-o',
     prompt:
-      'No code this time. **"For every customer in the list, we send one email, and the mail service takes the same time for each."** How does the work grow?',
+      'A description rather than code. **"For every customer in the list, we send one email, and the mail service takes the same time for each."** How does the work grow?',
     answer: 'O(n)',
     sayIt: "It's linear. One send per customer, so twice the customers means twice the sends.",
     explanation:
@@ -653,7 +652,7 @@ for (const item of items) {
     difficulty: 2,
     conceptId: 'big-o',
     prompt:
-      'Still no code. **"For every pair of players in the lobby, we work out whether their skill ratings are close enough to match."** How does the work grow?',
+      'Another description, no code. **"For every pair of players in the lobby, we work out whether their skill ratings are close enough to match."** How does the work grow?',
     answer: 'O(n²)',
     sayIt:
       "It's quadratic. Every pair means about half of n squared comparisons, so ten times the players is a hundred times the work.",

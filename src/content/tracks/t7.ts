@@ -278,16 +278,28 @@ useEffect(() => {
     type: 'mcq',
     difficulty: 3,
     conceptId: 'stale-closure',
-    prompt: 'You want that counter to actually count. **Which fix, and why?**',
+    prompt:
+      'This counter is meant to tick up once a second. **Which fix works without restarting the timer?**',
+    code: {
+      lang: 'js',
+      source: `const [count, setCount] = useState(0);
+
+useEffect(() => {
+  const id = setInterval(() => {
+    setCount(count + 1);
+  }, 1000);
+  return () => clearInterval(id);
+}, []);`,
+    },
     options: [
       {
-        text: '`setCount((c) => c + 1)`, because it asks React for the latest value instead of capturing one',
+        text: 'Call `setCount((c) => c + 1)` instead',
         correct: true,
       },
       {
         text: 'Add `count` to the dependency array',
         whyWrong:
-          'It does work, and it is worth knowing what it costs: the effect tears down and restarts the interval every second, so the timer never runs a full second undisturbed.',
+          'The counting does start working, so this is a real fix, just not the one asked for: the effect tears down and rebuilds the interval every time the count changes, so the timer restarts a second at a time and never runs one out.',
       },
       {
         text: 'Keep the count in a ref and read `ref.current` inside the tick',
@@ -301,7 +313,7 @@ useEffect(() => {
       },
     ],
     explanation:
-      'The functional form is the right tool whenever the next state is worked out from the current one. It hands React a recipe rather than a value, so nothing needs capturing and the effect can stay on `[]`. Say it that way out loud: "I do not want to capture the count, I want to ask for the latest one".',
+      'The functional form is the right tool whenever the next state is worked out from the current one. It hands React a recipe rather than a value, so nothing needs capturing and the effect can stay on `[]`, which is what leaves the timer alone. Say it that way out loud: "I do not want to capture the count, I want to ask for the latest one".',
   },
   {
     id: 't7-11',

@@ -196,7 +196,7 @@ console.log('d');`,
     type: 'mcq',
     difficulty: 3,
     conceptId: 'event-loop',
-    prompt: 'Round two. What order?',
+    prompt: 'What order do these log in?',
     code: {
       lang: 'js',
       source: `setTimeout(() => console.log(1), 0);

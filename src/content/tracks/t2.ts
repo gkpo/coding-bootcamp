@@ -183,7 +183,7 @@ export const t2Exercises: Exercise[] = [
     difficulty: 3,
     conceptId: 'chunking',
     prompt:
-      'Same alert, but now **no word may be split across two messages**. Walk back to the last space when the cut would land mid-word.',
+      'A long alert goes out over SMS in segments of at most `limit` characters, and now **no word may be split across two messages**. Walk back to the last space when the cut would land mid-word.',
     lines: [
       { code: 'const segments = [];', indent: 0 },
       { code: 'while (text.length > limit) {', indent: 0 },
