@@ -64,18 +64,6 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Big enough to read as the screen's first control rather than as fine print:
-   body size, not secondary, and a 20px chevron to match. */
-.track-detail__back {
-  align-self: flex-start;
-  min-height: 44px;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--sp-1);
-  font-size: var(--fs-body);
-  font-weight: 600;
-}
-
 .lesson__list {
   list-style: none;
   margin: 0;

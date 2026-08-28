@@ -1,3 +1,4 @@
+import type { Ref } from 'react';
 import type { ConceptCard } from '../content/types';
 import { CodeBlock } from './CodeBlock';
 import { RichText } from './RichText';
@@ -9,10 +10,16 @@ import './ConceptCardView.css';
  * queue (docs/01 §Cheat sheets). Order is fixed: plain words, analogy, what
  * the interviewer says, example, what to say back.
  */
-export function ConceptCardView({ card }: { card: ConceptCard }) {
+type Props = {
+  card: ConceptCard;
+  /** Lets a host screen watch the title, so a sticky bar can take it over. */
+  titleRef?: Ref<HTMLHeadingElement>;
+};
+
+export function ConceptCardView({ card, titleRef }: Props) {
   return (
     <article className="concept">
-      <h2 className="concept__title">
+      <h2 className="concept__title" ref={titleRef}>
         <span className="concept__icon">
           <ConceptIcon name={card.icon} size={22} />
         </span>

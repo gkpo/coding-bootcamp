@@ -3,15 +3,16 @@ import { getCard } from '../content';
 import { ConceptCardView } from '../components/ConceptCardView';
 import { ConceptIcon } from '../components/ConceptIcon';
 import { RichText } from '../components/RichText';
-import { BackIcon } from '../components/icons';
+import { ScreenBar } from '../components/ScreenBar';
 import { useStore } from '../store/useStore';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import './SheetsScreen.css';
 
 export function SheetDetailScreen() {
   const { cardId } = useParams<{ cardId: string }>();
   const card = cardId ? getCard(cardId) : undefined;
   const openConceptCard = useStore((s) => s.openConceptCard);
+  const titleRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
     if (cardId) openConceptCard(cardId);
@@ -20,22 +21,23 @@ export function SheetDetailScreen() {
   if (!card) {
     return (
       <div className="stack">
+        <ScreenBar to="/sheets" label="Sheets" watch={titleRef} />
         <h1 className="screen-title">Not found</h1>
-        <Link to="/sheets" className="track-detail__back">
-          <BackIcon size={20} />
-          <span>All sheets</span>
-        </Link>
       </div>
     );
   }
 
   return (
     <div className="stack">
-      <Link to="/sheets" className="track-detail__back">
-        <BackIcon size={20} />
-        <span>All sheets</span>
-      </Link>
-      <ConceptCardView card={card} />
+      <ScreenBar to="/sheets" label="Sheets" watch={titleRef}>
+        <span className="screen-bar__icon">
+          <ConceptIcon name={card.icon} size={18} />
+        </span>
+        <span className="screen-bar__title">
+          <RichText text={card.title} />
+        </span>
+      </ScreenBar>
+      <ConceptCardView card={card} titleRef={titleRef} />
       {card.related.length > 0 && (
         <section>
           <h3 className="sheets__group">Related</h3>
