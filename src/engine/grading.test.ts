@@ -188,6 +188,112 @@ describe('gradeParsons', () => {
   });
 });
 
+// Two independent declarations really are interchangeable, so a learner who
+// writes them the other way round has not made a mistake (docs/02 section 2).
+const swappable: ParsonsExercise = {
+  ...base,
+  id: 'pg',
+  type: 'parsons',
+  prompt: 'Build it',
+  lines: [
+    { code: 'const seen = new Set();', indent: 0, swapGroup: 'decls' },
+    { code: 'const out = [];', indent: 0, swapGroup: 'decls' },
+    { code: 'for (const x of xs) {', indent: 0 },
+    { code: 'if (seen.has(x)) continue;', indent: 1 },
+    { code: '}', indent: 0 },
+    { code: 'const out = {};', indent: 0, distractor: true },
+  ],
+};
+
+const twoGroups: ParsonsExercise = {
+  ...base,
+  id: 'pgg',
+  type: 'parsons',
+  prompt: 'Build it',
+  lines: [
+    { code: 'const lo = 0;', indent: 0, swapGroup: 'bounds' },
+    { code: 'const hi = xs.length - 1;', indent: 0, swapGroup: 'bounds' },
+    { code: 'while (lo <= hi) {', indent: 0 },
+    { code: 'left.push(x);', indent: 1, swapGroup: 'pushes' },
+    { code: 'right.push(y);', indent: 1, swapGroup: 'pushes' },
+    { code: '}', indent: 0 },
+  ],
+};
+
+describe('gradeParsons with interchangeable lines', () => {
+  it('accepts a group swapped round', () => {
+    const result = gradeParsons(swappable, [
+      'const out = [];',
+      'const seen = new Set();',
+      'for (const x of xs) {',
+      'if (seen.has(x)) continue;',
+      '}',
+    ]);
+    expect(result.correct).toBe(true);
+    expect(result.parts).toEqual([true, true, true, true, true]);
+  });
+
+  it('still accepts the authored order', () => {
+    expect(gradeParsons(swappable, parsonsSolution(swappable)).correct).toBe(true);
+  });
+
+  it('still rejects a swap of lines that are not in a group', () => {
+    const result = gradeParsons(swappable, [
+      'const seen = new Set();',
+      'const out = [];',
+      'if (seen.has(x)) continue;',
+      'for (const x of xs) {',
+      '}',
+    ]);
+    expect(result.correct).toBe(false);
+    expect(result.parts).toEqual([true, true, false, false, true]);
+  });
+
+  it('rejects a distractor dropped into the group span', () => {
+    const result = gradeParsons(swappable, [
+      'const seen = new Set();',
+      'const out = {};',
+      'for (const x of xs) {',
+      'if (seen.has(x)) continue;',
+      '}',
+    ]);
+    expect(result.correct).toBe(false);
+    expect(result.parts).toEqual([true, false, true, true, true]);
+  });
+
+  it('keeps two groups independent, each permutable on its own', () => {
+    const result = gradeParsons(twoGroups, [
+      'const hi = xs.length - 1;',
+      'const lo = 0;',
+      'while (lo <= hi) {',
+      'right.push(y);',
+      'left.push(x);',
+      '}',
+    ]);
+    expect(result.correct).toBe(true);
+  });
+
+  it('accepts a swapped group in authored content, not just in fixtures', () => {
+    const authored = getExercise('t2-10') as ParsonsExercise;
+    const swapped = parsonsSolution(authored).slice();
+    [swapped[0], swapped[1]] = [swapped[1], swapped[0]];
+    expect(gradeParsons(authored, swapped).correct).toBe(true);
+  });
+
+  it('does not let a member of one group stand in for another group', () => {
+    const result = gradeParsons(twoGroups, [
+      'const lo = 0;',
+      'left.push(x);',
+      'while (lo <= hi) {',
+      'const hi = xs.length - 1;',
+      'right.push(y);',
+      '}',
+    ]);
+    expect(result.correct).toBe(false);
+    expect(result.parts).toEqual([true, false, true, false, true, true]);
+  });
+});
+
 describe('gradeSteps', () => {
   it('accepts the authored order', () => {
     expect(gradeSteps(steps, ['first', 'second', 'third', 'fourth']).correct).toBe(true);

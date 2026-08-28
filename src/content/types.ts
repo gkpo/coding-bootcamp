@@ -93,6 +93,14 @@ export interface ParsonsLine {
   code: string;
   indent: 0 | 1 | 2 | 3;
   distractor?: true;
+  /**
+   * Lines sharing a swapGroup are interchangeable with each other: any
+   * permutation of the group among its own positions grades correct. Only for
+   * lines where the JS is genuinely identical either way (independent
+   * declarations, order-free assignments). Members must be contiguous in the
+   * authored solution, share an indent, and never be distractors.
+   */
+  swapGroup?: string;
 }
 
 export interface ParsonsExercise extends ExerciseBase {
