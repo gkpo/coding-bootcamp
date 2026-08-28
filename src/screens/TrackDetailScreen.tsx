@@ -8,7 +8,7 @@ import { ScreenBar } from '../components/ScreenBar';
 import { seenFill } from '../components/progressFill';
 import { CheckIcon } from '../components/icons';
 import { isMastered, type ExerciseProgress } from '../engine/leitner';
-import type { Capstone, ConceptCard, Lesson, TrackId } from '../content/types';
+import type { Capstone, ConceptCard, Difficulty, Lesson, TrackId } from '../content/types';
 import type { CapstoneProgress } from '../store/persistence';
 import './TracksScreen.css';
 
@@ -113,17 +113,7 @@ export function TrackDetailScreen() {
                         aria-hidden
                       />
                       <span className="lesson__type">{TYPE_LABEL[exercise.type]}</span>
-                      <span
-                        className="lesson__diff"
-                        aria-label={`Difficulty ${exercise.difficulty}`}
-                      >
-                        {[1, 2, 3].map((level) => (
-                          <span
-                            key={level}
-                            className={`lesson__pip ${level <= exercise.difficulty ? 'is-on' : ''}`}
-                          />
-                        ))}
-                      </span>
+                      <DifficultyPips level={exercise.difficulty} />
                     </li>
                   );
                 })}
@@ -146,6 +136,7 @@ export function TrackDetailScreen() {
               <p className="station__kicker">Capstone</p>
               <div className="station__head">
                 <h2 className="station__title">{capstone.title}</h2>
+                <DifficultyPips level={capstone.difficulty} />
               </div>
               <p className="station__lede">{capstone.scenario}</p>
               <p className="station__status">
@@ -156,6 +147,21 @@ export function TrackDetailScreen() {
         ))}
       </ol>
     </div>
+  );
+}
+
+/**
+ * How hard a thing is, on the 1-3 scale used across the app: three pips, the
+ * ones up to the level filled. Exercise rows and capstone stations share it so
+ * a difficulty never means two different things on one screen (docs/12 part H).
+ */
+function DifficultyPips({ level }: { level: Difficulty }) {
+  return (
+    <span className="lesson__diff" aria-label={`Difficulty ${level} of 3`}>
+      {[1, 2, 3].map((pip) => (
+        <span key={pip} className={`lesson__pip ${pip <= level ? 'is-on' : ''}`} />
+      ))}
+    </span>
   );
 }
 

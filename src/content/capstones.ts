@@ -37,12 +37,44 @@ import type { Capstone } from './types';
  * 5. c8-01 keeps both of its `pathVia` checks, which are sound: nothing but
  *    the queue joins its API server to its worker, and nothing but the worker
  *    reaches the payment provider.
+ *
+ * The library wave that added c5-02, c8-02 and c8-03 (docs/12 part H) kept
+ * every check as specified. One authoring detail is worth recording:
+ *
+ * 6. In c5-02 and c8-02 the second-server check is authored before the
+ *    load-balancer one, where part H lists it second. Check order is the order
+ *    the hint moves run in, so with the spec's order the balancer would be
+ *    wired to the one server that existed when its moves ran and the second
+ *    server would hang off nothing in the reference build the debrief panel
+ *    draws. c5-01 stage 2 already ships in this order for the same reason.
+ * 7. Part H rule 3 also asks a scale-out check to wire the new copy to
+ *    everything its clones already reach, so the reference build never draws a
+ *    half-wired one. The three shipped scale-out checks (c5-01 `s2-two`,
+ *    c5-02 `r2-two`, c8-02 `l2-two`) carry the extra connect moves for that.
+ *    A connect only ever adds the pairs that are missing, so the moves are
+ *    safe to repeat over wiring the earlier stages already drew.
+ *
+ * The second library wave (c5-03, c9-03, c9-04) kept every check as part H
+ * specifies it, including the two `pathVia` hand-offs note 1 had to give up on
+ * elsewhere:
+ *
+ * 8. c5-03's `n1-hand` and c9-03's `w1-ack` are graded as
+ *    `pathVia(server, worker, queue)` and they hold, because neither build
+ *    ever gives the API server and the worker a second shared neighbour.
+ *    c5-03 keeps its database off the worker and its push provider off the
+ *    server, and c9-03's `w1-noinline` forbids the one edge that would open a
+ *    way round the queue.
+ * 9. c9-04 is the contrast piece for c9-02: same parts, opposite wiring. Its
+ *    `b2-standby` sayIt names what the analytics pipeline does with the same
+ *    replica, and c9-02's `a2-read` sayIt names the standby back, so whichever
+ *    a user meets first, the other one is already in the sentence.
  */
 
 const photoSharing: Capstone = {
   id: 'c5-01',
   trackId: 't5',
   title: 'The photo-sharing app',
+  difficulty: 2,
   icon: 'blocks',
   conceptIds: ['design-script', 'caching', 'queues'],
   scenario:
@@ -124,7 +156,11 @@ const photoSharing: Capstone = {
             highlight: ['server'],
             text: 'The compute lane has room for another server beside the first.',
           },
-          hintMoves: [{ place: 'server' }],
+          hintMoves: [
+            { place: 'server' },
+            { connect: ['server', 'db'] },
+            { connect: ['server', 'blob'] },
+          ],
           sayIt:
             'I would scale out rather than up: more servers, none of them holding anything the others need.',
         },
@@ -261,6 +297,7 @@ const flashSale: Capstone = {
   id: 'c9-01',
   trackId: 't9',
   title: 'The flash-sale checkout',
+  difficulty: 2,
   icon: 'coins',
   conceptIds: ['queues', 'caching', 'replication', 'indexes'],
   scenario:
@@ -424,6 +461,7 @@ const globalStorefront: Capstone = {
   id: 'c8-01',
   trackId: 't8',
   title: 'The global storefront',
+  difficulty: 2,
   icon: 'globe',
   conceptIds: ['http-verbs', 'caching-headers', 'idempotency'],
   scenario:
@@ -627,6 +665,7 @@ const analyticsPipeline: Capstone = {
   id: 'c9-02',
   trackId: 't9',
   title: 'The analytics pipeline',
+  difficulty: 2,
   icon: 'gauge',
   conceptIds: ['queues', 'replication', 'indexes'],
   scenario:
@@ -729,7 +768,7 @@ const analyticsPipeline: Capstone = {
           },
           hintMoves: [{ connect: ['server', 'replica'] }],
           sayIt:
-            'Dashboard queries go to the replica. Being a few seconds behind changes nothing in a chart of last quarter.',
+            'Dashboard queries go to the replica, and being a few seconds behind changes nothing in a chart of last quarter. A copy nothing reads from is a standby kept for the day the primary dies; this one is wired to the API on purpose, to take the reads.',
         },
         {
           id: 'a2-decoy',
@@ -768,4 +807,877 @@ const analyticsPipeline: Capstone = {
   ],
 };
 
-export const capstones: Capstone[] = [photoSharing, flashSale, globalStorefront, analyticsPipeline];
+const readStorm: Capstone = {
+  id: 'c5-02',
+  trackId: 't5',
+  title: 'The read storm',
+  difficulty: 2,
+  icon: 'growth',
+  conceptIds: ['caching', 'replication'],
+  scenario:
+    'This is a small articles site. A handful of writers publish a few posts a day, a few thousand people read them, and nobody has ever complained about how fast it is. That is about to stop being true, so build me the plain version first.',
+  stages: [
+    {
+      requirement:
+        'Get it working. Someone opens the site and reads an article, and a writer publishes a new one. The articles have to still be there after a restart.',
+      prePlaced: ['client'],
+      tray: [
+        { kind: 'server', count: 1 },
+        { kind: 'db', count: 1 },
+      ],
+      checks: [
+        {
+          id: 'r1-api',
+          label: 'The site reaches an API',
+          when: { op: 'path', from: 'client', to: 'server' },
+          hintNudge:
+            'The page has to get the article text from somewhere. What is it going to ask for it?',
+          hintPoint: {
+            highlight: ['server'],
+            text: 'Nothing on your side is answering the browser yet, because the compute lane is empty.',
+          },
+          hintMoves: [{ place: 'server' }, { connect: ['client', 'server'] }],
+          sayIt:
+            'The browser talks to an API server, and the API server is the only thing that reads the articles.',
+        },
+        {
+          id: 'r1-data',
+          label: 'Articles sit behind the API',
+          when: { op: 'pathVia', from: 'client', to: 'db', via: 'server' },
+          hintNudge:
+            'If the browser could query the articles table itself, what would stop it reading the unpublished drafts too?',
+          hintPoint: {
+            highlight: ['db', 'server'],
+            text: 'The database belongs on the far side of the server, not out where a browser can reach it.',
+          },
+          hintMoves: [{ place: 'db' }, { connect: ['server', 'db'] }],
+          sayIt:
+            'Articles live in the database, and every read and write of them goes through the API.',
+        },
+      ],
+      clearLine:
+        'That is the whole site, and on a normal Tuesday it is everything the site needs to be.',
+      debrief:
+        'Three boxes, and each of them is doing a job you can name. Putting the API in the middle is what lets everything after this change behind it: readers keep asking the same server for an article, whatever you put behind it to answer them faster.',
+    },
+    {
+      requirement:
+        'We got the top slot on a big aggregator this morning. The same twenty articles are being read forty thousand times a minute, and one server cannot take it.',
+      tray: [
+        { kind: 'lb', count: 1 },
+        { kind: 'server', count: 1 },
+        { kind: 'cache', count: 1 },
+      ],
+      checks: [
+        {
+          id: 'r2-two',
+          label: 'More than one server',
+          when: { op: 'placed', kind: 'server', atLeast: 2 },
+          hintNudge:
+            'One machine is flat out. Is renting a bigger machine an answer you would want to defend in six months?',
+          hintPoint: {
+            highlight: ['server'],
+            text: 'The compute lane has room for another server beside the first one.',
+          },
+          hintMoves: [{ place: 'server' }, { connect: ['server', 'db'] }],
+          sayIt:
+            'Two servers, and either of them can serve any reader, so a third one is the whole capacity plan.',
+        },
+        {
+          id: 'r2-lb',
+          label: 'All traffic comes in one door',
+          when: { op: 'pathVia', from: 'client', to: 'server', via: 'lb' },
+          hintNudge:
+            'There are two servers now and one web address. What decides which server a reader lands on?',
+          hintPoint: {
+            highlight: ['lb', 'client'],
+            text: 'The browser is still wired straight to one server, and that direct line has to come off.',
+          },
+          hintMoves: [
+            { place: 'lb' },
+            { connect: ['client', 'lb'] },
+            { connect: ['lb', 'server'] },
+            { disconnect: ['client', 'server'] },
+          ],
+          sayIt:
+            'Every request lands on the load balancer first and it hands the request to whichever server is free.',
+        },
+        {
+          id: 'r2-cache',
+          label: 'Every server can reach the cache',
+          when: { op: 'eachConnected', each: 'server', to: 'cache' },
+          hintNudge:
+            'Twenty articles, forty thousand reads a minute. How many times does the database need to be asked the same question?',
+          hintPoint: {
+            highlight: ['cache', 'server'],
+            text: 'The data lane has room for something faster than the database, and each server needs its own line to it.',
+          },
+          hintMoves: [{ place: 'cache' }, { connect: ['server', 'cache'] }],
+          sayIt:
+            'An article comes out of the cache and is only fetched from the database on a miss, whichever server the reader landed on.',
+        },
+      ],
+      clearLine:
+        'The front page is holding, and it took one more server and one cache to get there.',
+      debrief:
+        'This is the standard read-heavy answer: spread the requests across servers that are all alike, then stop most of those requests reaching the database at all. Both servers are wired to the cache on purpose, because a reader who lands on the one without it waits exactly as long as before.',
+    },
+    {
+      requirement:
+        'The spike is holding but the database is still hot. Cache misses alone keep it near its limit, and every one of them is a read: almost nothing is being written.',
+      tray: [
+        { kind: 'replica', count: 1 },
+        { kind: 'queue', count: 1, decoy: true },
+        { kind: 'worker', count: 1, decoy: true },
+      ],
+      checks: [
+        {
+          id: 'r3-copy',
+          label: 'A copy takes the read load',
+          when: { op: 'edge', a: 'db', b: 'replica' },
+          hintNudge:
+            'Every one of those misses goes to the one machine that also takes the writes. Does it have to be the same machine?',
+          hintPoint: {
+            highlight: ['replica', 'db'],
+            text: 'One database is answering everything, and there is no second copy of it anywhere on the board.',
+          },
+          hintMoves: [{ place: 'replica' }, { connect: ['db', 'replica'] }],
+          sayIt:
+            'A read replica keeps its own copy of the articles a moment behind the primary, and it can answer reads all day.',
+        },
+        {
+          id: 'r3-read',
+          label: 'The servers read from the copy',
+          when: { op: 'edge', a: 'server', b: 'replica' },
+          hintNudge:
+            'A copy nobody queries is just a second machine to pay for. Which reads should be going to it?',
+          hintPoint: {
+            highlight: ['server', 'replica'],
+            text: 'The replica is copying away with nobody asking it anything, so the primary is still answering every miss.',
+          },
+          hintMoves: [{ connect: ['server', 'replica'] }],
+          sayIt:
+            'Reads that miss the cache go to the replica, and an article being a second out of date is not something a reader can see.',
+        },
+        {
+          id: 'r3-trap',
+          label: 'Seven parts, and no queue',
+          when: { op: 'maxParts', n: 7 },
+          hintNudge:
+            'Before you put anything in the async lane, what work is there in this story that somebody could be made to wait for?',
+          hintPoint: {
+            highlight: [],
+            text: 'There is more on the board than this story asked for. Nothing in a read is slow work you can put off until later.',
+          },
+          hintMoves: [],
+          sayIt:
+            'There is nothing to queue on a read path: the reader wants the article now, so a queue would be a box I could not defend.',
+        },
+        {
+          id: 'r3-bonus',
+          label: 'The database has one way in',
+          when: { op: 'pathVia', from: 'client', to: 'db', via: 'server' },
+          hintNudge:
+            'Trace it from the reader: how many different ways can a browser get to your articles?',
+          hintPoint: {
+            highlight: ['server', 'db'],
+            text: 'The only door into the articles should be the API, for the readers and for the writers alike.',
+          },
+          hintMoves: [],
+          sayIt:
+            'Neither the cache nor the replica is exposed to the browser, so everything a reader gets comes back through the API.',
+          bonus: true,
+        },
+      ],
+      clearLine:
+        'A read problem solved with read tools, and you never reached for the thing everybody reaches for.',
+      debrief:
+        'The reads now come off three places: the cache for the popular articles, the replica for the misses, and the primary only for what is actually being published. The queue and the worker in that tray were there to be turned down, because nothing on a read path is work a reader is willing to have done later.',
+    },
+  ],
+};
+
+const loginRush: Capstone = {
+  id: 'c8-02',
+  trackId: 't8',
+  title: 'The login rush',
+  difficulty: 2,
+  icon: 'door',
+  conceptIds: ['auth-flows', 'cookies-tokens', 'caching'],
+  scenario:
+    'This site has a members area. People sign in with an email and a password, and they stay signed in for a fortnight after that. Build me the version that works today, and then I will tell you what happened on Monday.',
+  stages: [
+    {
+      requirement:
+        'Get sign-in working. Someone types an email and a password, the site checks them, and from then on it knows who they are. The accounts have to survive a restart.',
+      prePlaced: ['client'],
+      tray: [
+        { kind: 'server', count: 1 },
+        { kind: 'db', count: 1 },
+      ],
+      checks: [
+        {
+          id: 'l1-api',
+          label: 'The browser reaches an API',
+          when: { op: 'path', from: 'client', to: 'server' },
+          hintNudge:
+            'A password cannot be checked by the page that collected it. What is going to check it?',
+          hintPoint: {
+            highlight: ['server'],
+            text: 'Nothing on your side is listening yet, so there is nobody to send the password to.',
+          },
+          hintMoves: [{ place: 'server' }, { connect: ['client', 'server'] }],
+          sayIt:
+            'The browser posts the email and the password to an API server, and the checking happens there.',
+        },
+        {
+          id: 'l1-users',
+          label: 'Accounts sit behind the API',
+          when: { op: 'pathVia', from: 'client', to: 'db', via: 'server' },
+          hintNudge:
+            'If a browser could read the accounts table for itself, what would it be reading?',
+          hintPoint: {
+            highlight: ['db', 'server'],
+            text: 'The accounts belong on the far side of the server, where a browser cannot get at them.',
+          },
+          hintMoves: [{ place: 'db' }, { connect: ['server', 'db'] }],
+          sayIt:
+            'Accounts and their scrambled passwords live in the database, and only the API ever reads them.',
+        },
+      ],
+      clearLine:
+        'That signs people in, and on one server it will keep doing it for a good long while.',
+      debrief:
+        'Three boxes and a password check is honestly all a login needs at this size. What matters is where the checking happens: the browser sends the password once, the API decides, and nothing outside the API ever touches the accounts table.',
+    },
+    {
+      requirement:
+        'Monday got busy, so somebody added a second server. Now people are being signed out at random, sometimes twice in a minute, and nobody has touched the sign-in code.',
+      tray: [
+        { kind: 'lb', count: 1 },
+        { kind: 'server', count: 1 },
+        { kind: 'cache', count: 1 },
+        { kind: 'ext-api', count: 1, decoy: true },
+      ],
+      checks: [
+        {
+          id: 'l2-two',
+          label: 'A second server for the traffic',
+          when: { op: 'placed', kind: 'server', atLeast: 2 },
+          hintNudge:
+            'One server was keeping up until Monday morning. What is the quickest way to have twice the capacity by lunchtime?',
+          hintPoint: {
+            highlight: ['server'],
+            text: 'The compute lane still holds one server, and the story says there are two of them now.',
+          },
+          hintMoves: [{ place: 'server' }, { connect: ['server', 'db'] }],
+          sayIt:
+            'There are two servers now, and a request can land on either of them. That is the whole reason for running two.',
+        },
+        {
+          id: 'l2-lb',
+          label: 'All traffic comes in one door',
+          when: { op: 'pathVia', from: 'client', to: 'server', via: 'lb' },
+          hintNudge: 'Two servers, one web address. What is deciding where a request goes?',
+          hintPoint: {
+            highlight: ['lb', 'client'],
+            text: 'The browser is still wired straight to one server, so the second one is getting nothing.',
+          },
+          hintMoves: [
+            { place: 'lb' },
+            { connect: ['client', 'lb'] },
+            { connect: ['lb', 'server'] },
+            { disconnect: ['client', 'server'] },
+          ],
+          sayIt:
+            'A load balancer takes every request and hands it to whichever server is free, so nobody stays on one server for long.',
+        },
+        {
+          id: 'l2-session',
+          label: 'The session lives where both can see it',
+          when: { op: 'eachConnected', each: 'server', to: 'cache' },
+          hintNudge:
+            'Somebody signs in on one server and their next request lands on the other. Where would that second server look up who they are?',
+          hintPoint: {
+            highlight: ['cache', 'server'],
+            text: 'Each server is remembering its own signed-in people and knows nothing of the other one. The session needs to live outside both, with a line from each.',
+          },
+          hintMoves: [{ place: 'cache' }, { connect: ['server', 'cache'] }],
+          sayIt:
+            'Sessions go in a shared store both servers read, so no server is holding anything a signed-in user depends on.',
+        },
+        {
+          id: 'l2-decoy',
+          label: 'No outside login service here',
+          when: { op: 'notPlaced', kind: 'ext-api' },
+          hintNudge:
+            'Say somebody else checks the passwords from tomorrow. Where does the session that keeps a user signed in live then?',
+          hintPoint: {
+            highlight: ['ext-api'],
+            text: 'Changing who checks the password changes nothing about where the answer is kept afterwards.',
+          },
+          hintMoves: [{ remove: 'ext-api' }],
+          sayIt:
+            'An outside identity provider is a fine thing to want, but it is not this bug: the session still has to live where both servers can read it.',
+        },
+      ],
+      clearLine: 'The random logouts stop the moment the session stops living inside one server.',
+      debrief:
+        'Servers that hold nothing of their own are what makes a second server safe to add, and a session kept in one machine memory is the classic thing they hold by accident. Moving it to a store both servers read costs one box on the diagram and makes the two servers interchangeable, which is what the load balancer was assuming all along.',
+    },
+  ],
+};
+
+const launchSite: Capstone = {
+  id: 'c8-03',
+  trackId: 't8',
+  title: 'The launch site',
+  difficulty: 1,
+  icon: 'window',
+  conceptIds: ['caching-headers', 'pragmatic-perf'],
+  scenario:
+    'A friend is launching a product in three weeks and wants a page up: what it is, a few pictures, and a form to collect email addresses for launch day. No accounts, no dashboard, no orders. Tell me what you would put up.',
+  stages: [
+    {
+      requirement:
+        'Put the page up. It is one marketing page with a few images, identical for everybody who visits, and it changes when your friend rewrites the copy.',
+      prePlaced: ['client'],
+      tray: [
+        { kind: 'cdn', count: 1 },
+        { kind: 'blob', count: 1 },
+      ],
+      checks: [
+        {
+          id: 'y1-edge',
+          label: 'Pages come from the edge',
+          when: { op: 'edge', a: 'client', b: 'cdn' },
+          hintNudge:
+            'Nothing on this page is different for one visitor than for another. Does anything need to run to work out what to send?',
+          hintPoint: {
+            highlight: ['cdn'],
+            text: 'The edge lane has room beside the browser for something that sits near the visitor.',
+          },
+          hintMoves: [{ place: 'cdn' }, { connect: ['client', 'cdn'] }],
+          sayIt:
+            'The page is static files, so a CDN can serve it from near the visitor with no code of mine running anywhere.',
+        },
+        {
+          id: 'y1-origin',
+          label: 'The files live in storage',
+          when: { op: 'edge', a: 'cdn', b: 'blob' },
+          hintNudge:
+            'The edge has to get the page from somewhere the first time it is asked for. Where is the real copy?',
+          hintPoint: {
+            highlight: ['blob', 'cdn'],
+            text: 'The CDN has nothing behind it, so there is no original for it to hand copies of.',
+          },
+          hintMoves: [{ place: 'blob' }, { connect: ['cdn', 'blob'] }],
+          sayIt:
+            'The page, the images and the stylesheet sit in object storage, and the CDN holds copies of them near the visitor.',
+        },
+      ],
+      clearLine:
+        'That is a launch page live on the internet, and there is not a server in it to fall over.',
+      debrief:
+        'Files in storage with a CDN in front is the entire answer for a page that is the same for everyone, and it stays cheap at any amount of traffic. There is no server to patch and nothing to restart, which is why static hosting is the boring right answer here rather than a shortcut.',
+    },
+    {
+      requirement:
+        'Add the email form. Somebody types an address, taps the button once, and you need that address on launch day. Expect a few hundred of them across the whole week.',
+      tray: [
+        { kind: 'server', count: 1 },
+        { kind: 'db', count: 1 },
+        { kind: 'lb', count: 1, decoy: true },
+        { kind: 'cache', count: 1, decoy: true },
+        { kind: 'queue', count: 1, decoy: true },
+      ],
+      checks: [
+        {
+          id: 'y2-api',
+          label: 'One small endpoint takes the form',
+          when: { op: 'edge', a: 'client', b: 'server' },
+          hintNudge:
+            'A few hundred sign-ups across a week is about one every twenty minutes. How much machinery does one every twenty minutes need?',
+          hintPoint: {
+            highlight: ['server'],
+            text: 'There is nowhere for the form to post to, so the addresses have nowhere to land.',
+          },
+          hintMoves: [{ place: 'server' }, { connect: ['client', 'server'] }],
+          sayIt:
+            'One endpoint takes the form post and writes the address down. At this rate that is the whole design.',
+        },
+        {
+          id: 'y2-store',
+          label: 'Addresses sit behind the API',
+          when: { op: 'pathVia', from: 'client', to: 'db', via: 'server' },
+          hintNudge:
+            'The addresses have to still be there in three weeks. Where are you keeping them, and who is allowed to read the list?',
+          hintPoint: {
+            highlight: ['db', 'server'],
+            text: 'The form is posting to something with nowhere to put what it receives, and an email list is not a thing you leave open.',
+          },
+          hintMoves: [{ place: 'db' }, { connect: ['server', 'db'] }],
+          sayIt:
+            'The addresses go in a database behind the API, so the list is never something a browser can ask for.',
+        },
+        {
+          id: 'y2-small',
+          label: 'Five parts, and no more',
+          when: { op: 'maxParts', n: 5 },
+          hintNudge:
+            'Point at each box and say which line of the brief put it there. Is there one you cannot finish the sentence for?',
+          hintPoint: {
+            highlight: [],
+            text: 'There is more on the board than a launch page and one form asked for. A few hundred posts a week is not traffic.',
+          },
+          hintMoves: [],
+          sayIt:
+            'I would not put a balancer, a cache or a queue in front of one form post every twenty minutes. I can add them the day the numbers ask for them.',
+        },
+      ],
+      clearLine: 'Five boxes, and your friend could have that live this afternoon.',
+      debrief:
+        'The trap in a small question is answering it with a big architecture, because big architecture is the thing people practise. A load balancer, a cache and a queue all solve real problems, and none of those problems is one form post every twenty minutes; the answer that lands is the small one you can defend and grow later.',
+    },
+  ],
+};
+
+const notificationFanOut: Capstone = {
+  id: 'c5-03',
+  trackId: 't5',
+  title: 'The notification fan-out',
+  difficulty: 2,
+  icon: 'speech',
+  conceptIds: ['queues', 'idempotency'],
+  scenario:
+    "This is a community site where people comment on each other's posts. When a comment lands, the author gets a push notification on their phone, and the push goes out through a provider we do not own. The client, the balancer and the API server are already up, so start after them.",
+  stages: [
+    {
+      requirement:
+        'Somebody posts a comment. Save it, and notify the author. The push provider takes a second or two on a good day, and the person who commented must never be sitting there waiting on it.',
+      prePlaced: ['client', 'lb', 'server'],
+      preWired: [
+        ['client', 'lb'],
+        ['lb', 'server'],
+      ],
+      tray: [
+        { kind: 'db', count: 1 },
+        { kind: 'queue', count: 1 },
+        { kind: 'worker', count: 1 },
+        { kind: 'ext-api', count: 1 },
+      ],
+      checks: [
+        {
+          id: 'n1-data',
+          label: 'Comments sit behind the API',
+          when: { op: 'pathVia', from: 'client', to: 'db', via: 'server' },
+          hintNudge:
+            'The comment has to still be there tomorrow morning. Where is it going, and who gets to decide whether it may be written?',
+          hintPoint: {
+            highlight: ['db', 'server'],
+            text: 'The data lane is empty, so a comment has nowhere to live except in the memory of one server.',
+          },
+          hintMoves: [{ place: 'db' }, { connect: ['server', 'db'] }],
+          sayIt:
+            'Comments live in the database behind the API, so every write goes through code that checks who is posting.',
+        },
+        {
+          id: 'n1-hand',
+          label: 'The push is handed off',
+          when: { op: 'pathVia', from: 'server', to: 'worker', via: 'queue' },
+          hintNudge:
+            "The commenter is waiting to see their own comment appear. Should they also be waiting on somebody else's push service?",
+          hintPoint: {
+            highlight: ['queue', 'worker'],
+            text: 'The async lane is empty. Something has to hold the notification job, and something else has to come and take it.',
+          },
+          hintMoves: [
+            { place: 'queue' },
+            { place: 'worker' },
+            { connect: ['server', 'queue'] },
+            { connect: ['queue', 'worker'] },
+          ],
+          sayIt:
+            'The API writes a notify job on the queue and answers the commenter straight away. A worker picks the job up after that.',
+        },
+        {
+          id: 'n1-push',
+          label: 'Only the worker calls the provider',
+          when: { op: 'pathVia', from: 'server', to: 'ext-api', via: 'worker' },
+          hintNudge:
+            'Two things on that board could call the push provider. Which of them can afford to sit there for ten seconds?',
+          hintPoint: {
+            highlight: ['ext-api', 'worker'],
+            text: "The push provider is somebody else's machine, and nothing on your side is talking to it yet.",
+          },
+          hintMoves: [{ place: 'ext-api' }, { connect: ['worker', 'ext-api'] }],
+          sayIt:
+            'Only the worker calls the push provider, so a bad afternoon at their end makes a notification late rather than making the site slow.',
+        },
+      ],
+      clearLine:
+        'The comment lands in a few milliseconds and the push goes out on its own time. That is the split I was after.',
+      debrief:
+        'The queue is the line between what the commenter is waiting for and what they are not. Saving the comment is quick and has to happen now; the push goes through a provider that can be slow or down, so it happens behind the queue where nobody is watching the clock.',
+    },
+    {
+      requirement:
+        'Nine in the morning is digest hour: forty thousand notifications are due inside a few minutes, and one worker is still grinding through them at half past.',
+      tray: [
+        { kind: 'worker', count: 1 },
+        { kind: 'replica', count: 1, decoy: true },
+      ],
+      checks: [
+        {
+          id: 'n2-two',
+          label: 'More than one worker',
+          when: { op: 'placed', kind: 'worker', atLeast: 2 },
+          hintNudge:
+            'The queue is filling faster than it drains. When the list is long and every job on it is alike, what is the cheapest thing to add?',
+          hintPoint: {
+            highlight: ['worker'],
+            text: 'The async lane has room for another worker beside the first one.',
+          },
+          hintMoves: [{ place: 'worker' }],
+          sayIt:
+            'Notification jobs are all alike and none of them depends on the last, so two workers get through the list in half the time.',
+        },
+        {
+          id: 'n2-share',
+          label: 'Every worker pulls from the queue',
+          when: { op: 'eachConnected', each: 'worker', to: 'queue' },
+          hintNudge:
+            'There are two workers now. If only one of them can see the queue, what is the other one doing at nine in the morning?',
+          hintPoint: {
+            highlight: ['worker', 'queue'],
+            text: 'Each worker needs its own line to the queue, or the new one stands there with nothing to take.',
+          },
+          hintMoves: [{ connect: ['worker', 'queue'] }],
+          sayIt:
+            'Both workers pull from the same queue, and each job goes to whichever of them is free first.',
+        },
+        {
+          id: 'n2-push',
+          label: 'Every worker can reach the provider',
+          when: { op: 'eachConnected', each: 'worker', to: 'ext-api' },
+          hintNudge:
+            'The new worker has just taken a notification job off the queue. What does it need to reach to finish it?',
+          hintPoint: {
+            highlight: ['worker', 'ext-api'],
+            text: 'A worker with no line to the push provider takes jobs off the queue and can do nothing with them.',
+          },
+          hintMoves: [{ connect: ['worker', 'ext-api'] }],
+          sayIt:
+            'Each worker calls the provider itself, so a third one is the whole plan for a bigger digest hour.',
+        },
+        {
+          id: 'n2-decoy',
+          label: 'No database copy in this one',
+          when: { op: 'notPlaced', kind: 'replica' },
+          hintNudge:
+            "Before you copy the database, which part of the nine o'clock story was a read?",
+          hintPoint: {
+            highlight: ['replica'],
+            text: 'The backlog was notifications waiting to be sent, and not one of them was held up by a read.',
+          },
+          hintMoves: [{ remove: 'replica' }],
+          sayIt:
+            'I would not add a read replica here. Nothing in the digest hour was waiting on a database read.',
+        },
+      ],
+      clearLine:
+        "Two workers on one queue, and the nine o'clock burst is a list that gets shorter instead of longer.",
+      debrief:
+        'Scaling the async side is the same move as scaling the compute side: more copies of a thing that holds nothing of its own, all pulling from the same list. The queue is what makes that safe, because a job belongs to whichever worker picked it up rather than to the one that was supposed to.',
+    },
+  ],
+};
+
+const webhookFlood: Capstone = {
+  id: 'c9-03',
+  trackId: 't9',
+  title: 'The webhook flood',
+  difficulty: 3,
+  icon: 'inbox',
+  conceptIds: ['queues', 'idempotency'],
+  scenario:
+    'A payment partner sends us a webhook for every event on their side, in bursts of thousands, and they redeliver anything we have not acknowledged inside two seconds. The client on this board is their system, not a browser. The balancer is up; the rest is yours.',
+  stages: [
+    {
+      requirement:
+        'Acknowledge every delivery inside two seconds and lose none of them. The work each webhook triggers takes longer than that, so it cannot be happening while they wait.',
+      prePlaced: ['client', 'lb'],
+      preWired: [['client', 'lb']],
+      tray: [
+        { kind: 'server', count: 1 },
+        { kind: 'queue', count: 1 },
+        { kind: 'worker', count: 1 },
+        { kind: 'db', count: 1 },
+      ],
+      checks: [
+        {
+          id: 'w1-in',
+          label: 'Deliveries reach an API',
+          when: { op: 'pathVia', from: 'client', to: 'server', via: 'lb' },
+          hintNudge:
+            'Their system is posting to an address that answers with the balancer. What is behind it?',
+          hintPoint: {
+            highlight: ['server'],
+            text: 'The compute lane is empty, so the balancer has nothing to hand a delivery to.',
+          },
+          hintMoves: [{ place: 'server' }, { connect: ['lb', 'server'] }],
+          sayIt:
+            'Their deliveries land on the balancer and it spreads them across my API servers, the same as any other traffic.',
+        },
+        {
+          id: 'w1-ack',
+          label: 'The delivery is parked, not processed',
+          when: { op: 'pathVia', from: 'server', to: 'worker', via: 'queue' },
+          hintNudge:
+            'Two seconds to answer, and the work takes ten. What can the API do in that time that still counts as having the delivery?',
+          hintPoint: {
+            highlight: ['queue', 'worker'],
+            text: 'The async lane is empty, so a delivery has nowhere to go but straight into the work it asks for.',
+          },
+          hintMoves: [
+            { place: 'queue' },
+            { place: 'worker' },
+            { connect: ['server', 'queue'] },
+            { connect: ['queue', 'worker'] },
+          ],
+          sayIt:
+            'I write the delivery on a queue and acknowledge it. Taking a message and finishing the work it asks for are two different promises.',
+        },
+        {
+          id: 'w1-store',
+          label: 'A worker writes the events down',
+          when: { op: 'edge', a: 'worker', b: 'db' },
+          hintNudge:
+            'The queue is holding the deliveries for now. What turns them into something you can still look up next week?',
+          hintPoint: {
+            highlight: ['worker', 'db'],
+            text: 'The worker is draining the queue with nowhere to put what it takes off it.',
+          },
+          hintMoves: [{ place: 'db' }, { connect: ['worker', 'db'] }],
+          sayIt:
+            'The worker writes each event down under the id the partner gave it, so a redelivery of one I already have writes nothing twice.',
+        },
+        {
+          id: 'w1-noinline',
+          label: 'The API never writes inline',
+          when: { op: 'noEdge', a: 'server', b: 'db' },
+          hintNudge:
+            'The queue is doing the recording now. So what would a straight line from the API to the database still be for?',
+          hintPoint: {
+            highlight: ['server', 'db'],
+            text: 'Leave the line between the API server and the database off the board. A delivery reaches it the long way round, through the queue.',
+          },
+          hintMoves: [],
+          sayIt:
+            'The request that answers the partner never touches the database, so a slow write can never cost me the two seconds.',
+        },
+      ],
+      clearLine:
+        'Acknowledged in milliseconds, written down at leisure, nothing on the floor. That is the whole webhook pattern.',
+      debrief:
+        'A webhook endpoint has one job in the two seconds it is given: put the message somewhere it cannot be lost. Everything after that belongs behind the queue, where a slow database delays your own work instead of making the partner send everything a second time.',
+    },
+    {
+      requirement:
+        'Friday evening is their settlement run. Nothing is being lost, but by seven the queue is an hour deep and everything downstream of it is an hour out of date.',
+      tray: [
+        { kind: 'worker', count: 1 },
+        { kind: 'cache', count: 1, decoy: true },
+        { kind: 'replica', count: 1, decoy: true },
+      ],
+      checks: [
+        {
+          id: 'w2-two',
+          label: 'More than one worker',
+          when: { op: 'placed', kind: 'worker', atLeast: 2 },
+          hintNudge:
+            'The queue only gets longer between five and seven. What is on the draining end of it?',
+          hintPoint: {
+            highlight: ['worker'],
+            text: 'The async lane has room for another worker beside the first one.',
+          },
+          hintMoves: [{ place: 'worker' }],
+          sayIt:
+            'One queue, more workers. A backlog is a list, and two pairs of hands get through a list faster than one.',
+        },
+        {
+          id: 'w2-pull',
+          label: 'Every worker pulls from the queue',
+          when: { op: 'eachConnected', each: 'worker', to: 'queue' },
+          hintNudge: 'The second worker is on the board. What is it taking its work from?',
+          hintPoint: {
+            highlight: ['worker', 'queue'],
+            text: 'Each worker needs its own line to the queue, or the new one stands there empty handed.',
+          },
+          hintMoves: [{ connect: ['worker', 'queue'] }],
+          sayIt:
+            'Both workers take from the same queue, and each delivery is taken by whichever one is free.',
+        },
+        {
+          id: 'w2-write',
+          label: 'Every worker writes to the database',
+          when: { op: 'eachConnected', each: 'worker', to: 'db' },
+          hintNudge:
+            'The new worker has finished a job. Where does the event it just processed end up?',
+          hintPoint: {
+            highlight: ['worker', 'db'],
+            text: 'A worker with no line to the database drains the queue and drops everything it takes.',
+          },
+          hintMoves: [{ connect: ['worker', 'db'] }],
+          sayIt:
+            "Both workers write their own events down, and the partner's event id is what stops the two of them recording the same delivery twice.",
+        },
+        {
+          id: 'w2-budget',
+          label: 'Seven parts, and no spares',
+          when: { op: 'maxParts', n: 7 },
+          hintNudge:
+            'Read the board back as a sentence: deliveries come in, get parked, get written down. Is there a box up there outside that sentence?',
+          hintPoint: {
+            highlight: [],
+            text: 'There is more on the board than this story asked for, and nothing in the story was a read that hurt.',
+          },
+          hintMoves: [],
+          sayIt:
+            'Seven parts, and the two I left in the tray answer a read problem. This one was never about reads.',
+        },
+      ],
+      clearLine:
+        'The Friday backlog drains at twice the pace, and it cost you one box on the diagram.',
+      debrief:
+        'A queue that keeps growing is a shortage of workers, not a fault in the queue, so the answer is more hands rather than a redesign. Both workers are wired the same way on purpose: a fleet where one of them cannot reach the database drains at half the pace the moment that one picks up a job.',
+    },
+  ],
+};
+
+const standby: Capstone = {
+  id: 'c9-04',
+  trackId: 't9',
+  title: 'The standby',
+  difficulty: 2,
+  icon: 'shield',
+  conceptIds: ['replication', 'resilience'],
+  scenario:
+    'This is an internal orders tool. A few hundred people use it, nobody has ever complained about how fast it is, and it holds the only record of what the company has sold. The balancer is up. Build me the plain version, and then I will tell you about Friday.',
+  stages: [
+    {
+      requirement:
+        'Get it working. Somebody opens the tool, looks through the orders and adds a new one, and every order has to still be there after a restart.',
+      prePlaced: ['client', 'lb'],
+      preWired: [['client', 'lb']],
+      tray: [
+        { kind: 'server', count: 1 },
+        { kind: 'db', count: 1 },
+      ],
+      checks: [
+        {
+          id: 'b1-api',
+          label: 'The tool reaches an API',
+          when: { op: 'pathVia', from: 'client', to: 'server', via: 'lb' },
+          hintNudge:
+            'The balancer is up there with nothing behind it. What is it meant to be spreading requests across?',
+          hintPoint: {
+            highlight: ['server'],
+            text: 'The compute lane is empty, so the balancer has nowhere to send anything.',
+          },
+          hintMoves: [{ place: 'server' }, { connect: ['lb', 'server'] }],
+          sayIt:
+            'Requests land on the balancer and it hands them to an API server, which is the only thing that touches the orders.',
+        },
+        {
+          id: 'b1-data',
+          label: 'Orders sit behind the API',
+          when: { op: 'pathVia', from: 'client', to: 'db', via: 'server' },
+          hintNudge:
+            'If the tool could query the orders table for itself, what would stop it reading every number the company has?',
+          hintPoint: {
+            highlight: ['db', 'server'],
+            text: 'The database belongs on the far side of the server, not out where the tool can reach it.',
+          },
+          hintMoves: [{ place: 'db' }, { connect: ['server', 'db'] }],
+          sayIt:
+            'Orders live in the database behind the API, so every read and write of them goes through code that knows who is asking.',
+        },
+      ],
+      clearLine:
+        'That is the tool, and for a few hundred people it is honestly all it needs to be.',
+      debrief:
+        'Four boxes, and at this size speed is not the interesting question. The interesting question is what happens on the day one of those boxes stops, which is exactly where the next requirement is going.',
+    },
+    {
+      requirement:
+        'The database died at six on Friday and we got the last two days back off a nightly backup. That must not happen again. The reads are perfectly fine as they are, so keep this simple.',
+      tray: [
+        { kind: 'replica', count: 1 },
+        { kind: 'cache', count: 1, decoy: true },
+        { kind: 'worker', count: 1, decoy: true },
+      ],
+      checks: [
+        {
+          id: 'b2-copy',
+          label: 'A copy that keeps itself up to date',
+          when: { op: 'edge', a: 'db', b: 'replica' },
+          hintNudge:
+            'A nightly backup is already most of a day old by the evening. What would have been seconds old at six on Friday?',
+          hintPoint: {
+            highlight: ['replica', 'db'],
+            text: "There is one copy of the orders on that board, and last night's backup is not on it at all.",
+          },
+          hintMoves: [{ place: 'replica' }, { connect: ['db', 'replica'] }],
+          sayIt:
+            'A replica copies every write a moment after the primary makes it, so the worst Friday costs seconds of orders rather than two days of them.',
+        },
+        {
+          id: 'b2-standby',
+          label: 'The copy is a standby, not a reader',
+          when: { op: 'noEdge', a: 'server', b: 'replica' },
+          hintNudge:
+            'Nobody said the reads were slow. If you point the API at the copy as well, what have you actually bought?',
+          hintPoint: {
+            highlight: ['server', 'replica'],
+            text: 'Leave the line between the API server and the replica off the board. This copy is here to take over, not to answer questions.',
+          },
+          hintMoves: [],
+          sayIt:
+            'This replica is a standby: nothing reads from it, and it is there to be promoted the day the primary dies. The analytics pipeline wires the same part the opposite way, into its API server, because that copy exists to take reads.',
+        },
+        {
+          id: 'b2-lean',
+          label: 'Five parts, and no more',
+          when: { op: 'maxParts', n: 5 },
+          hintNudge:
+            'Nothing on Friday was slow, and nothing on Friday was work that could wait. So what would a cache or a worker be for?',
+          hintPoint: {
+            highlight: [],
+            text: 'There is more on the board than a lost database asked for. The complaint was about surviving, not about speed.',
+          },
+          hintMoves: [],
+          sayIt:
+            'Five parts. A cache and a worker answer problems this tool does not have, and I would add them the day it does.',
+        },
+      ],
+      clearLine:
+        'That is a tool that can lose its database on a Friday evening and come back missing seconds of orders rather than two days of them.',
+      debrief:
+        'A replica is one part with two completely different jobs, and what reads from it is what decides which one you built. Wired to nothing it is a standby waiting to be promoted; wired to the API it is there to take reads off the primary, which is what the analytics pipeline needed and this tool does not.',
+    },
+  ],
+};
+
+export const capstones: Capstone[] = [
+  photoSharing,
+  flashSale,
+  globalStorefront,
+  analyticsPipeline,
+  readStorm,
+  loginRush,
+  launchSite,
+  notificationFanOut,
+  webhookFlood,
+  standby,
+];

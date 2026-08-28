@@ -297,14 +297,34 @@ describe('one concept, several skins (docs/09)', () => {
 });
 
 describe('the authored capstones (docs/12)', () => {
-  it('ships the four the spec calls for, on their own tracks', () => {
-    expect(capstones.map((c) => c.id)).toEqual(['c5-01', 'c9-01', 'c8-01', 'c9-02']);
-    expect(capstonesForTrack('t5').map((c) => c.id)).toEqual(['c5-01']);
-    expect(capstonesForTrack('t8').map((c) => c.id)).toEqual(['c8-01']);
+  it('ships the ten the spec calls for, on their own tracks', () => {
+    expect(capstones.map((c) => c.id)).toEqual([
+      'c5-01',
+      'c9-01',
+      'c8-01',
+      'c9-02',
+      'c5-02',
+      'c8-02',
+      'c8-03',
+      'c5-03',
+      'c9-03',
+      'c9-04',
+    ]);
     // A track may end on more than one, and the path renders them in order.
-    expect(capstonesForTrack('t9').map((c) => c.id)).toEqual(['c9-01', 'c9-02']);
+    expect(capstonesForTrack('t5').map((c) => c.id)).toEqual(['c5-01', 'c5-02', 'c5-03']);
+    expect(capstonesForTrack('t8').map((c) => c.id)).toEqual(['c8-01', 'c8-02', 'c8-03']);
+    expect(capstonesForTrack('t9').map((c) => c.id)).toEqual(['c9-01', 'c9-02', 'c9-03', 'c9-04']);
     expect(getCapstone('c5-01')?.title).toBe('The photo-sharing app');
-    expect(getCapstone('c8-01')?.title).toBe('The global storefront');
+    expect(getCapstone('c8-03')?.title).toBe('The launch site');
+    expect(getCapstone('c9-04')?.title).toBe('The standby');
+  });
+
+  it('marks every capstone with a difficulty its station can show', () => {
+    // docs/12 part H: the path station carries it, on the same 1-3 scale the
+    // exercise rows above it use.
+    for (const capstone of capstones) {
+      expect([1, 2, 3], capstone.id).toContain(capstone.difficulty);
+    }
   });
 
   it('is solvable by following its own hints, every stage of it', () => {
@@ -371,20 +391,42 @@ describe('the authored capstones (docs/12)', () => {
     }
   });
 
-  it('argues against every decoy it offers', () => {
+  it('argues against every decoy it offers, by name or by budget', () => {
     const decoys = capstones.flatMap((c) =>
       c.stages.flatMap((s) => s.tray.filter((p) => p.decoy === true).map((p) => p.kind)),
     );
-    expect(decoys).toEqual(['replica', 'blob', 'lb', 'ext-api']);
+    expect(decoys).toEqual([
+      'replica',
+      'blob',
+      'lb',
+      'ext-api',
+      'queue',
+      'worker',
+      'ext-api',
+      'lb',
+      'cache',
+      'queue',
+      'replica',
+      'cache',
+      'replica',
+      'cache',
+      'worker',
+    ]);
     for (const capstone of capstones) {
-      const forbidden = capstone.stages
-        .flatMap((s) => s.checks)
+      const checks = capstone.stages.flatMap((s) => s.checks);
+      const forbidden = checks
         .filter((c) => c.when.op === 'notPlaced')
         .map((c) => (c.when.op === 'notPlaced' ? c.when.kind : null));
+      // A budget rules out a spare part without naming it, which is how the
+      // over-building traps are graded (docs/12 part H). validateCapstone is
+      // what checks the budget actually bites; this only asks that one exists.
+      const budgeted = checks.some((c) => c.when.op === 'maxParts');
       const offered = capstone.stages.flatMap((s) =>
         s.tray.filter((p) => p.decoy === true).map((p) => p.kind),
       );
-      for (const kind of offered) expect(forbidden, capstone.id).toContain(kind);
+      for (const kind of offered) {
+        expect(forbidden.includes(kind) || budgeted, `${capstone.id}: ${kind}`).toBe(true);
+      }
     }
   });
 
@@ -402,7 +444,7 @@ describe('the authored capstones (docs/12)', () => {
     const bonuses = capstones.flatMap((c) =>
       c.stages.flatMap((s) => s.checks.filter((check) => check.bonus === true)),
     );
-    expect(bonuses.map((b) => b.id)).toEqual(['s3-tidy', 'f2-bonus', 'g3-bonus']);
+    expect(bonuses.map((b) => b.id)).toEqual(['s3-tidy', 'f2-bonus', 'g3-bonus', 'r3-bonus']);
     for (const capstone of capstones) {
       for (const stage of capstone.stages) {
         expect(
@@ -419,5 +461,17 @@ describe('the authored capstones (docs/12)', () => {
     const cache = capstones[0].stages[1].checks.find((c) => c.id === 's2-cache');
     expect(cache?.when).toEqual({ op: 'eachConnected', each: 'server', to: 'cache' });
     expect(cache?.label.toLowerCase()).toContain('every server');
+  });
+
+  it('wires the replica both ways and says so in both capstones', () => {
+    // docs/12 part H: c9-04 is the deliberate contrast with c9-02, same parts
+    // and opposite wiring, so each of them has to name the other reading. A
+    // user who only ever meets one still hears that the other exists.
+    const pipeline = getCapstone('c9-02')?.stages[1].checks.find((c) => c.id === 'a2-read');
+    const standby = getCapstone('c9-04')?.stages[1].checks.find((c) => c.id === 'b2-standby');
+    expect(pipeline?.when).toEqual({ op: 'edge', a: 'server', b: 'replica' });
+    expect(standby?.when).toEqual({ op: 'noEdge', a: 'server', b: 'replica' });
+    expect(pipeline?.sayIt?.toLowerCase()).toContain('standby');
+    expect(standby?.sayIt?.toLowerCase()).toContain('analytics pipeline');
   });
 });

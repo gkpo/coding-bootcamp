@@ -200,6 +200,8 @@ export interface Capstone extends CapstoneSpec {
   title: string;
   /** 2-3 sentences of setup, interviewer voice. */
   scenario: string;
+  /** How hard the build is, on the same 1-3 scale exercises use (docs/12 part H). */
+  difficulty: Difficulty;
   icon: IconName;
   /** Cards linked from the summary. */
   conceptIds: string[];

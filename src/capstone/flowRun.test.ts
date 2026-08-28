@@ -73,6 +73,20 @@ describe('planRun', () => {
     expect(byId.get('s3-budget')?.route).toEqual([]);
   });
 
+  // What "Watch it run" replays (docs/12 part G). The replay re-plans from
+  // the build rather than keeping the first plan around, so planning has to
+  // be pure: the same board and the same checks give the same run, however
+  // many times the user asks for it.
+  it('plans a cleared build the same way every time it is asked', () => {
+    const cleared = runMoves(photo).stageBuilds[1];
+    const first = planRun(cleared, checksThrough(1));
+    const again = planRun(cleared, checksThrough(1));
+    expect(first.halted).toBe(false);
+    expect(first.steps).toHaveLength(checksThrough(1).length);
+    expect(again).toEqual(first);
+    expect(cleared).toEqual(runMoves(photo).stageBuilds[1]);
+  });
+
   it('lets a red bonus through without halting the run', () => {
     const build = buildOf(['server', 'db'], [[1, 2]]);
     const plan = planRun(build, [

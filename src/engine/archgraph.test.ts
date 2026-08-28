@@ -565,6 +565,46 @@ describe('runMoves', () => {
       'x-06 stage 1 check "early" connects server to db, which changes nothing',
     ]);
   });
+
+  it('wires only the pairs that are missing when a scale-out repeats a connect', () => {
+    // docs/12 part H rule 3: a second-copy check re-runs the connects its
+    // clones already have, so the reference build never draws a half-wired
+    // one. Repeating a connect must add the new pair and leave the old edge
+    // alone rather than drawing a second line on top of it.
+    const { stageBuilds, problems } = runMoves({
+      id: 'x-10',
+      stages: [
+        {
+          tray: [
+            { kind: 'server', count: 1 },
+            { kind: 'db', count: 1 },
+          ],
+          checks: [
+            {
+              id: 'first',
+              when: { op: 'edge', a: 'server', b: 'db' },
+              hintMoves: [{ place: 'server' }, { place: 'db' }, { connect: ['server', 'db'] }],
+            },
+          ],
+        },
+        {
+          tray: [{ kind: 'server', count: 1 }],
+          checks: [
+            {
+              id: 'second',
+              when: { op: 'eachConnected', each: 'server', to: 'db' },
+              hintMoves: [{ place: 'server' }, { connect: ['server', 'db'] }],
+            },
+          ],
+        },
+      ],
+    });
+    expect(problems).toEqual([]);
+    expect(stageBuilds[1].edges).toEqual([
+      [1, 2],
+      [2, 3],
+    ]);
+  });
 });
 
 describe('canonicalBuild', () => {
