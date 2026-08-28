@@ -2,9 +2,16 @@
 
 You are implementing a mobile-first interview-training web app that is fully specified in `docs/`. The planning was done deliberately and in detail; your job is execution, not re-design.
 
-## Delegation
+## Delegation and roles
 
-Implementation work (feature builds, content authoring, refactors, bug fixes) is delegated to the `opus-implementer` agent defined in `.claude/agents/opus-implementer.md`, which runs on Opus. The top-level session coordinates: it scopes the request, delegates the build, reviews the result against the docs, and handles verification follow-ups, git, and pull requests itself. Trivial one-line answers or read-only questions do not need delegation.
+Two models, two jobs. This split is deliberate and standing; do not collapse it because a task looks small.
+
+- **The top-level session (Fable) is the architect and never writes application code, styles, tests, or exercise content.** Its job is everything that could be decided wrong: interpreting the specs, resolving ambiguity, choosing the approach, naming the files and modules involved, and defining acceptance criteria. It writes the brief, reviews the diff that comes back against the docs and the brief, and owns verification sign-off, git, and pull requests.
+- **The `opus-implementer` agent (`.claude/agents/opus-implementer.md`, pinned to Opus) writes all the code and content.** It receives a brief with the decisions already made and implements exactly that. When it hits a question the brief does not answer, it reports back instead of making a product decision itself.
+
+Every brief must carry what the implementer needs to succeed without guessing: the task, the binding docs and sections, the files it is expected to touch, the decisions already taken (with the reasoning where it helps), edge cases considered, and the acceptance criteria including the verification commands and the mobile-viewport check. A thin brief is the architect's failure, not the implementer's.
+
+Exempt from delegation: read-only questions, git operations, and edits to coordination artifacts themselves (this file, agent definitions, briefs).
 
 ## How to work in this repo
 
