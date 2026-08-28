@@ -22,7 +22,8 @@ export function SheetDetailScreen() {
       <div className="stack">
         <h1 className="screen-title">Not found</h1>
         <Link to="/sheets" className="track-detail__back">
-          <BackIcon /> All sheets
+          <BackIcon size={20} />
+          <span>All sheets</span>
         </Link>
       </div>
     );
@@ -31,7 +32,8 @@ export function SheetDetailScreen() {
   return (
     <div className="stack">
       <Link to="/sheets" className="track-detail__back">
-        <BackIcon /> All sheets
+        <BackIcon size={20} />
+        <span>All sheets</span>
       </Link>
       <ConceptCardView card={card} />
       {card.related.length > 0 && (
