@@ -6,7 +6,7 @@ import { FlameIcon } from '../components/icons';
 import { ConceptIcon } from '../components/ConceptIcon';
 import { useCountUp } from '../components/useCountUp';
 import { BuildRender } from '../capstone/BuildRender';
-import { ReferenceSheet } from '../capstone/ReferenceSheet';
+import { ReferencePanel } from '../capstone/ReferencePanel';
 import { getCapstone, getCard, getExercise } from '../content';
 import type { Build } from '../engine/archgraph';
 import type { Result } from '../engine/leitner';
@@ -135,21 +135,19 @@ export function SessionSummaryScreen() {
             <Button
               variant="ghost"
               className="summary__debrief"
-              onClick={() => setDebriefOpen(true)}
+              aria-expanded={debriefOpen}
+              onClick={() => setDebriefOpen((open) => !open)}
             >
-              See the reference build
+              {debriefOpen ? 'Hide the reference build' : 'See the reference build'}
             </Button>
           )}
         </section>
       )}
 
-      {builtCapstone && (
-        <ReferenceSheet
-          capstone={builtCapstone}
-          stageIndex={builtCapstone.stages.length - 1}
-          open={debriefOpen}
-          onClose={() => setDebriefOpen(false)}
-        />
+      {/* Under the drawing it is being compared with, the same panel the board
+          screen opens on a cleared stage (docs/12 part F2). */}
+      {builtCapstone && debriefOpen && (
+        <ReferencePanel capstone={builtCapstone} stageIndex={builtCapstone.stages.length - 1} />
       )}
 
       {toughest && (

@@ -26,7 +26,7 @@ const WIDTH = 280;
  * Positions are arithmetic here rather than measured: nothing on this drawing
  * moves, and it has to render the same on a screen the user never scrolled.
  *
- * The debrief sheet draws the reference build with the same component and its
+ * The debrief panel draws the reference build with the same component and its
  * own label (docs/12 part F2), so the two pictures are the same picture.
  */
 export function BuildRender({ build, label = 'The system you built' }: Props) {
