@@ -27,9 +27,7 @@ function luminance(hex: string): number {
     return s <= 0.04045 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
   };
   return (
-    0.2126 * channel((n >> 16) & 255) +
-    0.7152 * channel((n >> 8) & 255) +
-    0.0722 * channel(n & 255)
+    0.2126 * channel((n >> 16) & 255) + 0.7152 * channel((n >> 8) & 255) + 0.0722 * channel(n & 255)
   );
 }
 
@@ -188,6 +186,26 @@ describe('token contrast', () => {
     });
   });
 
+  describe('the build-mode board (docs/12)', () => {
+    // Paper is the one surface in the app that is not a white card, so its
+    // ink has to be measured against it rather than assumed from the greys.
+    it.each(['ink-strong', 'paper-text', 'paper-dim'] as const)('--%s reads on --paper', (name) => {
+      expect(ratio(token(name), token('paper'))).toBeGreaterThanOrEqual(AA_TEXT);
+    });
+
+    it('--ink is visible as a drawn connection on --paper', () => {
+      // A stroke is a UI component, not text, so 3:1 is the bar it has to clear.
+      expect(ratio(token('ink'), token('paper'))).toBeGreaterThanOrEqual(AA_NON_TEXT);
+    });
+
+    it.each(['accent', 'danger'] as const)('--%s reads as a chip state on paper', (name) => {
+      // The armed ring and the ring a failed run leaves sit on white chips,
+      // but the board behind them is paper: both grounds have to work.
+      expect(ratio(token(name), token('paper'))).toBeGreaterThanOrEqual(AA_NON_TEXT);
+      expect(ratio(token(name), token('surface'))).toBeGreaterThanOrEqual(AA_NON_TEXT);
+    });
+  });
+
   describe('semantic colours as borders and glyphs', () => {
     // docs/06: success and danger are only ever borders, tints and small
     // glyphs, which are UI components needing 3:1 rather than 4.5:1.
@@ -219,9 +237,7 @@ describe('token contrast', () => {
     // Used for bar fills and icon glyphs, so they are UI components (3:1),
     // and docs/06 restricts them to 15px+ bold where they carry text.
     it.each(tracks)('--track-%s is visible on --surface', (track) => {
-      expect(ratio(token(`track-${track}`), token('surface'))).toBeGreaterThanOrEqual(
-        AA_NON_TEXT,
-      );
+      expect(ratio(token(`track-${track}`), token('surface'))).toBeGreaterThanOrEqual(AA_NON_TEXT);
     });
   });
 
@@ -280,7 +296,9 @@ describe('the tokens actually parse', () => {
     // semicolon: the declaration below has been absorbed into this value.
     const malformed = stripComments(TOKENS)
       .split(';')
-      .map((chunk) => chunk.slice(Math.max(chunk.lastIndexOf('{'), chunk.lastIndexOf('}')) + 1).trim())
+      .map((chunk) =>
+        chunk.slice(Math.max(chunk.lastIndexOf('{'), chunk.lastIndexOf('}')) + 1).trim(),
+      )
       .filter((tail) => tail.startsWith('--'))
       .filter((tail) => (tail.match(/:/g) ?? []).length !== 1);
 

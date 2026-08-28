@@ -10,6 +10,7 @@ import {
 import { PartGlyph } from '../components/PartGlyph';
 import { EASE, MICRO, motionOff } from './motion';
 import { LANE_LABEL, PART_LABEL, PART_NAME } from './parts';
+import { planWires, type WirePlan } from './wires';
 import './Board.css';
 
 export interface Point {
@@ -17,6 +18,9 @@ export interface Point {
   y: number;
 }
 export type Centers = Record<number, Point>;
+
+/** Matches .part in Board.css. The wire geometry needs it as a number. */
+const CHIP = 62;
 
 interface Props {
   build: Build;
@@ -32,24 +36,25 @@ interface Props {
   dotRef: RefObject<HTMLSpanElement | null>;
   /** Called when the chips move, so the run driver knows where they are. */
   onGeometry: (centers: Centers) => void;
+  /** The drawn wires, so the run driver can follow one rather than cut across it. */
+  onWires: (paths: Map<string, SVGPathElement>) => void;
   onPlace: (kind: PartKind) => void;
   onTapPart: (id: number) => void;
 }
 
-type Wire = { key: string; a: number; b: number };
-
 /**
- * The board: five lanes, the parts standing in them, and the lines between
- * (docs/12 part C).
+ * The board: five lanes, the parts standing in them, and the connections
+ * between (docs/12 part C).
  *
  * The lanes are the second of the three fences. A part can only enter its own
  * lane, so the layout is doing grading work: a build that looks wrong usually
  * is wrong, and the user never has to invent a diagram convention.
  *
- * Edge geometry is measured from the DOM rather than computed. The engine
+ * Chip positions are measured from the DOM rather than computed. The engine
  * knows which parts are joined and nothing about pixels, and the lanes space
- * their parts themselves, so the only honest source for where a line starts
- * is where the chip actually landed.
+ * their parts themselves, so the only honest source for where a connection
+ * starts is where the chip actually landed. Everything from there (anchors,
+ * fanning, the curve) is wires.ts.
  */
 export function Board({
   build,
@@ -59,6 +64,7 @@ export function Board({
   hitPartId,
   dotRef,
   onGeometry,
+  onWires,
   onPlace,
   onTapPart,
 }: Props) {
@@ -93,33 +99,43 @@ export function Board({
     return () => observer.disconnect();
   }, [measure]);
 
-  const wires = build.edges.map(([a, b]) => ({ key: wireKey(a, b), a, b }));
+  const wires = planWires(build.edges, centers, CHIP);
   const exiting = useExitingWires(build, wires);
-  const lines = useRef(new Map<string, SVGLineElement>());
-  useDrawnLines(lines, wires, exiting, centers);
+  const paths = useRef(new Map<string, SVGPathElement>());
+  useDrawnWires(paths, wires, exiting);
+
+  useEffect(() => {
+    onWires(paths.current);
+  }, [onWires, wires, exiting]);
+
+  const drawn = [...wires, ...exiting];
 
   return (
     <div className="board" ref={boardRef}>
       <svg className="board__edges" aria-hidden>
-        {[...wires, ...exiting].map((wire) => {
-          const from = centers[wire.a];
-          const to = centers[wire.b];
-          if (!from || !to) return null;
-          return (
-            <line
-              key={wire.key}
-              ref={(el) => {
-                if (el) lines.current.set(wire.key, el);
-                else lines.current.delete(wire.key);
-              }}
-              className="board__edge"
-              x1={from.x}
-              y1={from.y}
-              x2={to.x}
-              y2={to.y}
-            />
-          );
-        })}
+        {drawn.map((wire) => (
+          <path
+            key={wire.key}
+            ref={(el) => {
+              if (el) paths.current.set(wire.key, el);
+              else paths.current.delete(wire.key);
+            }}
+            className="board__edge"
+            d={wire.d}
+          />
+        ))}
+      </svg>
+
+      {/* The dots ride above the chips, overlapping the box they belong to:
+          that overlap is what says a connection is plugged in, and a line
+          crossing a chip without one is passing behind it. */}
+      <svg className="board__ports" aria-hidden>
+        {wires.map((wire) => (
+          <g key={wire.key}>
+            <circle className="board__port" cx={wire.fromPort.x} cy={wire.fromPort.y} r={2.5} />
+            <circle className="board__port" cx={wire.toPort.x} cy={wire.toPort.y} r={2.5} />
+          </g>
+        ))}
       </svg>
 
       {/* The one new moving element in the app. A cursor, not a character. */}
@@ -168,7 +184,7 @@ export function Board({
                   }
                   onClick={() => onTapPart(part.id)}
                 >
-                  <PartGlyph kind={part.kind} />
+                  <PartGlyph kind={part.kind} size={26} />
                   <span className="part__label">{PART_LABEL[part.kind]}</span>
                 </button>
               ))}
@@ -189,46 +205,20 @@ export function Board({
 }
 
 /**
- * A chip's center in the board's own coordinates, read off layout rather than
- * off the painted box.
- *
- * Deliberately not getBoundingClientRect: a chip flying in from the tray is
- * mid-transform, and a rect taken then anchors its lines to where it was
- * passing through. Offsets are where the chip actually lives, which is where
- * a line should meet it whatever is animating.
- */
-function centerWithin(el: HTMLElement, root: HTMLElement): Point | null {
-  let x = 0;
-  let y = 0;
-  let node: HTMLElement | null = el;
-  while (node !== null && node !== root) {
-    x += node.offsetLeft;
-    y += node.offsetTop;
-    node = node.offsetParent as HTMLElement | null;
-  }
-  if (node !== root) return null;
-  return { x: Math.round(x + el.offsetWidth / 2), y: Math.round(y + el.offsetHeight / 2) };
-}
-
-function wireKey(a: number, b: number): string {
-  return a < b ? `${a}-${b}` : `${b}-${a}`;
-}
-
-/**
- * Edges on their way out, kept on screen long enough to be un-drawn.
+ * Wires on their way out, kept on screen long enough to be un-drawn.
  *
  * A line that vanishes the instant it is tapped leaves the user wondering
  * whether they hit the right chip; reversing the draw answers that.
  */
-function useExitingWires(build: Build, wires: Wire[]): Wire[] {
-  const [exiting, setExiting] = useState<Wire[]>([]);
-  const previous = useRef<Wire[]>(wires);
+function useExitingWires(build: Build, wires: WirePlan[]): WirePlan[] {
+  const [exiting, setExiting] = useState<WirePlan[]>([]);
+  const previous = useRef<WirePlan[]>(wires);
 
   useEffect(() => {
     const present = new Set(wires.map((w) => w.key));
     const placed = new Set(build.parts.map((p) => p.id));
     const gone = previous.current.filter(
-      // A line whose part left the board goes with it, unmourned.
+      // A wire whose part left the board goes with it, unmourned.
       (w) => !present.has(w.key) && placed.has(w.a) && placed.has(w.b),
     );
     previous.current = wires;
@@ -246,12 +236,11 @@ function useExitingWires(build: Build, wires: Wire[]): Wire[] {
   return exiting;
 }
 
-/** Draws a new line on, and un-draws one on its way out. Stroke only. */
-function useDrawnLines(
-  lines: RefObject<Map<string, SVGLineElement>>,
-  wires: Wire[],
-  exiting: Wire[],
-  centers: Centers,
+/** Draws a new wire on, and un-draws one on its way out. Stroke only. */
+function useDrawnWires(
+  paths: RefObject<Map<string, SVGPathElement>>,
+  wires: WirePlan[],
+  exiting: WirePlan[],
 ) {
   const drawn = useRef(new Set<string>());
 
@@ -259,28 +248,23 @@ function useDrawnLines(
     if (motionOff()) return;
     for (const wire of wires) {
       if (drawn.current.has(wire.key)) continue;
-      const line = lines.current.get(wire.key);
-      const from = centers[wire.a];
-      const to = centers[wire.b];
-      if (!line || !from || !to) continue;
+      const path = paths.current.get(wire.key);
+      if (!path) continue;
       drawn.current.add(wire.key);
-      const length = Math.hypot(to.x - from.x, to.y - from.y);
-      line.style.strokeDasharray = `${length}`;
-      line.animate([{ strokeDashoffset: length }, { strokeDashoffset: 0 }], {
+      const length = path.getTotalLength();
+      path.style.strokeDasharray = `${length}`;
+      path.animate([{ strokeDashoffset: length }, { strokeDashoffset: 0 }], {
         duration: MICRO,
         easing: EASE,
       });
     }
     for (const wire of exiting) {
-      const line = lines.current.get(wire.key);
-      if (!line || !drawn.current.has(wire.key)) continue;
+      const path = paths.current.get(wire.key);
+      if (!path || !drawn.current.has(wire.key)) continue;
       drawn.current.delete(wire.key);
-      const from = centers[wire.a];
-      const to = centers[wire.b];
-      if (!from || !to) continue;
-      const length = Math.hypot(to.x - from.x, to.y - from.y);
-      line.style.strokeDasharray = `${length}`;
-      line.animate([{ strokeDashoffset: 0 }, { strokeDashoffset: length }], {
+      const length = path.getTotalLength();
+      path.style.strokeDasharray = `${length}`;
+      path.animate([{ strokeDashoffset: 0 }, { strokeDashoffset: length }], {
         duration: MICRO,
         easing: EASE,
         fill: 'forwards',
@@ -289,7 +273,29 @@ function useDrawnLines(
     // Keys that left entirely (a removed part) must not block a redraw later.
     const live = new Set([...wires, ...exiting].map((w) => w.key));
     for (const key of drawn.current) if (!live.has(key)) drawn.current.delete(key);
-  }, [lines, wires, exiting, centers]);
+  }, [paths, wires, exiting]);
+}
+
+/**
+ * A chip's center in the board's own coordinates, read off layout rather than
+ * off the painted box.
+ *
+ * Deliberately not getBoundingClientRect: a chip flying in from the tray is
+ * mid-transform, and a rect taken then anchors its lines to where it was
+ * passing through. Offsets are where the chip actually lives, which is where
+ * a connection should meet it whatever is animating.
+ */
+function centerWithin(el: HTMLElement, root: HTMLElement): Point | null {
+  let x = 0;
+  let y = 0;
+  let node: HTMLElement | null = el;
+  while (node !== null && node !== root) {
+    x += node.offsetLeft;
+    y += node.offsetTop;
+    node = node.offsetParent as HTMLElement | null;
+  }
+  if (node !== root) return null;
+  return { x: Math.round(x + el.offsetWidth / 2), y: Math.round(y + el.offsetHeight / 2) };
 }
 
 function same(a: Centers, b: Centers): boolean {

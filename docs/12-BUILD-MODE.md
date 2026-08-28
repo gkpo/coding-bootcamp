@@ -22,11 +22,17 @@ Pure module, no React, no DOM (docs/05 engine purity). This is where the whole i
 
 ```ts
 type PartKind =
-  | 'client' | 'cdn'                      // edge lane
-  | 'lb'                                  // entry lane
-  | 'server'                              // compute lane
-  | 'queue' | 'worker'                    // async lane
-  | 'cache' | 'db' | 'replica' | 'blob' | 'ext-api'; // data lane
+  | 'client'
+  | 'cdn' // edge lane
+  | 'lb' // entry lane
+  | 'server' // compute lane
+  | 'queue'
+  | 'worker' // async lane
+  | 'cache'
+  | 'db'
+  | 'replica'
+  | 'blob'
+  | 'ext-api'; // data lane
 
 type LaneId = 'edge' | 'entry' | 'compute' | 'async' | 'data';
 
@@ -34,7 +40,7 @@ const PART_LANES: Record<PartKind, LaneId>; // the mapping in the comments above
 
 interface Build {
   parts: { id: number; kind: PartKind }[]; // id unique within the build
-  edges: [number, number][];               // undirected, by part id
+  edges: [number, number][]; // undirected, by part id
 }
 ```
 
@@ -47,12 +53,12 @@ Checks are data, never functions: content stays serializable literals and the en
 ```ts
 type Predicate =
   | { op: 'placed'; kind: PartKind; atLeast?: number } // instance count >= atLeast (default 1)
-  | { op: 'notPlaced'; kind: PartKind }                // zero instances (decoy checks)
-  | { op: 'edge'; a: PartKind; b: PartKind }           // some direct connection exists
-  | { op: 'noEdge'; a: PartKind; b: PartKind }         // no direct connection exists
-  | { op: 'path'; from: PartKind; to: PartKind }       // connected by any route
+  | { op: 'notPlaced'; kind: PartKind } // zero instances (decoy checks)
+  | { op: 'edge'; a: PartKind; b: PartKind } // some direct connection exists
+  | { op: 'noEdge'; a: PartKind; b: PartKind } // no direct connection exists
+  | { op: 'path'; from: PartKind; to: PartKind } // connected by any route
   | { op: 'pathVia'; from: PartKind; to: PartKind; via: PartKind }
-  | { op: 'maxParts'; n: number };                     // total placed instances <= n
+  | { op: 'maxParts'; n: number }; // total placed instances <= n
 ```
 
 Exact semantics, so the tests are mechanical:
@@ -88,33 +94,33 @@ A capstone is not an `Exercise`: different frame, different progress, different 
 
 ```ts
 interface Capstone {
-  id: string;            // "c5-01", stable, progress keys off it
+  id: string; // "c5-01", stable, progress keys off it
   trackId: TrackId;
-  title: string;         // "The photo-sharing app"
-  scenario: string;      // 2-3 sentences of setup, interviewer voice
+  title: string; // "The photo-sharing app"
+  scenario: string; // 2-3 sentences of setup, interviewer voice
   icon: IconName;
-  conceptIds: string[];  // cards linked from the summary
+  conceptIds: string[]; // cards linked from the summary
   stages: CapstoneStage[]; // 2-3
 }
 
 interface CapstoneStage {
-  requirement: string;   // the interviewer's ask for this stage, 1-2 sentences
+  requirement: string; // the interviewer's ask for this stage, 1-2 sentences
   tray: { kind: PartKind; count: 1 | 2; decoy?: true }[]; // parts ADDED this stage
-  prePlaced?: PartKind[];         // stage 1 only: the board's starting parts
+  prePlaced?: PartKind[]; // stage 1 only: the board's starting parts
   preWired?: [PartKind, PartKind][]; // stage 1 only: starting edges between pre-placed parts
   checks: CapstoneCheck[]; // 2-4 non-bonus + at most 1 bonus
-  clearLine: string;     // shown on stage clear, interviewer voice
+  clearLine: string; // shown on stage clear, interviewer voice
 }
 
 interface CapstoneCheck {
-  id: string;            // unique within the capstone
-  label: string;         // plain words, <= 8 words, shown in the check row
+  id: string; // unique within the capstone
+  label: string; // plain words, <= 8 words, shown in the check row
   when: Predicate;
-  hintNudge: string;     // level 1: Socratic question, interviewer voice
+  hintNudge: string; // level 1: Socratic question, interviewer voice
   hintPoint: { highlight: PartKind[]; text: string }; // level 2: where to look
-  hintMoves: Move[];     // level 3: the exact actions (1-4), also the canonical solution
-  sayIt?: string;        // interviewer-approved sentence, shown when the check passes
-  bonus?: true;          // hidden until it passes; never blocks a stage
+  hintMoves: Move[]; // level 3: the exact actions (1-4), also the canonical solution
+  sayIt?: string; // interviewer-approved sentence, shown when the check passes
+  bonus?: true; // hidden until it passes; never blocks a stage
 }
 
 type Move =
@@ -146,9 +152,9 @@ New folder `src/capstone/` (Board, Tray, CheckRow, flow-runner), screen `screens
 
 Layout, top to bottom, at 390x844: requirement card (interviewer line, `--surface`, standard card), the board, the check strip, the tray, the primary button ("Run it", full primary style including the 19px/800 label rule).
 
-- **Board**: a `--surface` card containing five horizontal lanes, ~60px tall, separated by hairline `--border` dividers, each labeled at the left edge in 12px uppercase `--text-dim` (Edge, Entry, Compute, Async, Data). Placed parts auto-space within their lane; the lane never scrolls (capacity 3 guarantees fit).
-- **Part chip**: 56x56, radius 12, `--surface-2` fill, 1px `--border`, the part glyph at 24px stroke in `--text`, kind label under it at 12px `--text-dim`. Armed (selected): 2px `--accent` ring, no scale change. New glyphs live in `src/components/PartGlyph.tsx`, drawn in the ConceptIcon stroke style, one per `PartKind` (compile error until drawn, by design). The fixed glyph vocabulary is the point: the same cache shape every time is how whiteboard shapes become reflexes.
-- **Edges**: one SVG layer under the chips; straight lines, 2px stroke, `--text-dim` at 55% opacity. Endpoint anchors are chip centers; the renderer owns geometry, the engine never sees pixels.
+- **Board**: a `--paper` card with a faint dot grid and 14px of padding, containing five horizontal lanes, 80px tall, separated by hairline `--paper-line` dividers. Each lane's name sits **above** its row as a 12px uppercase `--paper-dim` caption (Edge, Entry, Compute, Async, Data), not in a rail beside it: a rail costs 64px of every row and pushes every part right of the card's centre line, which is what made the first board read as unbalanced. Placed parts space themselves across the full width; the lane never scrolls (capacity 3 guarantees fit).
+- **Part chip**: 62x62, radius 14, `--surface` fill on a 1px `--paper-edge` and a 1px soft shadow, the part glyph at 26px stroke in `--ink-strong`, kind label 6px under it at 12px `--paper-text`. Armed (selected): 2px `--accent` ring, no scale change. New glyphs live in `src/components/PartGlyph.tsx`, drawn in the ConceptIcon stroke style, one per `PartKind` (compile error until drawn, by design). The fixed glyph vocabulary is the point: the same cache shape every time is how whiteboard shapes become reflexes.
+- **Edges**: two SVG layers, the connections under the chips and their end dots above. 1.6px `--ink` at 55%, drawn as a cubic with tangents perpendicular to the edge it leaves, so a connection grows out of a chip rather than grazing it and a crossing reads as one line passing over another. Two chips in the same row are joined by a straight line: there is nothing to curve around, and bending it looks like a machine drew it. Anchors sit on the chip **edge**, not its centre, and are **fanned** along that edge in the order of where they are going, so four connections leaving one server do not stack into a single stroke. Each connection ends in a 2.5px `--ink` dot nudged 2px onto the chip, which is what tells a connection apart from a line passing behind a chip on its way somewhere else. The renderer owns all of this geometry (`capstone/wires.ts`, pure and tested); the engine never sees pixels.
 - **Interaction**, all taps: tap a tray chip to arm it (its legal lane gets a soft `--accent` ring at ~25% opacity; illegal lanes do not react); tap the lane to place. Tap a placed chip to arm it; tap a second placed chip to toggle the edge between them (this is also how an edge is removed: same two taps); tap the armed chip again to disarm. While a placed chip is armed, a ghost button "Return to tray" appears under the board. Every tap target >= 44px (chips are 56, lanes are 60).
 - **Check strip**: one row per non-bonus check, 44px tall, radius-full pill: a 20px state ring (like the mcq option ring) plus the check's `label`. Before the first run all rings are empty `--border`. The strip is visible from the start: the checks are the acceptance criteria the user builds against, never a surprise.
 - **Stage flow**: clearing a stage swaps the requirement card's text, appends the new stage's checks to the strip, and adds the new tray parts. Cleared checks stay in the strip and stay evaluated on every run: a later stage can break an earlier guarantee and the strip must show it (this is the whole "now scale it" lesson; part E stage 2 relies on it).
@@ -160,7 +166,7 @@ This section is binding the way docs/06 is. The bar: **snappy, solid, quietly pr
 
 - **Place**: the chip translates from its tray position to its lane slot along a straight line, 250ms, settling with no overshoot. It is a chess move, not a toss. The tray gap closes in the same 250ms.
 - **Connect**: the edge draws from the armed chip to the tapped chip in 150ms (stroke-dashoffset). Removal reverses it. No glow.
-- **Run it**: checks execute visibly but fast; a full green run over 5 checks completes in about 2 seconds and a failure stops earlier. Per check: an 8px `--accent` dot appears at the check's relevant source, travels its route at 150ms per hop, and the check row's ring fills `--success` (150ms) as the dot arrives. Checks with no sensible route (`placed`, `notPlaced`, `maxParts`) skip the dot and resolve their ring 150ms after the previous check. The dot is the app's one new moving element, and it is a cursor, not a character: constant size, no trail, no easing tricks between hops.
+- **Run it**: checks execute visibly but fast; a full green run over 5 checks completes in about 2 seconds and a failure stops earlier. Per check: an 8px `--accent` dot appears at the check's relevant source, travels its route at 150ms per hop **along the drawn connection** (the renderer samples the path, so the dot never cuts across a curve it is meant to be tracing), and the check row's ring fills `--success` (150ms) as the dot arrives. Checks with no sensible route (`placed`, `notPlaced`, `maxParts`) skip the dot and resolve their ring 150ms after the previous check. The dot is the app's one new moving element, and it is a cursor, not a character: constant size, no trail, no easing tricks between hops.
 - **Failure**: the run halts at the first failing check. The dot stops at the part where the story breaks (or the row resolves dotless), the implicated chip takes a `--danger` border and the standard 250ms ±4px shake, and the check row's ring fills `--danger`. Unreached checks keep empty rings. One shake, one color, silence after; the miss reads as a shrug, exactly like a wrong mcq option.
 - **Stage clear**: the remaining rings cascade `--success` left to right at 45ms apart (the summary-dots pattern), the `clearLine` replaces the requirement text with a 250ms fade-slide, and the new tray chips fade-slide in staggered 45ms. Nothing blooms mid-capstone.
 - **Capstone complete**: navigate to the standard summary screen; the existing count-up, single bloom and result-dot cascade are the celebration. Build mode adds nothing on top; the reward is the finished architecture itself, so the summary shows a small static render of the final build.

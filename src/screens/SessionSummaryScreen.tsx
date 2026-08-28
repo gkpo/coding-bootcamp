@@ -123,7 +123,7 @@ export function SessionSummaryScreen() {
       </section>
 
       {capstone && (
-        <section className="card">
+        <section className="card summary__build">
           <h2 className="summary__label">What you built</h2>
           <BuildRender build={capstone.build} />
         </section>

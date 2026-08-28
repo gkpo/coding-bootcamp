@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { Board, type Centers } from '../capstone/Board';
+import { wireKey } from '../capstone/wires';
 import { CheckStrip, type CheckState } from '../capstone/CheckStrip';
 import { Tray } from '../capstone/Tray';
 import { planRun } from '../capstone/flowRun';
@@ -89,6 +90,7 @@ function CapstoneRun({ capstone }: { capstone: Capstone }) {
   const bodyRef = useRef<HTMLElement>(null);
   const dotRef = useRef<HTMLSpanElement>(null);
   const geometry = useRef<Centers>({});
+  const wires = useRef(new Map<string, SVGPathElement>());
   const pendingFlip = useRef<PendingFlip | null>(null);
   const stopRun = useRef<(() => void) | null>(null);
 
@@ -115,6 +117,16 @@ function CapstoneRun({ capstone }: { capstone: Capstone }) {
   const rememberGeometry = useCallback((centers: Centers) => {
     geometry.current = centers;
   }, []);
+
+  const rememberWires = useCallback((paths: Map<string, SVGPathElement>) => {
+    wires.current = paths;
+  }, []);
+
+  /** The first part of a kind: the one the dot visits when a kind has two. */
+  const partOf = useCallback(
+    (kind: PartKind) => build.parts.find((part) => part.kind === kind),
+    [build.parts],
+  );
 
   useEffect(() => () => stopRun.current?.(), []);
 
@@ -231,8 +243,18 @@ function CapstoneRun({ capstone }: { capstone: Capstone }) {
     stopRun.current = playRun({
       plan,
       positionOf: (kind) => {
-        const part = build.parts.find((p) => p.kind === kind);
+        const part = partOf(kind);
         return part ? (geometry.current[part.id] ?? null) : null;
+      },
+      // Walk the connection the user actually drew, curve and all.
+      along: (from, to, t) => {
+        const a = partOf(from);
+        const b = partOf(to);
+        if (!a || !b) return null;
+        const path = wires.current.get(wireKey(a.id, b.id));
+        if (!path) return null;
+        const at = path.getPointAtLength(path.getTotalLength() * t);
+        return { x: at.x, y: at.y };
       },
       dot: dotRef.current,
       reduceMotion: motionOff(),
@@ -312,6 +334,7 @@ function CapstoneRun({ capstone }: { capstone: Capstone }) {
           hitPartId={hitPartId}
           dotRef={dotRef}
           onGeometry={rememberGeometry}
+          onWires={rememberWires}
           onPlace={placeIn}
           onTapPart={tapPart}
         />

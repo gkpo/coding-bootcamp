@@ -2,81 +2,105 @@
 
 .board {
   position: relative;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--r-card);
-  overflow: hidden;
+  /* Paper rather than another white card: this is the one surface in the app
+     that stands in for a whiteboard, and the faint grid is what says so. */
+  background: var(--paper);
+  border: 1px solid var(--paper-edge);
+  border-radius: 18px;
+  padding: 14px;
+  background-image: radial-gradient(var(--paper-grid) 1px, transparent 1px);
+  background-size: 15px 15px;
 }
 
 /* One layer for every line, under the chips and deaf to taps: the chips are
    the targets, the lines are the record of what the taps did. */
-.board__edges {
+/* Inset 0, not the board's padding: a chip's offsetLeft is measured from the
+   padding edge, which is exactly where an absolutely positioned child starts.
+   Insetting these by the padding too would count it twice. */
+.board__edges,
+.board__ports {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  z-index: 1;
   pointer-events: none;
+  overflow: visible;
+}
+
+.board__edges {
+  z-index: 1;
+}
+
+/* Above the chips, so a dot can sit on the box it is plugged into. */
+.board__ports {
+  z-index: 3;
 }
 
 .board__edge {
-  stroke: var(--text-dim);
-  stroke-width: 2;
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.6;
   stroke-linecap: round;
+  stroke-linejoin: round;
   opacity: 0.55;
+}
+
+.board__port {
+  fill: var(--ink);
 }
 
 .lane {
   position: relative;
   display: flex;
-  align-items: center;
-  gap: var(--sp-2);
-  height: 60px;
-  padding: 0 var(--sp-3);
+  flex-direction: column;
+  height: 80px;
 }
 
 .lane + .lane {
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--paper-line);
 }
 
+/* The lane name sits above its row rather than in a column beside it. A rail
+   on the left costs 64px of every row and pushes every part right of the
+   card's centre line, which is most of why the board read as unbalanced. */
 .lane__label {
-  /* Wide enough for "Compute" on one line. A label that overflows its column
-     ends up a pixel from the first chip in a lane holding three. */
   flex: 0 0 auto;
-  width: 64px;
-  white-space: nowrap;
+  line-height: 20px;
+  padding-left: 2px;
   font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
+  font-weight: 600;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--text-dim);
+  color: var(--paper-dim);
 }
 
-/* Parts space themselves. Three to a lane is the cap, which is what
-   guarantees a lane never has to scroll on a 390px screen. */
+/* Parts space themselves across the full width. Three to a lane is the cap,
+   which is what guarantees a lane never has to scroll on a 390px screen. */
 .lane__parts {
   flex: 1 1 auto;
   min-width: 0;
   display: flex;
   align-items: center;
-  justify-content: space-evenly;
+  justify-content: center;
+  gap: 24px;
 }
 
 .part {
   position: relative;
   z-index: 2;
   flex: 0 0 auto;
-  width: 56px;
-  height: 56px;
+  width: 62px;
+  height: 62px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  color: var(--text);
+  gap: 6px;
+  background: var(--surface);
+  border: 1px solid var(--paper-edge);
+  border-radius: 14px;
+  box-shadow: 0 1px 2px rgba(70, 58, 34, 0.1);
+  color: var(--ink-strong);
   transition:
     border-color var(--dur-micro) var(--ease),
     box-shadow var(--dur-micro) var(--ease);
@@ -86,7 +110,7 @@
   font-size: 12px;
   line-height: 1;
   letter-spacing: -0.01em;
-  color: var(--text-dim);
+  color: var(--paper-text);
 }
 
 /* Armed. A ring rather than a lift or a scale: the chip has not moved, it is
@@ -94,14 +118,18 @@
    the 2px inside the 56px, so nothing shifts by a pixel when it arms. */
 .part.is-armed {
   border-color: var(--accent);
-  box-shadow: inset 0 0 0 1px var(--accent);
+  box-shadow:
+    inset 0 0 0 1px var(--accent),
+    0 1px 2px rgba(70, 58, 34, 0.1);
 }
 
 /* The part a failed run stopped on. One shake and one colour, then silence:
    the miss reads as a shrug, exactly like a wrong option does. */
 .part.is-hit {
   border-color: var(--danger);
-  box-shadow: inset 0 0 0 1px var(--danger);
+  box-shadow:
+    inset 0 0 0 1px var(--danger),
+    0 1px 2px rgba(70, 58, 34, 0.1);
   animation: shake-x var(--dur-standard) var(--ease);
 }
 
@@ -112,8 +140,8 @@
 .lane.is-pointed::after {
   content: '';
   position: absolute;
-  inset: 3px;
-  border-radius: 12px;
+  inset: 2px;
+  border-radius: 14px;
   border: 2px solid color-mix(in srgb, var(--accent) 25%, transparent);
   pointer-events: none;
 }
@@ -124,8 +152,8 @@
 .lane.is-full::after {
   content: '';
   position: absolute;
-  inset: 3px;
-  border-radius: 12px;
+  inset: 2px;
+  border-radius: 14px;
   border: 2px solid color-mix(in srgb, var(--text-dim) 25%, transparent);
   pointer-events: none;
 }
@@ -137,7 +165,7 @@
   position: absolute;
   top: 0;
   left: 0;
-  z-index: 4;
+  z-index: 5;
   width: 8px;
   height: 8px;
   margin: -4px 0 0 -4px;
@@ -152,9 +180,9 @@
    reacts at all. */
 .lane__drop {
   position: absolute;
-  inset: 3px;
-  z-index: 3;
-  border-radius: 12px;
+  inset: 2px;
+  z-index: 4;
+  border-radius: 14px;
   border: 2px solid color-mix(in srgb, var(--accent) 25%, transparent);
   background: color-mix(in srgb, var(--accent) 6%, transparent);
 }

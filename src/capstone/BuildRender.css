@@ -1,21 +1,29 @@
-/* The small still drawing of a finished build, on the summary screen. */
+/* The small still drawing of a finished build, on the summary screen. Same
+   paper and the same ink as the board it came off. */
 
 .mini {
   display: block;
   width: 100%;
   height: auto;
-  color: var(--text);
+  color: var(--ink-strong);
+  overflow: visible;
 }
 
 .mini__chip {
-  fill: var(--surface-2);
-  stroke: var(--border);
+  fill: var(--surface);
+  stroke: var(--paper-edge);
   stroke-width: 1;
 }
 
 .mini__edge {
-  stroke: var(--text-dim);
-  stroke-width: 1.5;
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.2;
   stroke-linecap: round;
+  stroke-linejoin: round;
   opacity: 0.55;
+}
+
+.mini__port {
+  fill: var(--ink);
 }
