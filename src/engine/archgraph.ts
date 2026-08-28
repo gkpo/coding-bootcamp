@@ -117,6 +117,106 @@ export function toggleEdge(build: Build, a: number, b: number): Build {
   return { parts: build.parts, edges: [...build.edges, pair(a, b)] };
 }
 
+/**
+ * The route the flow dot walks for one check (docs/12 part D).
+ *
+ * Kinds rather than parts: the dot is a cursor over the story the check
+ * tells, and the renderer decides which instance of a kind it lands on. An
+ * empty route is a check with nothing to walk, which is most of the counting
+ * ones; those resolve their ring where they stand.
+ */
+export interface Trace {
+  route: PartKind[];
+  /** On a failure, the part where the story breaks. Null when nothing is there. */
+  stopsAt: PartKind | null;
+}
+
+/** Breadth-first, so a route is the shortest one and reads as the obvious one. */
+function shortestRoute(
+  graph: KindGraph,
+  from: PartKind,
+  to: PartKind,
+  without?: PartKind,
+): PartKind[] | null {
+  if (from === without || to === without) return null;
+  if (!isPlaced(graph, from) || !isPlaced(graph, to)) return null;
+  if (from === to) return [from];
+
+  const cameFrom = new Map<PartKind, PartKind>();
+  const seen = new Set<PartKind>([from]);
+  const queue: PartKind[] = [from];
+  while (queue.length > 0) {
+    const current = queue.shift() as PartKind;
+    for (const next of graph.neighbours.get(current) ?? []) {
+      if (next === without || seen.has(next)) continue;
+      seen.add(next);
+      cameFrom.set(next, current);
+      if (next === to) {
+        const route = [to];
+        let step = to;
+        while (step !== from) {
+          step = cameFrom.get(step) as PartKind;
+          route.unshift(step);
+        }
+        return route;
+      }
+      queue.push(next);
+    }
+  }
+  return null;
+}
+
+/**
+ * What the dot does for this check, on this build.
+ *
+ * On a pass it walks the thing the check is asserting. On a failure it walks
+ * as much of the story as exists and stops where it breaks, which for a
+ * pathVia beaten by a bypass means walking the bypass: that route is the
+ * mistake, so showing it is the whole explanation.
+ */
+export function trace(build: Build, predicate: Predicate): Trace {
+  const graph = kindGraph(build);
+  const here = (kind: PartKind): PartKind | null => (isPlaced(graph, kind) ? kind : null);
+  const stall = (kind: PartKind): Trace => {
+    const at = here(kind);
+    return { route: at ? [at] : [], stopsAt: at };
+  };
+
+  switch (predicate.op) {
+    case 'placed':
+    case 'maxParts':
+      return { route: [], stopsAt: null };
+    case 'notPlaced':
+      // Only interesting when it fails, and then the offending part is there.
+      return { route: [], stopsAt: here(predicate.kind) };
+    case 'edge':
+      if (directlyJoined(graph, predicate.a, predicate.b)) {
+        return { route: [predicate.a, predicate.b], stopsAt: null };
+      }
+      return stall(predicate.a).stopsAt === null ? stall(predicate.b) : stall(predicate.a);
+    case 'noEdge':
+      if (!directlyJoined(graph, predicate.a, predicate.b)) return { route: [], stopsAt: null };
+      // The edge that should not be there is exactly what to walk.
+      return { route: [predicate.a, predicate.b], stopsAt: predicate.b };
+    case 'path': {
+      const route = shortestRoute(graph, predicate.from, predicate.to);
+      if (route) return { route, stopsAt: null };
+      return stall(predicate.from).stopsAt === null ? stall(predicate.to) : stall(predicate.from);
+    }
+    case 'pathVia': {
+      const { from, to, via } = predicate;
+      if (via !== from && via !== to && isPlaced(graph, via)) {
+        const bypass = shortestRoute(graph, from, to, via);
+        // A bypass is the failure, so walk it and stop on the far end.
+        if (bypass) return { route: bypass, stopsAt: bypass[bypass.length - 1] };
+        const route = shortestRoute(graph, from, to);
+        if (route) return { route, stopsAt: null };
+      }
+      return stall(from).stopsAt === null ? stall(to) : stall(from);
+    }
+  }
+}
+
 /** Whether any instance of one kind is wired to any instance of another. */
 export function hasKindEdge(build: Build, a: PartKind, b: PartKind): boolean {
   return directlyJoined(kindGraph(build), a, b);

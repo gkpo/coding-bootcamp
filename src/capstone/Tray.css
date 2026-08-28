@@ -11,6 +11,23 @@
   background: var(--surface);
 }
 
+/* A new stage's parts arrive rather than appear, one after another, so it
+   reads as the interviewer putting them on the table. */
+.tray__part.is-arriving {
+  animation: tray-in var(--dur-standard) var(--ease) both;
+}
+
+@keyframes tray-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 .tray__count {
   position: absolute;
   top: -6px;

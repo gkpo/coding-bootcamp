@@ -97,6 +97,14 @@
   box-shadow: inset 0 0 0 1px var(--accent);
 }
 
+/* The part a failed run stopped on. One shake and one colour, then silence:
+   the miss reads as a shrug, exactly like a wrong option does. */
+.part.is-hit {
+  border-color: var(--danger);
+  box-shadow: inset 0 0 0 1px var(--danger);
+  animation: shake-x var(--dur-standard) var(--ease);
+}
+
 .part.is-pointed {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent);
 }
@@ -107,6 +115,23 @@
   inset: 3px;
   border-radius: 12px;
   border: 2px solid color-mix(in srgb, var(--accent) 25%, transparent);
+  pointer-events: none;
+}
+
+/* The flow dot: the one new moving element in the app (docs/12 part D). Its
+   transform is written by the run driver rather than by React, so a run costs
+   no re-renders. */
+.board__dot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 4;
+  width: 8px;
+  height: 8px;
+  margin: -4px 0 0 -4px;
+  border-radius: var(--r-pill);
+  background: var(--accent);
+  opacity: 0;
   pointer-events: none;
 }
 

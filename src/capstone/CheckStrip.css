@@ -44,6 +44,22 @@
   line-height: 1.35;
 }
 
+/* Stage cleared: every ring confirms in turn, and nothing blooms. The board
+   has already told the story; this is the full stop on it. */
+.checks.is-cleared .check.is-pass .check__ring {
+  animation: ring-confirm var(--dur-micro) var(--ease) both;
+}
+
+@keyframes ring-confirm {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.12);
+  }
+}
+
 .check.is-pass .check__ring {
   border-color: var(--success);
   background: var(--success);

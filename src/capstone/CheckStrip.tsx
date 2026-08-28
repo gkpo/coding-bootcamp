@@ -1,4 +1,5 @@
 import { Button } from '../components/Button';
+import { STAGGER } from './motion';
 import type { CapstoneCheck } from '../content/types';
 import { hintWords } from './hintWords';
 import './CheckStrip.css';
@@ -19,6 +20,8 @@ interface Props {
    * three, and the sentence is a reward for the moment a check turns green.
    */
   sayItFor: string[];
+  /** The stage just cleared: the rings confirm it top to bottom. */
+  cascade: boolean;
 }
 
 /**
@@ -27,16 +30,30 @@ interface Props {
  * They are not a score sheet revealed at the end: they are what the user is
  * building against, which is the difference between a puzzle and a brief.
  */
-export function CheckStrip({ checks, state, hintTargetId, hintLevel, onHint, sayItFor }: Props) {
+export function CheckStrip({
+  checks,
+  state,
+  hintTargetId,
+  hintLevel,
+  onHint,
+  sayItFor,
+  cascade,
+}: Props) {
   return (
-    <ul className="checks">
-      {checks.map((check) => {
+    <ul className={cascade ? 'checks is-cleared' : 'checks'}>
+      {checks.map((check, index) => {
         const status = state(check);
         const isTarget = check.id === hintTargetId;
         return (
           <li key={check.id} className={`check is-${status}`}>
             <div className="check__row">
-              <span className="check__ring" aria-hidden />
+              <span
+                className="check__ring"
+                // The summary's dot cascade, turned on its side: the delays
+                // come off the elements so the strip confirms top to bottom.
+                style={cascade ? { animationDelay: `${index * STAGGER}ms` } : undefined}
+                aria-hidden
+              />
               <span className="check__label">{check.label}</span>
               <span className="visually-hidden">
                 {status === 'pass' ? 'passing' : status === 'fail' ? 'not yet' : 'not run yet'}

@@ -48,7 +48,7 @@
 .match__cell.is-wrong {
   border-color: var(--danger);
   background: var(--danger-bg);
-  animation: option-shake 250ms var(--ease);
+  animation: shake-x 250ms var(--ease);
 }
 
 @media (prefers-reduced-motion: reduce) {

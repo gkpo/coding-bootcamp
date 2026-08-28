@@ -13,6 +13,7 @@ import {
   startingBuild,
   testPredicate,
   toggleEdge,
+  trace,
   validateCapstone,
   type Build,
   type CapstoneSpec,
@@ -629,5 +630,131 @@ describe('validateCapstone', () => {
       bonus: true,
     });
     expect(validateCapstone(capstone).join('\n')).toContain('"s2-bonus" is red after stage 2');
+  });
+});
+
+describe('trace, the route the flow dot walks', () => {
+  it('walks the two ends of an edge it is happy with', () => {
+    const build = buildOf(['server', 'cache'], [[1, 2]]);
+    expect(trace(build, { op: 'edge', a: 'server', b: 'cache' })).toEqual({
+      route: ['server', 'cache'],
+      stopsAt: null,
+    });
+  });
+
+  it('stops on the part that is there when the edge is not', () => {
+    const build = buildOf(['server', 'cache']);
+    expect(trace(build, { op: 'edge', a: 'server', b: 'cache' })).toEqual({
+      route: ['server'],
+      stopsAt: 'server',
+    });
+  });
+
+  it('has nowhere to stand when neither end is placed', () => {
+    expect(trace(emptyBuild(), { op: 'edge', a: 'server', b: 'cache' })).toEqual({
+      route: [],
+      stopsAt: null,
+    });
+  });
+
+  it('falls back to the far end when the near one is missing', () => {
+    const build = buildOf(['cache']);
+    expect(trace(build, { op: 'edge', a: 'server', b: 'cache' })).toEqual({
+      route: ['cache'],
+      stopsAt: 'cache',
+    });
+  });
+
+  it('walks the shortest route a path check is satisfied by', () => {
+    const build = buildOf(
+      ['client', 'server', 'lb'],
+      [
+        [1, 3],
+        [3, 2],
+      ],
+    );
+    expect(trace(build, { op: 'path', from: 'client', to: 'server' })).toEqual({
+      route: ['client', 'lb', 'server'],
+      stopsAt: null,
+    });
+  });
+
+  it('walks the bypass when a bypass is what beat the check', () => {
+    // The whole explanation of a failed pathVia: this is the route that
+    // should not exist, so the dot walks it rather than the intended one.
+    const build = buildOf(
+      ['client', 'server', 'db'],
+      [
+        [1, 2],
+        [2, 3],
+        [1, 3],
+      ],
+    );
+    expect(trace(build, { op: 'pathVia', from: 'client', to: 'db', via: 'server' })).toEqual({
+      route: ['client', 'db'],
+      stopsAt: 'db',
+    });
+  });
+
+  it('walks the honest route when a pathVia passes', () => {
+    const build = buildOf(
+      ['client', 'server', 'db'],
+      [
+        [1, 2],
+        [2, 3],
+      ],
+    );
+    expect(trace(build, { op: 'pathVia', from: 'client', to: 'db', via: 'server' })).toEqual({
+      route: ['client', 'server', 'db'],
+      stopsAt: null,
+    });
+  });
+
+  it('stops at the source when the via part was never placed', () => {
+    const build = buildOf(['client', 'db']);
+    expect(trace(build, { op: 'pathVia', from: 'client', to: 'db', via: 'server' })).toEqual({
+      route: ['client'],
+      stopsAt: 'client',
+    });
+  });
+
+  it('walks the offending edge for a noEdge check that failed', () => {
+    const build = buildOf(['client', 'db'], [[1, 2]]);
+    expect(trace(build, { op: 'noEdge', a: 'client', b: 'db' })).toEqual({
+      route: ['client', 'db'],
+      stopsAt: 'db',
+    });
+  });
+
+  it('gives the counting checks no route to walk', () => {
+    const build = buildOf(['server', 'replica']);
+    expect(trace(build, { op: 'placed', kind: 'server' })).toEqual({ route: [], stopsAt: null });
+    expect(trace(build, { op: 'maxParts', n: 1 })).toEqual({ route: [], stopsAt: null });
+  });
+
+  it('points a failed decoy check at the part that should not be there', () => {
+    const build = buildOf(['server', 'replica']);
+    expect(trace(build, { op: 'notPlaced', kind: 'replica' })).toEqual({
+      route: [],
+      stopsAt: 'replica',
+    });
+    expect(trace(buildOf(['server']), { op: 'notPlaced', kind: 'replica' })).toEqual({
+      route: [],
+      stopsAt: null,
+    });
+  });
+
+  it('never walks a route through a part that is not on the board', () => {
+    // Two servers collapse to one node, so the route names the kind once.
+    const build = buildOf(
+      ['client', 'lb', 'server', 'server'],
+      [
+        [1, 2],
+        [2, 3],
+        [2, 4],
+      ],
+    );
+    const { route } = trace(build, { op: 'path', from: 'client', to: 'server' });
+    expect(route).toEqual(['client', 'lb', 'server']);
   });
 });

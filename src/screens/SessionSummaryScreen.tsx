@@ -5,7 +5,9 @@ import { RichText } from '../components/RichText';
 import { FlameIcon } from '../components/icons';
 import { ConceptIcon } from '../components/ConceptIcon';
 import { useCountUp } from '../components/useCountUp';
+import { BuildRender } from '../capstone/BuildRender';
 import { getCard, getExercise } from '../content';
+import type { Build } from '../engine/archgraph';
 import type { Result } from '../engine/leitner';
 import { playTone, vibrate } from '../engine/feedback';
 import { useStore } from '../store/useStore';
@@ -22,7 +24,7 @@ interface SummaryState {
    * celebration is the same one; what changes is what the figures count, and
    * that a capstone pays XP without touching the streak.
    */
-  capstone?: { title: string };
+  capstone?: { title: string; build: Build };
   /** Capstones only: the XP actually awarded, which is nothing on a replay. */
   totalXp?: number;
 }
@@ -119,6 +121,13 @@ export function SessionSummaryScreen() {
           ))}
         </div>
       </section>
+
+      {capstone && (
+        <section className="card">
+          <h2 className="summary__label">What you built</h2>
+          <BuildRender build={capstone.build} />
+        </section>
+      )}
 
       {toughest && (
         <section className="card">

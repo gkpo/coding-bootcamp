@@ -85,7 +85,7 @@
 .option--wrong {
   border-color: var(--danger);
   background: var(--danger-bg);
-  animation: option-shake 250ms var(--ease);
+  animation: shake-x 250ms var(--ease);
 }
 
 .option-grid {
@@ -112,19 +112,6 @@
   }
   100% {
     transform: scale(1);
-  }
-}
-
-@keyframes option-shake {
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-  25% {
-    transform: translateX(-4px);
-  }
-  75% {
-    transform: translateX(4px);
   }
 }
 
