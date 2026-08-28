@@ -9,7 +9,11 @@
   border-radius: 18px;
   padding: 14px;
   background-image: radial-gradient(var(--paper-grid) 1px, transparent 1px);
-  background-size: 15px 15px;
+  background-size: 16px 16px;
+  /* Phased to the content, not to the padding box: the columns and the lane
+     rules are laid out from there, and a grid the content ignores is just
+     wallpaper. */
+  background-origin: content-box;
 }
 
 /* One layer for every line, under the chips and deaf to taps: the chips are
@@ -82,8 +86,18 @@
   height: 80px;
 }
 
-.lane + .lane {
-  border-top: 1px solid var(--paper-line);
+/* The rule is drawn on the row rather than bordered into it. As a border it
+   came out of the row's 80px, leaving 79 to centre a 64px chip in, so every
+   chip below the first sat on a half pixel and rendered its edge across two
+   device pixels. */
+.lane + .lane::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--paper-line);
 }
 
 /* The lane name straddles the rule at the top of its row, the way a legend
@@ -94,7 +108,7 @@
    while pushing every part right of the card's centre line. */
 .lane__label {
   position: absolute;
-  top: -9px;
+  top: -8px;
   left: 0;
   z-index: 1;
   padding-right: 8px;
@@ -107,29 +121,39 @@
   color: var(--paper-dim);
 }
 
-/* Parts space themselves across the full width. Three to a lane is the cap,
-   which is what guarantees a lane never has to scroll on a 390px screen. */
+/* Three fixed columns rather than a centred group. Centring gave each lane
+   its own spacing, so two parts straddled the columns three parts used and
+   the board landed on five different x positions; now every part sits above
+   or below another one. A 96px pitch, not the full width: spread to the
+   edges the columns still lined up, but every connection stretched across
+   the card and the lane names ran into the left column. At 390 the chips
+   start at 32, 128 and 224, all on the 16px module the paper is ruled in. */
 .lane__parts {
-  display: flex;
-  align-items: center;
+  display: grid;
+  grid-template-columns: repeat(3, 64px);
+  gap: 32px;
   justify-content: center;
-  gap: 24px;
+  align-items: center;
+  width: 100%;
+  max-width: 320px;
 }
 
 .part {
   position: relative;
   z-index: 2;
   flex: 0 0 auto;
-  width: 62px;
-  height: 62px;
+  width: 64px;
+  height: 64px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  /* 24 + 8 + 16 = 48 inside 64, so the glyph and its label sit on the module
+     too rather than only the box they are in. */
+  gap: 8px;
   background: var(--surface);
   border: 1px solid var(--paper-edge);
-  border-radius: 14px;
+  border-radius: 16px;
   box-shadow: 0 1px 2px rgba(70, 58, 34, 0.1);
   color: var(--ink);
   transition:
@@ -146,7 +170,7 @@
 
 .part__label {
   font-size: 12px;
-  line-height: 1;
+  line-height: 16px;
   letter-spacing: -0.01em;
   color: var(--paper-text);
 }
@@ -179,7 +203,7 @@
   content: '';
   position: absolute;
   inset: 2px;
-  border-radius: 14px;
+  border-radius: 16px;
   border: 2px solid color-mix(in srgb, var(--accent) 25%, transparent);
   pointer-events: none;
 }
@@ -191,7 +215,7 @@
   content: '';
   position: absolute;
   inset: 2px;
-  border-radius: 14px;
+  border-radius: 16px;
   border: 2px solid color-mix(in srgb, var(--text-dim) 25%, transparent);
   pointer-events: none;
 }
@@ -220,7 +244,7 @@
   position: absolute;
   inset: 2px;
   z-index: 4;
-  border-radius: 14px;
+  border-radius: 16px;
   border: 2px solid color-mix(in srgb, var(--accent) 25%, transparent);
   background: color-mix(in srgb, var(--accent) 6%, transparent);
 }
