@@ -42,38 +42,33 @@
    went too far, an unlabelled 20px glyph reads as punctuation left over from
    the question rather than as a way into a whole cheat sheet.
 
-   It wears the primary button's underside so it presses like every other
-   control in the app. Same recipe, one third the travel, because this is a
-   44px chip rather than a 52px button. */
+   Loud is the other failure. Tinted, ringed and sitting on the primary
+   button's underside, it put a help chip in the same visual class as
+   "Continue" and pulled the eye before the question had been read. So the
+   chip keeps its 44px footprint and gives up everything else: the code
+   block's own grey, a dim label, and no edge at all. Its size says it is
+   tappable, and it waits to be wanted. */
 .chip--concept {
-  --chip-drop: 3px;
   min-height: 44px;
   padding: 0 var(--sp-4) 0 var(--sp-3);
-  background: var(--info-bg);
-  color: var(--info);
-  box-shadow:
-    inset 0 0 0 1px var(--info-edge),
-    0 var(--chip-drop) 0 var(--info-edge);
-  transform: translateY(0);
+  background: var(--surface-2);
+  color: var(--text-dim);
   transition:
-    transform var(--dur-micro) var(--ease),
-    box-shadow var(--dur-micro) var(--ease);
+    background-color var(--dur-micro) var(--ease),
+    color var(--dur-micro) var(--ease);
 }
 
+/* The one coloured thing on it. The mark says "help" before the label has
+   been read, so it keeps --info while everything around it goes grey. */
+.chip--concept svg {
+  color: var(--info);
+}
+
+/* No underside to travel into, so the press is a recolour: the fill steps
+   down to the hairline grey and the label comes up to full strength. */
 .chip--concept:active {
-  transform: translateY(var(--chip-drop));
-  box-shadow: inset 0 0 0 1px var(--info-edge);
-}
-
-/* Same rule as the button: the underside is shape, the travel is motion. */
-@media (prefers-reduced-motion: reduce) {
-  .chip--concept:active {
-    transform: none;
-  }
-}
-
-:root[data-reduce-motion='true'] .chip--concept:active {
-  transform: none;
+  background: var(--border);
+  color: var(--text);
 }
 
 .frame__answers {
