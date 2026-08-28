@@ -287,6 +287,122 @@ Concepts: `queues-jobs`, `replication`, `indexes` (resolve against `concepts.ts`
 - `a2-decoy`: notPlaced(ext-api) [an "analytics service" sounds right; the ask was to fix the reads you already have]. Moves: remove ext-api.
 - `a2-budget`: maxParts(6) [canonical: client, server, queue, worker, db, replica]. Moves: none.
 
+## Part H: the library wave (v1.7)
+
+Six new capstones and a difficulty marking, taking the library from 4 to 10: track 5 gets 3, track 8 gets 3, track 9 gets 4. Chosen so every lesson the current parts vocabulary can express is covered at least once, the queue family gets deliberate re-skins (users want more of a kind they like), and two capstones are traps that punish the reflex answer. Past 10, genuinely new asks need new part kinds (websocket, rate limiter, search); that stays in V2.
+
+Two authoring rules this wave surfaced, binding for all capstones:
+
+1. **Budget and decoy checks (`maxParts`, `notPlaced`) live only in a capstone's final stage.** Earlier checks stay evaluated forever (part C), so a budget authored early is broken by later stages' own parts, and a `notPlaced` authored early forbids a part a later stage needs. The validator already catches violations; this rule says why.
+2. **The tray is itself a constraint.** A stage that offers only the right parts cannot be over-built, so an early stage teaches restraint by a small tray, not by checks. c8-03 stage 1 depends on this.
+
+### Difficulty
+
+`Capstone` gains `difficulty: Difficulty` (required). The path station shows it the same way exercise difficulty is shown elsewhere in the app; if no such affordance exists yet, a small caption of 1-3 dots in the station's secondary text style, aria-labelled in words. Assign: the four existing capstones are all 2; new ones as listed below.
+
+### c5-02, track 5: "The read storm" (difficulty 2, 3 stages)
+
+The trap for the queue reflex. A small articles site goes viral; it is a pure read problem, and the tray eventually offers queue and worker as decoys. Concepts: `caching`, plus the replica card used by t9 (resolve names against `concepts.ts`).
+
+**Stage 1, make it work** (publish and read articles). Pre-placed: `client`. Tray: `server`, `db`.
+
+- `r1-api`: path(client, server). Moves: place server, connect client-server.
+- `r1-data`: pathVia(client, db, server). Moves: place db, connect server-db.
+
+**Stage 2, the spike begins** (front page of a big aggregator; one server buckles). Tray: `lb`, `server`, `cache`.
+
+- `r2-lb`: pathVia(client, server, lb). Moves: place lb, connect client-lb, connect lb-server, disconnect client-server.
+- `r2-two`: placed(server, atLeast 2). Moves: place server.
+- `r2-cache`: eachConnected(server, cache). Moves: place cache, connect server-cache.
+
+**Stage 3, the primary is still hot** (cache misses hammer one database; there is no work to defer). Tray: `replica`, decoys `queue` and `worker`.
+
+- `r3-copy`: edge(db, replica). Moves: place replica, connect db-replica.
+- `r3-read`: edge(server, replica). Moves: connect server-replica.
+- `r3-trap`: maxParts(7) [canonical: client, lb, 2 servers, cache, db, replica; the hint asks what work a queue would even hold on a read path]. Moves: none.
+- `r3-bonus` (bonus): pathVia(client, db, server). Moves: none.
+
+### c8-02, track 8: "The login rush" (difficulty 2, 2 stages)
+
+The stateless-servers lesson, with the bug appearing because you scaled. Concepts: nearest t8 cards for cookies/sessions plus `caching` (resolve against `concepts.ts`).
+
+**Stage 1, make it work** (users sign in). Pre-placed: `client`. Tray: `server`, `db`.
+
+- `l1-api`: path(client, server). Moves: place server, connect client-server.
+- `l1-users`: pathVia(client, db, server) [accounts live behind the API]. Moves: place db, connect server-db.
+
+**Stage 2, random logouts** (a second server was added for traffic and now users lose their session at random). Tray: `lb`, `server`, `cache`, decoy `ext-api`.
+
+- `l2-lb`: pathVia(client, server, lb). Moves: place lb, connect client-lb, connect lb-server, disconnect client-server.
+- `l2-two`: placed(server, atLeast 2). Moves: place server.
+- `l2-session`: eachConnected(server, cache) [the session lives in a store every server can reach, never in one server's memory]. Moves: place cache, connect server-cache.
+- `l2-decoy`: notPlaced(ext-api) [outsourcing auth does not fix where the session lives]. Moves: remove ext-api.
+
+### c8-03, track 8: "The launch site" (difficulty 1, 2 stages)
+
+The over-building trap, inverted YAGNI: the right answer is tiny, and interviewers ask small questions to see who reaches for big architecture. Concepts: `caching-headers` and the nearest pragmatism card (resolve against `concepts.ts`).
+
+**Stage 1, a static launch page** (marketing page, no accounts, no data). Pre-placed: `client`. Tray: `cdn`, `blob` (nothing else on offer; the tray is the lesson).
+
+- `y1-edge`: edge(client, cdn) [pages come from an edge near the visitor]. Moves: place cdn, connect client-cdn.
+- `y1-origin`: edge(cdn, blob) [the files live in storage; the CDN serves copies]. Moves: place blob, connect cdn-blob.
+
+**Stage 2, one signup form** (collect email addresses; it is one POST). Tray: `server`, `db`, decoys `lb`, `cache`, `queue`.
+
+- `y2-api`: edge(client, server) [one small endpoint; nothing here needs balancing]. Moves: place server, connect client-server.
+- `y2-store`: pathVia(client, db, server). Moves: place db, connect server-db.
+- `y2-small`: maxParts(5) [canonical: client, cdn, blob, server, db; the hint asks what traffic all that machinery is for]. Moves: none.
+
+### c5-03, track 5: "The notification fan-out" (difficulty 2, 2 stages)
+
+A queue-family re-skin on the app side: same muscles as the checkout, different story, plus the provider-isolation lesson. Concepts: `queues` and `idempotency` (resolve against `concepts.ts`).
+
+**Stage 1, ping the author** (when someone comments, the author gets a push; the app must never wait on the push provider). Pre-placed: `client`, `lb`, `server`; pre-wired: client-lb, lb-server. Tray: `db`, `queue`, `worker`, `ext-api`.
+
+- `n1-data`: pathVia(client, db, server). Moves: place db, connect server-db.
+- `n1-hand`: pathVia(server, worker, queue). Moves: place queue, place worker, connect server-queue, connect queue-worker.
+- `n1-push`: pathVia(server, ext-api, worker) [only the worker waits on the provider]. Moves: place ext-api, connect worker-ext-api.
+
+**Stage 2, the 9am burst** (digest hour; one worker cannot keep up). Tray: `worker`, decoy `replica`.
+
+- `n2-two`: placed(worker, atLeast 2). Moves: place worker.
+- `n2-share`: eachConnected(worker, queue) [every worker pulls from the same queue]. Moves: connect worker-queue.
+- `n2-push`: eachConnected(worker, ext-api). Moves: connect worker-ext-api.
+- `n2-decoy`: notPlaced(replica). Moves: remove replica.
+
+### c9-03, track 9: "The webhook flood" (difficulty 3, 2 stages)
+
+The hard queue re-skin: terser requirements, two decoys, tight budget. The `client` chip is framed by the scenario as the partner's system delivering webhooks. Concepts: `queues` and `idempotency` (resolve against `concepts.ts`).
+
+**Stage 1, ack fast, lose none** (a partner delivers bursts of webhooks; acknowledge immediately, process later, never inline). Pre-placed: `client`, `lb`; pre-wired: client-lb. Tray: `server`, `queue`, `worker`, `db`.
+
+- `w1-in`: pathVia(client, server, lb). Moves: place server, connect lb-server.
+- `w1-ack`: pathVia(server, worker, queue). Moves: place queue, place worker, connect server-queue, connect queue-worker.
+- `w1-store`: edge(worker, db). Moves: place db, connect worker-db.
+- `w1-noinline`: noEdge(server, db). Moves: none (canonical never draws it; the level-3 hint falls back to `hintPoint.text`, which names the action).
+
+**Stage 2, Friday burst** (one worker drowns). Tray: `worker`, decoys `cache` and `replica`.
+
+- `w2-two`: placed(worker, atLeast 2). Moves: place worker.
+- `w2-pull`: eachConnected(worker, queue). Moves: connect worker-queue.
+- `w2-write`: eachConnected(worker, db). Moves: connect worker-db.
+- `w2-budget`: maxParts(7) [canonical: client, lb, server, queue, 2 workers, db; covers both decoys]. Moves: none.
+
+### c9-04, track 9: "The standby" (difficulty 2, 2 stages)
+
+The deliberate contrast with c9-02: same parts, opposite wiring. A replica can serve reads or serve as a standby, and knowing which you built is the lesson; the sayIt lines must name the contrast explicitly. Concepts: the replica card and the nearest backups/resilience card (resolve against `concepts.ts`).
+
+**Stage 1, the orders app** (plain and correct). Pre-placed: `client`, `lb`; pre-wired: client-lb. Tray: `server`, `db`.
+
+- `b1-api`: pathVia(client, server, lb). Moves: place server, connect lb-server.
+- `b1-data`: pathVia(client, db, server). Moves: place db, connect server-db.
+
+**Stage 2, Friday 6pm, the database died** (never lose the data again; reads are fine as they are, keep it simple). Tray: `replica`, decoys `cache` and `worker`.
+
+- `b2-copy`: edge(db, replica) [a copy that keeps itself up to date]. Moves: place replica, connect db-replica.
+- `b2-standby`: noEdge(server, replica) [the copy is for surviving, not for speed; c9-02 wires the opposite on purpose]. Moves: none (hint falls back to `hintPoint.text`).
+- `b2-lean`: maxParts(5) [canonical: client, lb, server, db, replica; covers both decoys]. Moves: none.
+
 ## Milestones
 
 - **M-BM1, engine and schema.** Part A and part B land with full tests; `validateCapstone` wired into content validation; both capstones authored as data and passing it. No UI. Acceptance: `npm test` covers every predicate op and the solvability runner; content tests (emoji, em-dash, markdown) scan `capstones.ts`.
@@ -305,6 +421,9 @@ The green run is the mode's best moment, and today it plays exactly once per sta
 - Scope stays the capstone screen's cleared state. If reopening a completed capstone lands on a playable final-stage cleared state, the button is simply there too; do not build a separate summary replay in this wave.
 
 Milestone **M-BM6**: Part G alone. Acceptance: replay changes nothing in localStorage; a replay is silent; the packet driver and ring animations are reused, not duplicated; lint, tests and build pass.
+
+- **M-BM7, library wave one.** The `difficulty` field with its station display, and c5-02, c8-02, c8-03 authored with debriefs, passing `validateCapstone`. Acceptance: content tests scan the new entries; the station shows difficulty; lint, tests, build pass.
+- **M-BM8, library wave two.** c5-03, c9-03, c9-04 authored with debriefs, passing `validateCapstone`. Acceptance: same bar; the c9-02/c9-04 sayIt contrast is present in both directions.
 
 ## V2 ideas (do NOT build now)
 
