@@ -66,6 +66,10 @@ interface ParsonsLine {
   code: string;
   indent: 0 | 1 | 2 | 3;
   distractor?: true;
+  // lines sharing a swapGroup are interchangeable: any order within the group grades correct.
+  // Only where the code means the same either way. Members: 2 or more, contiguous in the
+  // solution order, all at one indent, never distractors. Ids are unique per exercise only.
+  swapGroup?: string;
 }
 
 interface SpotBugExercise extends ExerciseBase {

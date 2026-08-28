@@ -1,6 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { findContentProblems, type ContentBundle } from './validate';
-import type { Capstone, CapstoneCheck, ConceptCard, Exercise, McqExercise, Track } from './types';
+import type {
+  Capstone,
+  CapstoneCheck,
+  ConceptCard,
+  Exercise,
+  McqExercise,
+  ParsonsLine,
+  Track,
+} from './types';
 
 const card = (over: Partial<ConceptCard> = {}): ConceptCard => ({
   id: 'big-o',
@@ -223,6 +231,77 @@ describe('type-specific invariants', () => {
       }),
     );
     expect(problems).toContain('t1-01 template has 1 gaps but 2 answers');
+  });
+});
+
+describe('parsons swap groups', () => {
+  const parsons = (lines: ParsonsLine[]): Exercise => ({
+    id: 't1-01',
+    trackId: 't1',
+    type: 'parsons',
+    difficulty: 1,
+    conceptId: 'big-o',
+    prompt: 'Put the lines in order.',
+    explanation: 'Because.',
+    lines,
+  });
+
+  const withParsons = (lines: ParsonsLine[]) =>
+    findContentProblems(
+      bundle({ exercises: [parsons(lines), mcq({ id: 't1-02' }), mcq({ id: 't1-03' })] }),
+    );
+
+  it('accepts two neighbouring lines marked interchangeable', () => {
+    expect(
+      withParsons([
+        { code: 'const seen = new Set();', indent: 0, swapGroup: 'decls' },
+        { code: 'const out = [];', indent: 0, swapGroup: 'decls' },
+        { code: 'return out;', indent: 0 },
+      ]),
+    ).toEqual([]);
+  });
+
+  it('catches a group of one, which swaps with nothing', () => {
+    const problems = withParsons([
+      { code: 'const out = [];', indent: 0, swapGroup: 'decls' },
+      { code: 'out.push(1);', indent: 0 },
+      { code: 'return out;', indent: 0 },
+    ]);
+    expect(problems).toContain('t1-01 swapGroup "decls" has 1 line, expected at least 2');
+  });
+
+  it('catches a distractor in a group, which would grade a wrong line right', () => {
+    const problems = withParsons([
+      { code: 'const out = [];', indent: 0, swapGroup: 'decls' },
+      { code: 'out.push(1);', indent: 0 },
+      { code: 'return out;', indent: 0 },
+      { code: 'const out = {};', indent: 0, distractor: true, swapGroup: 'decls' },
+    ]);
+    expect(problems).toContain(
+      't1-01 swapGroup "decls" includes the distractor line "const out = {};"',
+    );
+  });
+
+  it('catches members with a line between them, which is not a swap of neighbours', () => {
+    const problems = withParsons([
+      { code: 'const out = [];', indent: 0, swapGroup: 'decls' },
+      { code: 'out.push(1);', indent: 0 },
+      { code: 'const seen = new Set();', indent: 0, swapGroup: 'decls' },
+      { code: 'return out;', indent: 0 },
+    ]);
+    expect(problems).toContain(
+      't1-01 swapGroup "decls" lines are not next to each other in the solution',
+    );
+  });
+
+  it('catches members at different indents, which cannot be the same slot', () => {
+    const problems = withParsons([
+      { code: 'if (ok) {', indent: 0 },
+      { code: 'const out = [];', indent: 1, swapGroup: 'decls' },
+      { code: 'const seen = new Set();', indent: 2, swapGroup: 'decls' },
+      { code: '}', indent: 0 },
+    ]);
+    expect(problems).toContain('t1-01 swapGroup "decls" mixes indent levels, expected one');
   });
 });
 

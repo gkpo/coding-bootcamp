@@ -62,13 +62,24 @@ export function parsonsSolution(exercise: ParsonsExercise): string[] {
 }
 
 /**
- * Order must match exactly. Distractors are never part of a correct answer, so
- * including one is wrong at that position rather than silently ignored.
+ * Order must match the authored one, except that lines sharing a swapGroup may
+ * appear in any order among that group's own positions: a position accepts its
+ * canonical line, or any member of that line's group. Every pill is placed once
+ * and a group's positions accept nobody else, so the group's span ends up
+ * holding exactly the group's members, no extra bookkeeping needed. Distractors
+ * are never part of a correct answer, so including one is wrong at that
+ * position rather than silently ignored.
  */
 export function gradeParsons(exercise: ParsonsExercise, placed: string[]): PartsGradeResult {
-  const solution = parsonsSolution(exercise);
-  const parts = placed.map((code, i) => solution[i] === code);
-  return { correct: placed.length === solution.length && parts.every(Boolean), parts };
+  const lines = exercise.lines.filter((l) => l.distractor !== true);
+  const parts = placed.map((code, i) => {
+    const canonical = lines[i];
+    if (!canonical) return false;
+    if (canonical.code === code) return true;
+    if (canonical.swapGroup === undefined) return false;
+    return lines.some((l) => l.swapGroup === canonical.swapGroup && l.code === code);
+  });
+  return { correct: placed.length === lines.length && parts.every(Boolean), parts };
 }
 
 export function gradeSteps(exercise: StepsExercise, placed: string[]): PartsGradeResult {

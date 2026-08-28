@@ -1,5 +1,5 @@
 import { PART_LANES, validateCapstone, type PartKind } from '../engine/archgraph';
-import type { Capstone, ConceptCard, Exercise, Track } from './types';
+import type { Capstone, ConceptCard, Exercise, ParsonsExercise, Track } from './types';
 
 /**
  * Runtime checks the type system cannot express: cross-references resolving,
@@ -99,6 +99,7 @@ export function findContentProblems({
         if (solution.length < 3) {
           problems.push(`${exercise.id} has only ${solution.length} non-distractor lines`);
         }
+        problems.push(...findSwapGroupProblems(exercise));
         break;
       }
       case 'blank': {
@@ -177,6 +178,49 @@ export function findContentProblems({
   }
 
   problems.push(...findCapstoneProblems(capstones, cards, tracks));
+
+  return problems;
+}
+
+/**
+ * Swap groups let a parsons puzzle accept lines whose order does not matter.
+ * The grader trusts the tag, so the tag has to be trustworthy: a group only
+ * makes sense as two or more real solution lines sitting next to each other at
+ * one indent level.
+ */
+function findSwapGroupProblems(exercise: ParsonsExercise): string[] {
+  const problems: string[] = [];
+  const solution = exercise.lines.filter((l) => l.distractor !== true);
+  const groups = new Set(
+    exercise.lines.map((l) => l.swapGroup).filter((g): g is string => g !== undefined),
+  );
+
+  for (const group of groups) {
+    const members = exercise.lines.filter((l) => l.swapGroup === group);
+    const where = `${exercise.id} swapGroup "${group}"`;
+
+    if (members.length < 2) {
+      problems.push(`${where} has ${members.length} line, expected at least 2`);
+    }
+    for (const member of members) {
+      if (member.distractor === true) {
+        problems.push(`${where} includes the distractor line "${member.code}"`);
+      }
+    }
+    if (new Set(members.map((l) => l.indent)).size > 1) {
+      problems.push(`${where} mixes indent levels, expected one`);
+    }
+
+    // Contiguity is judged on the solution order, distractors removed, since
+    // that is the order the grader lines positions up against.
+    const positions = solution
+      .map((line, index) => (line.swapGroup === group ? index : -1))
+      .filter((index) => index >= 0);
+    const span = positions.length > 0 ? positions[positions.length - 1] - positions[0] + 1 : 0;
+    if (positions.length > 1 && span !== positions.length) {
+      problems.push(`${where} lines are not next to each other in the solution`);
+    }
+  }
 
   return problems;
 }
