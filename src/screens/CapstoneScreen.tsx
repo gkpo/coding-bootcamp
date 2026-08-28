@@ -3,6 +3,7 @@ import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { Board, type Centers } from '../capstone/Board';
 import { wireKey } from '../capstone/wires';
 import { CheckStrip, type CheckState } from '../capstone/CheckStrip';
+import { ReferenceSheet } from '../capstone/ReferenceSheet';
 import { Tray } from '../capstone/Tray';
 import { planRun } from '../capstone/flowRun';
 import { playRun } from '../capstone/playRun';
@@ -89,6 +90,7 @@ function CapstoneRun({ capstone }: { capstone: Capstone }) {
   const [hintLevel, setHintLevel] = useState(0);
   const [hintTaken, setHintTaken] = useState(false);
   const [cleared, setCleared] = useState(false);
+  const [debriefOpen, setDebriefOpen] = useState(false);
   const [outcomes, setOutcomes] = useState<Result[]>([]);
   const [earned, setEarned] = useState(0);
   const [confirmExit, setConfirmExit] = useState(false);
@@ -252,13 +254,12 @@ function CapstoneRun({ capstone }: { capstone: Capstone }) {
    * One cue per run, never one per check: the run is the answer, and a sound
    * for every ring would turn a two-second beat into a slot machine.
    */
-  const finish = (halted: boolean, stoppedAt: PartKind | null) => {
+  const finish = (halted: boolean, stoppedAtPart: number | null) => {
     setRunning(false);
     stopRun.current = null;
 
     if (halted) {
-      const part = stoppedAt ? build.parts.find((p) => p.kind === stoppedAt) : undefined;
-      setHitPartId(part?.id ?? null);
+      setHitPartId(stoppedAtPart);
       playTone('wrong', sound);
       vibrate('wrong', haptics);
       return;
@@ -307,7 +308,7 @@ function CapstoneRun({ capstone }: { capstone: Capstone }) {
       dots: Array.from(flowRef.current?.children ?? []) as HTMLElement[],
       reduceMotion: motionOff(),
       onResolve: (step) => setResolved((current) => ({ ...current, [step.checkId]: step.pass })),
-      onFinish: () => finish(plan.halted, plan.steps.at(-1)?.stopsAt ?? null),
+      onFinish: () => finish(plan.halted, plan.steps.at(-1)?.stopsAtPart ?? null),
     });
   };
 
@@ -320,7 +321,7 @@ function CapstoneRun({ capstone }: { capstone: Capstone }) {
           xpEarned: 0,
           streakDays: 0,
           conceptIds: capstone.conceptIds,
-          capstone: { title: capstone.title, build },
+          capstone: { id: capstone.id, title: capstone.title, build },
           totalXp: earned,
         },
       });
@@ -334,6 +335,7 @@ function CapstoneRun({ capstone }: { capstone: Capstone }) {
     setHintTaken(false);
     setHintLevel(0);
     setCleared(false);
+    setDebriefOpen(false);
   };
 
   return (
@@ -373,6 +375,18 @@ function CapstoneRun({ capstone }: { capstone: Capstone }) {
           <p className="capstone__requirement" key={cleared ? 'cleared' : stageIndex}>
             {cleared ? stage.clearLine : stage.requirement}
           </p>
+          {/* Only ever rendered once the stage is behind the user, which is
+              what keeps the worked solution out of reach while it would be an
+              answer key rather than a debrief (docs/12 part F2). */}
+          {cleared && (
+            <Button
+              variant="ghost"
+              className="capstone__debrief"
+              onClick={() => setDebriefOpen(true)}
+            >
+              See the reference build
+            </Button>
+          )}
         </section>
 
         <Board
@@ -451,6 +465,15 @@ function CapstoneRun({ capstone }: { capstone: Capstone }) {
           {cleared ? (isFinalStage ? 'Finish' : 'Next stage') : 'Run it'}
         </Button>
       </footer>
+
+      {cleared && (
+        <ReferenceSheet
+          capstone={capstone}
+          stageIndex={stageIndex}
+          open={debriefOpen}
+          onClose={() => setDebriefOpen(false)}
+        />
+      )}
 
       {confirmExit && (
         <ConfirmDialog

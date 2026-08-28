@@ -225,6 +225,7 @@ function findCapstoneProblems(
 
       if (!stage.requirement.trim()) problems.push(`${where} has no requirement line`);
       if (!stage.clearLine.trim()) problems.push(`${where} has no clear line`);
+      if (!stage.debrief.trim()) problems.push(`${where} has no debrief`);
 
       const ordinary = stage.checks.filter((c) => c.bonus !== true);
       const bonus = stage.checks.filter((c) => c.bonus === true);

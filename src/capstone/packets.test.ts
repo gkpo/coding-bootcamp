@@ -24,6 +24,7 @@ const step = (over: Partial<FlowStep> = {}): FlowStep => ({
   pass: true,
   route: [],
   stopsAt: null,
+  stopsAtPart: null,
   ...over,
 });
 

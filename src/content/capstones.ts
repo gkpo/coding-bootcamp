@@ -20,6 +20,23 @@ import type { Capstone } from './types';
  *    capped at four.
  * 2. c9-01's stage 1 keeps `pathVia(client, server, lb)`, which is sound: the
  *    client's only edge is the pre-wired one to the load balancer.
+ *
+ * The wave that added c8-01 and c9-02 (docs/12 part F3) hit the same rock once
+ * more and dodged it once:
+ *
+ * 3. c9-02's `a1-queue` is graded as `edge(server, queue)` rather than the
+ *    `pathVia(server, worker, queue)` the spec asks for, for the reason above:
+ *    stage 2 wires the API server to the read replica and the worker to the
+ *    primary, so cutting the queue still leaves a route between the two.
+ *    `a1-inline` covers the other half, that the request thread never writes
+ *    to the database itself.
+ * 4. c9-02's `a1-inline` ships with no hint moves. The spec gives it
+ *    `disconnect server-db`, but the canonical run never draws that line, and
+ *    a move that changes nothing is a validation failure. Its level-3 hint
+ *    renders from `hintPoint.text` instead, which names the action in words.
+ * 5. c8-01 keeps both of its `pathVia` checks, which are sound: nothing but
+ *    the queue joins its API server to its worker, and nothing but the worker
+ *    reaches the payment provider.
  */
 
 const photoSharing: Capstone = {
@@ -85,6 +102,8 @@ const photoSharing: Capstone = {
       ],
       clearLine:
         'That is the shape of most apps: something to talk to, somewhere to keep the records, somewhere to put the big files.',
+      debrief:
+        'Almost every app starts as these four boxes. The API sits in the middle so there is one place that checks who is asking for what, and the photos themselves stay out of the database, which keeps the rows small and the reads quick.',
     },
     {
       requirement:
@@ -130,21 +149,23 @@ const photoSharing: Capstone = {
         },
         {
           id: 's2-cache',
-          label: 'Popular reads come from memory',
-          when: { op: 'edge', a: 'server', b: 'cache' },
+          label: 'Every server reads from the cache',
+          when: { op: 'eachConnected', each: 'server', to: 'cache' },
           hintNudge:
-            'The same twenty photos are being asked for thousands of times a minute. Does the database need to answer every one of them?',
+            'The same twenty photos are being asked for thousands of times a minute. If only one of your servers can see the cache, what happens to the requests that land on the other one?',
           hintPoint: {
-            highlight: ['cache'],
-            text: 'The data lane has room for something faster than the database.',
+            highlight: ['cache', 'server'],
+            text: 'The data lane has room for something faster than the database, and every server needs its own line to it.',
           },
           hintMoves: [{ place: 'cache' }, { connect: ['server', 'cache'] }],
           sayIt:
-            'Read-heavy points at a cache: check it first, and on a miss read the database and put the answer back.',
+            'Every server checks the cache first and only reads the database on a miss, so it does not matter which server a request lands on.',
         },
       ],
       clearLine:
         'That is the standard read-heavy answer, and you got there before I had to ask for it.',
+      debrief:
+        'Two servers behind one door is what scaling out looks like: the load balancer hands each request to whichever server is free, so more traffic means one more server rather than a rewrite. The cache answers the popular photos from memory, and both servers are wired to it, because a request that lands on the server without it would still be waiting on the database.',
     },
     {
       requirement:
@@ -212,9 +233,26 @@ const photoSharing: Capstone = {
           hintMoves: [],
           sayIt: 'I would rather defend nine parts I need than draw fifteen I half-need.',
         },
+        {
+          id: 's3-tidy',
+          label: 'Storage and database never talk',
+          when: { op: 'noEdge', a: 'db', b: 'blob' },
+          hintNudge:
+            'A photo has a row in the database and a file in storage. Which of the two goes and fetches the other?',
+          hintPoint: {
+            highlight: ['db', 'blob'],
+            text: 'Neither of those two calls the other. The code you wrote is what keeps them in step.',
+          },
+          hintMoves: [],
+          sayIt:
+            'The database and the file storage never talk to each other. The app writes the file, then writes the row that points at it.',
+          bonus: true,
+        },
       ],
       clearLine:
         'That is the whole system, and every piece of it went on the board because something made you put it there.',
+      debrief:
+        'The queue and the worker cut the upload in two. The API takes the file, writes down a job and answers straight away, and the worker makes the thumbnails in its own time. Nothing else on the board changed shape, which is the lesson: slow work moves off the path the user is waiting on, rather than the design being redrawn around it.',
     },
   ],
 };
@@ -302,6 +340,8 @@ const flashSale: Capstone = {
       ],
       clearLine:
         'Good. The spike lands on the queue instead of the database, and nothing gets dropped on the floor.',
+      debrief:
+        'The queue is what makes the rush survivable. Accepting an order onto it takes a moment, so the customer gets an order id straight away, and the worker writes the orders down at whatever pace the database can take. Reads stay direct, because a product page has nothing to wait for.',
     },
     {
       requirement:
@@ -374,8 +414,358 @@ const flashSale: Capstone = {
       ],
       clearLine:
         'The reads are off the primary and the writes are paced. That is a checkout that survives ten on a Friday.',
+      debrief:
+        'Two fixes for two different reads. The cache answers the same few popular pages from memory, and the replica, a copy of the database that keeps itself up to date, takes the reads that still get through, which leaves the main database free to work through the orders.',
     },
   ],
 };
 
-export const capstones: Capstone[] = [photoSharing, flashSale];
+const globalStorefront: Capstone = {
+  id: 'c8-01',
+  trackId: 't8',
+  title: 'The global storefront',
+  icon: 'globe',
+  conceptIds: ['http-verbs', 'caching-headers', 'idempotency'],
+  scenario:
+    'This shop sells one very good pair of boots to the whole planet. People browse the catalogue, then place an order and pay by card. Build me the simplest thing that works, and I will keep telling you where it stops working.',
+  stages: [
+    {
+      requirement:
+        'Get a shop running. Someone opens the site, looks through the products and places an order. Prices, stock counts and orders all have to still be there tomorrow morning.',
+      prePlaced: ['client'],
+      tray: [
+        { kind: 'server', count: 1 },
+        { kind: 'db', count: 1 },
+      ],
+      checks: [
+        {
+          id: 'g1-api',
+          label: 'The browser reaches an API',
+          when: { op: 'path', from: 'client', to: 'server' },
+          hintNudge:
+            'The page has to get its prices and its stock counts from somewhere. What is it going to ask?',
+          hintPoint: {
+            highlight: ['server'],
+            text: 'The compute lane is empty, so there is nobody on your side to answer the browser.',
+          },
+          hintMoves: [{ place: 'server' }, { connect: ['client', 'server'] }],
+          sayIt:
+            'The browser talks to an API server, and the API server is the only thing that touches the shop data.',
+        },
+        {
+          id: 'g1-data',
+          label: 'Products and orders sit behind the API',
+          when: { op: 'pathVia', from: 'client', to: 'db', via: 'server' },
+          hintNudge:
+            'If the page could read the products table for itself, what would stop it reading the orders table too?',
+          hintPoint: {
+            highlight: ['db', 'server'],
+            text: 'The database belongs on the far side of the server, not out where a browser can reach it.',
+          },
+          hintMoves: [{ place: 'db' }, { connect: ['server', 'db'] }],
+          sayIt:
+            'Prices, stock and orders live in the database, and every read and write of them goes through the API.',
+        },
+      ],
+      clearLine:
+        'That is a shop. It works, it remembers things, and there is exactly one door into the data.',
+      debrief:
+        'Three boxes is an honest answer to a shop that only has to work. Putting the API in the middle is what makes everything later possible: one place decides who may read a price, who may place an order and what a valid order even looks like.',
+    },
+    {
+      requirement:
+        'Customers in Australia say a page takes three seconds to appear. The images and the stylesheets are identical for everybody, and right now every one of them is fetched from a machine in London.',
+      tray: [
+        { kind: 'cdn', count: 1 },
+        { kind: 'cache', count: 1 },
+      ],
+      checks: [
+        {
+          id: 'g2-cdn',
+          label: 'Static files come from the edge',
+          when: { op: 'edge', a: 'client', b: 'cdn' },
+          hintNudge:
+            'The logo has not changed in a year, and it crosses an ocean every time somebody looks at it. Does it have to start in London?',
+          hintPoint: {
+            highlight: ['cdn'],
+            text: 'The edge lane has room beside the client for something that sits near the customer instead of near you.',
+          },
+          hintMoves: [{ place: 'cdn' }, { connect: ['client', 'cdn'] }],
+          sayIt:
+            'Images, stylesheets and scripts come from a CDN, which is a network of caches sitting close to the customer.',
+        },
+        {
+          id: 'g2-origin',
+          label: 'The CDN refills from your origin',
+          when: { op: 'edge', a: 'cdn', b: 'server' },
+          hintNudge:
+            'A cache near Sydney has to get the file from somewhere the very first time it is asked. Where does it go?',
+          hintPoint: {
+            highlight: ['cdn', 'server'],
+            text: 'The CDN is hanging off the client with nothing behind it, so it has nothing to hand out.',
+          },
+          hintMoves: [{ connect: ['cdn', 'server'] }],
+          sayIt:
+            'On a miss the CDN fetches once from my origin, then serves that copy to everyone else nearby until it expires.',
+        },
+        {
+          id: 'g2-cache',
+          label: 'Popular pages are held in memory',
+          when: { op: 'edge', a: 'server', b: 'cache' },
+          hintNudge:
+            'A product page shows a live stock count, so the CDN cannot hold it. What can hold it for the few seconds it stays true?',
+          hintPoint: {
+            highlight: ['cache', 'server'],
+            text: 'The data lane holds only the database, and the database is being asked the same question all day long.',
+          },
+          hintMoves: [{ place: 'cache' }, { connect: ['server', 'cache'] }],
+          sayIt:
+            'The API keeps the assembled product page in a cache for a few seconds, so a thousand views cost the database one read.',
+        },
+      ],
+      clearLine:
+        'Australia gets its files from Australia now, and the database has stopped answering the same question a thousand times a minute.',
+      debrief:
+        'Two caches, because there are two different problems. The CDN fixes distance: those files are identical everywhere, so they may as well be sitting in the customer country already. The cache fixes repetition: the stock count does change, but not a thousand times a second, so holding it briefly costs almost nothing and saves almost everything.',
+    },
+    {
+      requirement:
+        "Now take card payments. The provider is somebody else's machine: it is slow, it times out a few times a day, and a customer who taps pay twice must never be charged twice.",
+      tray: [
+        { kind: 'queue', count: 1 },
+        { kind: 'worker', count: 1 },
+        { kind: 'ext-api', count: 1 },
+        { kind: 'lb', count: 1, decoy: true },
+      ],
+      checks: [
+        {
+          id: 'g3-jobs',
+          label: 'Charge attempts are queued jobs',
+          when: { op: 'pathVia', from: 'server', to: 'worker', via: 'queue' },
+          hintNudge:
+            'The payment provider takes four seconds on a good day and never answers on a bad one. Should the customer request be sitting there waiting on it?',
+          hintPoint: {
+            highlight: ['queue', 'worker'],
+            text: 'The async lane is empty, so nothing is holding the charge and nothing is free to keep trying it.',
+          },
+          hintMoves: [
+            { place: 'queue' },
+            { place: 'worker' },
+            { connect: ['server', 'queue'] },
+            { connect: ['queue', 'worker'] },
+          ],
+          sayIt:
+            'Checkout writes a charge job on the queue and answers straight away. A worker takes the job and does the waiting.',
+        },
+        {
+          id: 'g3-provider',
+          label: 'Only the worker calls the provider',
+          when: { op: 'pathVia', from: 'server', to: 'ext-api', via: 'worker' },
+          hintNudge:
+            'Two things on that board could call the payment provider. Which one of them is allowed to sit there for ten seconds?',
+          hintPoint: {
+            highlight: ['ext-api', 'worker'],
+            text: "The payment provider is somebody else's machine, and nothing on your board is talking to it yet.",
+          },
+          hintMoves: [{ place: 'ext-api' }, { connect: ['worker', 'ext-api'] }],
+          sayIt:
+            'Only the worker calls the payment provider, and it sends the same reference on every retry so a repeat never charges twice.',
+        },
+        {
+          id: 'g3-decoy',
+          label: 'No load balancer in this one',
+          when: { op: 'notPlaced', kind: 'lb' },
+          hintNudge:
+            'Nothing I described was about running out of servers. What was actually slow?',
+          hintPoint: {
+            highlight: ['lb'],
+            text: 'The complaint was a slow payment provider, not more customers than your servers can keep up with.',
+          },
+          hintMoves: [{ remove: 'lb' }],
+          sayIt:
+            'I would not add a load balancer for this. Traffic was never the problem, waiting on someone else was.',
+        },
+        {
+          id: 'g3-budget',
+          label: 'Eight parts, and a reason for each',
+          when: { op: 'maxParts', n: 8 },
+          hintNudge:
+            'Point at each box and say what goes wrong without it. Is there one you cannot finish the sentence for?',
+          hintPoint: {
+            highlight: [],
+            text: 'There is more on the board than this story asked for. Something up there has no line in the brief.',
+          },
+          hintMoves: [],
+          sayIt:
+            'Every box on this diagram went up because something in the brief put it there, and I can say which.',
+        },
+        {
+          id: 'g3-bonus',
+          label: 'Nothing reaches the data but the API',
+          when: { op: 'pathVia', from: 'client', to: 'db', via: 'server' },
+          hintNudge:
+            'Start at the browser and count the routes to the database. How many did you find?',
+          hintPoint: {
+            highlight: ['server', 'db'],
+            text: 'Every route from the outside world to the data should have to pass through code you wrote.',
+          },
+          hintMoves: [],
+          sayIt:
+            'The database has one neighbour, the API, so there is no second way into the orders table to forget about.',
+          bonus: true,
+        },
+      ],
+      clearLine:
+        'That is a storefront that survives distance, repetition, and a payment provider having a bad afternoon.',
+      debrief:
+        'The queue is what makes a slow outside service survivable: checkout hands the charge over and answers, and the worker is the only thing that ever waits. Retries come free with that, and sending the same reference on every attempt, an idempotency key, is what keeps a second try from becoming a second charge.',
+    },
+  ],
+};
+
+const analyticsPipeline: Capstone = {
+  id: 'c9-02',
+  trackId: 't9',
+  title: 'The analytics pipeline',
+  icon: 'gauge',
+  conceptIds: ['queues', 'replication', 'indexes'],
+  scenario:
+    'Every page view, click and add-to-basket in this shop is meant to end up on a dashboard the marketing team stares at all day. The tracking already goes through the API, and it is making checkout slower. The client and the API server are on the board; sort out what happens after that.',
+  stages: [
+    {
+      requirement:
+        'Record every event without making the app slower. Twenty thousand of them arrive a minute, and not one is worth making a customer wait for.',
+      prePlaced: ['client', 'server'],
+      preWired: [['client', 'server']],
+      tray: [
+        { kind: 'queue', count: 1 },
+        { kind: 'worker', count: 1 },
+        { kind: 'db', count: 1 },
+      ],
+      checks: [
+        {
+          id: 'a1-queue',
+          label: 'Events are fired onto a queue',
+          when: { op: 'edge', a: 'server', b: 'queue' },
+          hintNudge:
+            'One click event is worth almost nothing on its own, and a customer is waiting on the response. Should the request stop and write it down?',
+          hintPoint: {
+            highlight: ['queue', 'worker'],
+            text: 'The async lane is empty, so an event has nowhere to go except straight into the database.',
+          },
+          hintMoves: [
+            { place: 'queue' },
+            { place: 'worker' },
+            { connect: ['server', 'queue'] },
+            { connect: ['queue', 'worker'] },
+          ],
+          sayIt:
+            'The API drops the event on a queue and carries on. Something else picks it up later, and nobody waited for it.',
+        },
+        {
+          id: 'a1-write',
+          label: 'A worker writes the events down',
+          when: { op: 'edge', a: 'worker', b: 'db' },
+          hintNudge:
+            'A queue is somewhere to put things down, not somewhere to keep them. What turns those events into something you can query?',
+          hintPoint: {
+            highlight: ['worker', 'db'],
+            text: 'The worker is draining the queue and dropping everything it drains on the floor.',
+          },
+          hintMoves: [{ place: 'db' }, { connect: ['worker', 'db'] }],
+          sayIt:
+            'The worker reads the queue in batches and writes each batch in one go, at whatever pace the database can take.',
+        },
+        {
+          id: 'a1-inline',
+          label: 'The API never writes events itself',
+          when: { op: 'noEdge', a: 'server', b: 'db' },
+          hintNudge:
+            'The queue is doing the recording now. So what is a straight line from the API to the database still for?',
+          hintPoint: {
+            highlight: ['server', 'db'],
+            text: 'Take the line between the API server and the database off the board. Every event should reach it the long way round, through the queue.',
+          },
+          hintMoves: [],
+          sayIt:
+            'The request thread never touches the events database. Everything it records goes on the queue, and it waits for none of it.',
+        },
+      ],
+      clearLine:
+        'Twenty thousand events a minute and checkout did not notice. That is what handing work off actually looks like.',
+      debrief:
+        'The queue turns a write the customer is waiting on into a note the API leaves behind. The worker then writes in batches, which a database likes far more than twenty thousand separate inserts, and when the worker falls behind the queue simply gets longer while the shop stays fast.',
+    },
+    {
+      requirement:
+        'The dashboard is the problem now. Marketing runs a query across three months of events every time they open a chart, and while it runs the worker cannot get its writes in.',
+      tray: [
+        { kind: 'replica', count: 1 },
+        { kind: 'ext-api', count: 1, decoy: true },
+      ],
+      checks: [
+        {
+          id: 'a2-copy',
+          label: 'A copy takes the read load',
+          when: { op: 'edge', a: 'db', b: 'replica' },
+          hintNudge:
+            'One machine is being asked a three-month question and twenty thousand writes a minute at the same time. Does it have to be the same machine?',
+          hintPoint: {
+            highlight: ['replica', 'db'],
+            text: 'There is one database doing two jobs, and the slow job keeps getting in the way of the busy one.',
+          },
+          hintMoves: [{ place: 'replica' }, { connect: ['db', 'replica'] }],
+          sayIt:
+            'A read replica is a second database that copies the first a moment behind, so heavy reads stop competing with the writes.',
+        },
+        {
+          id: 'a2-read',
+          label: 'Dashboards read from the copy',
+          when: { op: 'edge', a: 'server', b: 'replica' },
+          hintNudge: 'The copy is on the board and up to date. Who is actually reading from it?',
+          hintPoint: {
+            highlight: ['server', 'replica'],
+            text: 'The replica is copying away with nobody querying it, so the primary is still answering the dashboard.',
+          },
+          hintMoves: [{ connect: ['server', 'replica'] }],
+          sayIt:
+            'Dashboard queries go to the replica. Being a few seconds behind changes nothing in a chart of last quarter.',
+        },
+        {
+          id: 'a2-decoy',
+          label: 'No outside analytics service here',
+          when: { op: 'notPlaced', kind: 'ext-api' },
+          hintNudge:
+            "Before you hand this to somebody else's product, what did I actually ask you to fix?",
+          hintPoint: {
+            highlight: ['ext-api'],
+            text: 'Sending the events somewhere else does not answer the question, and the reads that hurt are still your own.',
+          },
+          hintMoves: [{ remove: 'ext-api' }],
+          sayIt:
+            'I would not reach for a third-party analytics service here. The ask was to stop your own reads fighting your own writes.',
+        },
+        {
+          id: 'a2-budget',
+          label: 'Six parts, and no spare ones',
+          when: { op: 'maxParts', n: 6 },
+          hintNudge:
+            'Read the board back as a sentence: events come in, get written down, get read. Is anything up there not in that sentence?',
+          hintPoint: {
+            highlight: [],
+            text: 'The board has more on it than this pipeline needs. Something up there is not carrying an event anywhere.',
+          },
+          hintMoves: [],
+          sayIt:
+            'Six parts, and each has a job in one sentence: the queue absorbs, the worker writes, the replica answers the dashboard.',
+        },
+      ],
+      clearLine:
+        'The reads and the writes have stopped fighting each other. That is most of the answer whenever somebody tells you the database is slow.',
+      debrief:
+        'Two machines, two jobs. The primary takes a steady trickle of batched writes from the worker, and the replica, a copy that keeps itself a moment behind, answers the long dashboard queries, where being a few seconds out of date costs nothing. The one thing the board cannot draw for you is the index on the event timestamp, and without it neither machine would survive a three-month chart.',
+    },
+  ],
+};
+
+export const capstones: Capstone[] = [photoSharing, flashSale, globalStorefront, analyticsPipeline];

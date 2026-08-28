@@ -222,12 +222,79 @@ Concepts: `queues-jobs`, `indexes`, `caching` (resolve against `concepts.ts`; ad
 - `f2-decoy`: notPlaced(blob) [nothing here is a file; plausible because "storage" sounds right]. Moves: remove blob.
 - `f2-bonus` (bonus): pathVia(client, db, server) [nothing reaches the database except through the app; sayIt carries the sentence]. Moves: none.
 
+## Part F: refinement wave (v1.5)
+
+Driven by the first real plays of c5-01 and c9-01. Three changes: a predicate for "every clone gets the same wiring", a post-solve debrief that shows the reference build, and two new capstones. Decision 1 stands untouched: grading still never diffs against a reference; the debrief is shown only after the user's own build has already passed.
+
+Two judged-and-settled non-changes, recorded so they are not relitigated per wave: no `maxEdges` op and no junk-edge penalty (harmless extra lines stay legal; anything harmful is already caught by `pathVia`, and policing the rest would punish defensible designs), and no free placement (lanes are curriculum, and grading never consulted them anyway).
+
+### F1: the `eachConnected` predicate
+
+- New op: `{ op: 'eachConnected'; each: PartKind; to: PartKind }`. Passes when both kinds have at least one instance and **every** instance of `each` has a direct edge to **some** instance of `to`. This is the one deliberate exception to the kind-graph collapse, because the interchangeability of clones is itself the lesson: a fleet where one server has the cache and another does not is a real design flaw the old `edge` op could not see.
+- `trace`: route `[each, to]` on a pass; on a failure `stopsAt` is `each` and the renderer highlights an unwired instance, not the first one.
+- `validateCapstone`: both kinds must exist in the cumulative tray or pre-placed parts.
+- Content change: c5-01 `s2-cache` becomes eachConnected(server, cache); reword its label and hints for "every server" (author's words). `hintMoves` stay as they are: `connect` already fans out to every instance, so the canonical run passes unchanged.
+- One tidiness bonus, the only one: c5-01 stage 3 gains `s3-tidy` (bonus): noEdge(db, blob), sayIt teaching that the app coordinates the database and file storage and they never talk to each other directly. Moves: none.
+
+### F2: the debrief (the reference build, after solving only)
+
+- Schema: `CapstoneStage` gains `debrief: string` (required; 1-3 sentences, plain words: why this shape is the standard answer, what each region buys). Author it for **all four** capstones' stages in this wave.
+- Engine: `canonicalBuild(capstone, throughStage)`: replays `hintMoves` from the start through the given stage and returns the resulting `Build`. Exported and tested; it is the author's worked solution made visible.
+- UI: after a stage clears, a ghost link "See the reference build" appears under the clear line and opens the existing bottom sheet containing: a static mini render of the canonical build at that stage (reuse the summary's static board render), the stage's `debrief`, then the stage's checks as label + sayIt lines. The capstone summary gets the same link for the final build. Copy frames both builds as valid, in the app's voice: yours passed, this is the shape interviewers usually draw, and why it works. The link is never reachable before its stage is cleared, and grading never consults the canonical build.
+- Motion: the sheet is the existing bottom-sheet spring; the mini board is static, no dot, no new effects.
+
+### F3: capstones three and four
+
+Same authoring contract as part E. Entry points need no new UI: a capstone station appears at the end of its track's path automatically; verify track 8 renders its first station.
+
+#### c8-01, track 8: "The global storefront"
+
+Concepts: `caching-headers`, `idempotency`, `http-verbs` (resolve against `concepts.ts`).
+
+**Stage 1, make it work** (a shop: browse products, place orders). Pre-placed: `client`. Tray: `server`, `db`.
+
+- `g1-api`: path(client, server) [the browser reaches your API]. Moves: place server, connect client-server.
+- `g1-data`: pathVia(client, db, server) [products and orders live behind the API]. Moves: place db, connect server-db.
+
+**Stage 2, customers in Australia wait three seconds** (static assets cross the planet on every view). Tray: `cdn`, `cache`.
+
+- `g2-cdn`: edge(client, cdn) [static files come from an edge near the user]. Moves: place cdn, connect client-cdn.
+- `g2-origin`: edge(cdn, server) [the CDN fills itself from your origin]. Moves: connect cdn-server.
+- `g2-cache`: edge(server, cache) [dynamic reads come from memory]. Moves: place cache, connect server-cache.
+
+**Stage 3, add card payments** (the provider is slow and sometimes times out; checkout must never hang or double-charge). Tray: `queue`, `worker`, `ext-api`, decoy `lb`.
+
+- `g3-jobs`: pathVia(server, worker, queue) [charge attempts are queued jobs, not inline calls]. Moves: place queue, place worker, connect server-queue, connect queue-worker.
+- `g3-provider`: pathVia(server, ext-api, worker) [only the worker talks to the payment provider; the request thread never waits on it]. Moves: place ext-api, connect worker-ext-api.
+- `g3-decoy`: notPlaced(lb) [nothing said traffic was the problem; the reflex to scale compute is the trap]. Moves: remove lb.
+- `g3-budget`: maxParts(8) [canonical: client, cdn, server, cache, db, queue, worker, ext-api]. Moves: none.
+- `g3-bonus` (bonus): pathVia(client, db, server) [nothing reaches the database except through the app. Duplicates `g1-data`'s predicate, accepted deliberately: as a bonus it resurfaces the sentence at the moment payments arrive, with its own sayIt]. Moves: none.
+
+#### c9-02, track 9: "The analytics pipeline"
+
+Concepts: `queues-jobs`, `replication`, `indexes` (resolve against `concepts.ts`).
+
+**Stage 1, track events without slowing the app.** Pre-placed: `client`, `server`; pre-wired: client-server. Tray: `queue`, `worker`, `db`.
+
+- `a1-queue`: edge(server, queue) [events are fired into a queue and forgotten. Specced as pathVia(server, worker, queue), but stage 2's replica wiring joins server to worker around the queue in the undirected kind graph, so pathVia would fail a correct build; the same downgrade the part E capstones carry]. Moves: place queue, place worker, connect server-queue, connect queue-worker.
+- `a1-write`: edge(worker, db) [the worker batches events into the database at its own pace]. Moves: place db, connect worker-db.
+- `a1-inline`: noEdge(server, db) [the request thread never writes analytics inline; directness is the lesson, so `noEdge` and not a route op]. Moves: none (the canonical run never draws the edge, and a no-op disconnect fails move validation; the level-3 hint falls back to `hintPoint.text`, which names the action).
+
+**Stage 2, the dashboard queries are strangling the primary.** Tray: `replica`, decoy `ext-api`.
+
+- `a2-copy`: edge(db, replica) [a copy takes the reads while the primary takes the writes]. Moves: place replica, connect db-replica.
+- `a2-read`: edge(server, replica) [dashboards read from the copy]. Moves: connect server-replica.
+- `a2-decoy`: notPlaced(ext-api) [an "analytics service" sounds right; the ask was to fix the reads you already have]. Moves: remove ext-api.
+- `a2-budget`: maxParts(6) [canonical: client, server, queue, worker, db, replica]. Moves: none.
+
 ## Milestones
 
 - **M-BM1, engine and schema.** Part A and part B land with full tests; `validateCapstone` wired into content validation; both capstones authored as data and passing it. No UI. Acceptance: `npm test` covers every predicate op and the solvability runner; content tests (emoji, em-dash, markdown) scan `capstones.ts`.
 - **M-BM2, playable board.** Part C without part D: placement, edges, check strip, instant grading on Run it, hints, stage flow, progress and XP persistence, entry from the track path, abandon and resume (cleared stages persist, current stage restarts). Acceptance: c5-01 completable end to end at 390x844 by taps alone; lint and build pass; no dependency added.
 - **M-BM3, motion and sound.** Part D exactly as specified, including reduced-motion behavior and the summary's static build render. Acceptance: a full run animates in under 2.5s; every effect uses only transform and opacity; reduced motion verified with both the OS setting and the in-app toggle; c9-01 shipped.
+- **M-BM4, refinements (F1 + F2).** The `eachConnected` op with tests and trace behavior; the c5-01 check changes and tidiness bonus; the `debrief` field authored for c5-01 and c9-01; `canonicalBuild` in the engine; the reference-build sheet on stage clear and on the summary. Acceptance: replaying c5-01 stage 2 with one cache-less server now fails with the unwired server highlighted; the debrief sheet is unreachable before a stage clears; lint, tests and build pass.
+- **M-BM5, capstones three and four (F3).** c8-01 and c9-02 authored with debriefs, passing `validateCapstone`; track 8's path shows its first capstone station. Acceptance: both completable end to end at 390x844; content tests scan them; no code changes beyond content unless the station rendering genuinely needs one.
 
 ## V2 ideas (do NOT build now)
 
-Drag placement via the existing SortableZone; directed edges with arrowheads and direction-aware predicates; a failure drill (tap a part to kill it and re-run the checks); capstone entries in the review pile; `cdn` and `ext-api` earning their place in a third capstone; freeform check authoring beyond the seven ops.
+Drag placement from tray to lane (tap stays the co-equal path; edge drawing stays tap-tap); directed edges with arrowheads and direction-aware predicates; a failure drill (tap a part to kill it and re-run the checks); capstone entries in the review pile; freeform check authoring beyond the eight ops.

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  canonicalBuild,
   canPlace,
   emptyBuild,
   evaluate,
@@ -14,6 +15,7 @@ import {
   testPredicate,
   toggleEdge,
   trace,
+  unwiredInstances,
   validateCapstone,
   type Build,
   type CapstoneSpec,
@@ -25,7 +27,7 @@ import {
 /**
  * The whole idea stands or falls here: if a predicate means something other
  * than what an author read into it, a capstone grades the wrong build as
- * right. These tests are the definition of the seven ops.
+ * right. These tests are the definition of the eight ops.
  */
 
 /** Parts are numbered 1, 2, 3… in placement order; links use those numbers. */
@@ -172,6 +174,85 @@ describe('edge and noEdge', () => {
   it('treats a missing part as not connected', () => {
     expect(testPredicate(buildOf(['server']), wired)).toBe(false);
     expect(testPredicate(buildOf(['server']), unwired)).toBe(true);
+  });
+});
+
+describe('eachConnected', () => {
+  const p: Predicate = { op: 'eachConnected', each: 'server', to: 'cache' };
+
+  it('passes when the one server there is wired to the cache', () => {
+    expect(testPredicate(buildOf(['server', 'cache'], [[1, 2]]), p)).toBe(true);
+  });
+
+  it('fails when the server and the cache are both there and unconnected', () => {
+    expect(testPredicate(buildOf(['server', 'cache']), p)).toBe(false);
+  });
+
+  it('fails when either kind is missing', () => {
+    expect(testPredicate(buildOf(['server']), p)).toBe(false);
+    expect(testPredicate(buildOf(['cache']), p)).toBe(false);
+    expect(testPredicate(emptyBuild(), p)).toBe(false);
+  });
+
+  it('fails on a fleet where one server has the cache and the other does not', () => {
+    // The whole reason the op exists: edge sees a server touching the cache
+    // and is satisfied, and half the requests still miss it.
+    const half = buildOf(['server', 'server', 'cache'], [[1, 3]]);
+    expect(testPredicate(half, { op: 'edge', a: 'server', b: 'cache' })).toBe(true);
+    expect(testPredicate(half, p)).toBe(false);
+    expect(unwiredInstances(half, 'server', 'cache')).toEqual([2]);
+  });
+
+  it('passes once every server has its own line to the cache', () => {
+    const whole = buildOf(
+      ['server', 'server', 'cache'],
+      [
+        [1, 3],
+        [2, 3],
+      ],
+    );
+    expect(testPredicate(whole, p)).toBe(true);
+    expect(unwiredInstances(whole, 'server', 'cache')).toEqual([]);
+  });
+
+  it('is happy with a server wired to either of two caches', () => {
+    const spread = buildOf(
+      ['server', 'server', 'cache', 'cache'],
+      [
+        [1, 3],
+        [2, 4],
+      ],
+    );
+    expect(testPredicate(spread, p)).toBe(true);
+  });
+
+  it('reads direct connections only, never a route round the houses', () => {
+    const roundabout = buildOf(
+      ['server', 'server', 'cache'],
+      [
+        [1, 3],
+        [1, 2],
+      ],
+    );
+    expect(testPredicate(roundabout, p)).toBe(false);
+  });
+
+  it('walks the connection on a pass and stops on the clone that lacks one', () => {
+    const whole = buildOf(
+      ['server', 'server', 'cache'],
+      [
+        [1, 3],
+        [2, 3],
+      ],
+    );
+    expect(trace(whole, p)).toEqual({ route: ['server', 'cache'], stopsAt: null });
+    const half = buildOf(['server', 'server', 'cache'], [[1, 3]]);
+    expect(trace(half, p)).toEqual({ route: ['server'], stopsAt: 'server' });
+  });
+
+  it('falls back to the far kind when nothing of the near one is placed', () => {
+    expect(trace(buildOf(['cache']), p)).toEqual({ route: ['cache'], stopsAt: 'cache' });
+    expect(trace(emptyBuild(), p)).toEqual({ route: [], stopsAt: null });
   });
 });
 
@@ -486,6 +567,72 @@ describe('runMoves', () => {
   });
 });
 
+describe('canonicalBuild', () => {
+  /** Two stages, the second of which moves a connection the first drew. */
+  const capstone: CapstoneSpec = {
+    id: 'x-09',
+    stages: [
+      {
+        prePlaced: ['client'],
+        tray: [{ kind: 'server', count: 1 }],
+        checks: [
+          {
+            id: 's1-api',
+            when: { op: 'path', from: 'client', to: 'server' },
+            hintMoves: [{ place: 'server' }, { connect: ['client', 'server'] }],
+          },
+        ],
+      },
+      {
+        tray: [{ kind: 'lb', count: 1 }],
+        checks: [
+          {
+            id: 's2-lb',
+            when: { op: 'pathVia', from: 'client', to: 'server', via: 'lb' },
+            hintMoves: [
+              { place: 'lb' },
+              { connect: ['client', 'lb'] },
+              { connect: ['lb', 'server'] },
+              { disconnect: ['client', 'server'] },
+            ],
+          },
+        ],
+      },
+    ],
+  };
+
+  it('returns the board the hints arrive at by the end of a stage', () => {
+    const stage1 = canonicalBuild(capstone, 0);
+    expect(stage1.parts.map((p) => p.kind)).toEqual(['client', 'server']);
+    expect(stage1.edges).toEqual([[1, 2]]);
+
+    const stage2 = canonicalBuild(capstone, 1);
+    expect(stage2.parts.map((p) => p.kind)).toEqual(['client', 'server', 'lb']);
+    // The direct line is gone: the reference build is the one the later
+    // stage's checks accept, not the sum of everything ever drawn.
+    expect(stage2.edges).toEqual([
+      [1, 3],
+      [2, 3],
+    ]);
+  });
+
+  it('passes every check authored up to that stage', () => {
+    capstone.stages.forEach((_, index) => {
+      const build = canonicalBuild(capstone, index);
+      const soFar = capstone.stages.slice(0, index + 1).flatMap((s) => s.checks);
+      expect(evaluate(build, soFar).every((r) => r.pass)).toBe(true);
+    });
+  });
+
+  it('stops at the last stage rather than running off the end', () => {
+    expect(canonicalBuild(capstone, 9)).toEqual(canonicalBuild(capstone, 1));
+  });
+
+  it('has nothing to draw before the first stage is played', () => {
+    expect(canonicalBuild(capstone, -1)).toEqual(emptyBuild());
+  });
+});
+
 describe('validateCapstone', () => {
   /** The shape of a healthy two-stage capstone, for tests to bend one way. */
   const sound = (): CapstoneSpec => ({
@@ -596,6 +743,42 @@ describe('validateCapstone', () => {
     });
     const problems = validateCapstone(capstone);
     expect(problems.join('\n')).toContain('forbids cdn, which no tray offers');
+  });
+
+  it('accepts an eachConnected check both of whose kinds a tray offers', () => {
+    const capstone = sound();
+    capstone.stages[1].tray.push({ kind: 'cache', count: 1 });
+    capstone.stages[1].checks.push({
+      id: 's2-cache',
+      when: { op: 'eachConnected', each: 'server', to: 'cache' },
+      hintMoves: [{ place: 'cache' }, { connect: ['server', 'cache'] }],
+    });
+    expect(validateCapstone(capstone)).toEqual([]);
+  });
+
+  it('catches an eachConnected check naming a part no tray offers', () => {
+    const capstone = sound();
+    capstone.stages[1].checks.push({
+      id: 's2-cache',
+      when: { op: 'eachConnected', each: 'server', to: 'cache' },
+      hintMoves: [],
+    });
+    expect(validateCapstone(capstone).join('\n')).toContain('wires cache, which no tray offers');
+  });
+
+  it('catches a second server the hints leave unwired', () => {
+    // The failure the op was added for, at author time rather than at play
+    // time: a fleet the worked solution itself only half connects.
+    const capstone = sound();
+    capstone.stages[1].tray.push({ kind: 'server', count: 1 }, { kind: 'cache', count: 1 });
+    capstone.stages[1].checks.push({
+      id: 's2-cache',
+      when: { op: 'eachConnected', each: 'server', to: 'cache' },
+      // A connect fans out across every instance, so placing the second
+      // server after it is what leaves that one on its own.
+      hintMoves: [{ place: 'cache' }, { connect: ['server', 'cache'] }, { place: 'server' }],
+    });
+    expect(validateCapstone(capstone).join('\n')).toContain('"s2-cache" is red after stage 2');
   });
 
   it('catches pre-placing more parts than a lane holds', () => {

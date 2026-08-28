@@ -1,0 +1,65 @@
+/* The debrief sheet (docs/12 part F2). The concept card's reading surface,
+   with the board's paper under the drawing so the reference build looks like
+   the thing the user just built rather than like a different picture. */
+
+.reference__title {
+  font-size: var(--fs-title);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-bottom: var(--sp-2);
+}
+
+.reference__frame {
+  font-size: var(--fs-secondary);
+  line-height: 1.5;
+  color: var(--text-dim);
+}
+
+.reference__board {
+  margin-top: var(--sp-4);
+  padding: var(--sp-3);
+  background: var(--paper);
+  border: 1px solid var(--paper-edge);
+  border-radius: var(--r-card);
+}
+
+.reference__prose {
+  margin-top: var(--sp-4);
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+.reference__section {
+  margin-top: var(--sp-5);
+}
+
+.reference__label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent-text);
+  margin-bottom: var(--sp-2);
+}
+
+.reference__checks {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.reference__check-label {
+  font-size: var(--fs-body);
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.reference__say {
+  margin-top: var(--sp-1);
+  font-size: var(--fs-secondary);
+  line-height: 1.5;
+  color: var(--text-dim);
+}

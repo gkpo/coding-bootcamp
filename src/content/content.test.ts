@@ -297,11 +297,14 @@ describe('one concept, several skins (docs/09)', () => {
 });
 
 describe('the authored capstones (docs/12)', () => {
-  it('ships the two the spec calls for, on their own tracks', () => {
-    expect(capstones.map((c) => c.id)).toEqual(['c5-01', 'c9-01']);
+  it('ships the four the spec calls for, on their own tracks', () => {
+    expect(capstones.map((c) => c.id)).toEqual(['c5-01', 'c9-01', 'c8-01', 'c9-02']);
     expect(capstonesForTrack('t5').map((c) => c.id)).toEqual(['c5-01']);
-    expect(capstonesForTrack('t9').map((c) => c.id)).toEqual(['c9-01']);
+    expect(capstonesForTrack('t8').map((c) => c.id)).toEqual(['c8-01']);
+    // A track may end on more than one, and the path renders them in order.
+    expect(capstonesForTrack('t9').map((c) => c.id)).toEqual(['c9-01', 'c9-02']);
     expect(getCapstone('c5-01')?.title).toBe('The photo-sharing app');
+    expect(getCapstone('c8-01')?.title).toBe('The global storefront');
   });
 
   it('is solvable by following its own hints, every stage of it', () => {
@@ -328,6 +331,18 @@ describe('the authored capstones (docs/12)', () => {
       for (const stage of capstone.stages) {
         expect(stage.requirement.length, capstone.id).toBeGreaterThan(60);
         expect(stage.clearLine.length, capstone.id).toBeGreaterThan(30);
+      }
+    }
+  });
+
+  it('explains the reference build of every stage in a few real sentences', () => {
+    // docs/12 part F2: the debrief is read after the stage is already won, so
+    // it has to earn the tap by saying why the shape is the usual one.
+    for (const capstone of capstones) {
+      for (const stage of capstone.stages) {
+        expect(stage.debrief.length, capstone.id).toBeGreaterThan(80);
+        const sentences = stage.debrief.split('. ').length;
+        expect(sentences, `${capstone.id}: ${stage.debrief}`).toBeLessThanOrEqual(3);
       }
     }
   });
@@ -360,7 +375,7 @@ describe('the authored capstones (docs/12)', () => {
     const decoys = capstones.flatMap((c) =>
       c.stages.flatMap((s) => s.tray.filter((p) => p.decoy === true).map((p) => p.kind)),
     );
-    expect(decoys).toEqual(['replica', 'blob']);
+    expect(decoys).toEqual(['replica', 'blob', 'lb', 'ext-api']);
     for (const capstone of capstones) {
       const forbidden = capstone.stages
         .flatMap((s) => s.checks)
@@ -383,10 +398,26 @@ describe('the authored capstones (docs/12)', () => {
     }
   });
 
-  it('holds exactly one bonus check, and it never blocks a stage', () => {
+  it('keeps bonus checks to at most one a stage, so none of them blocks one', () => {
     const bonuses = capstones.flatMap((c) =>
       c.stages.flatMap((s) => s.checks.filter((check) => check.bonus === true)),
     );
-    expect(bonuses.map((b) => b.id)).toEqual(['f2-bonus']);
+    expect(bonuses.map((b) => b.id)).toEqual(['s3-tidy', 'f2-bonus', 'g3-bonus']);
+    for (const capstone of capstones) {
+      for (const stage of capstone.stages) {
+        expect(
+          stage.checks.filter((c) => c.bonus === true).length,
+          capstone.id,
+        ).toBeLessThanOrEqual(1);
+      }
+    }
+  });
+
+  it('grades the fleet, not one server of it, where clones have to match', () => {
+    // docs/12 part F1: the interchangeability of the clones is the lesson, so
+    // the cache check has to see a server that was left out of the wiring.
+    const cache = capstones[0].stages[1].checks.find((c) => c.id === 's2-cache');
+    expect(cache?.when).toEqual({ op: 'eachConnected', each: 'server', to: 'cache' });
+    expect(cache?.label.toLowerCase()).toContain('every server');
   });
 });
