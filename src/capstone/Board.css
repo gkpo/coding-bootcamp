@@ -118,6 +118,18 @@
   pointer-events: none;
 }
 
+/* The lane a part belongs in, with no room left in it. A neutral ring rather
+   than the accent one: the accent ring promises that a tap will place
+   something, and this lane cannot keep that promise. */
+.lane.is-full::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: 12px;
+  border: 2px solid color-mix(in srgb, var(--text-dim) 25%, transparent);
+  pointer-events: none;
+}
+
 /* The flow dot: the one new moving element in the app (docs/12 part D). Its
    transform is written by the run driver rather than by React, so a run costs
    no re-renders. */

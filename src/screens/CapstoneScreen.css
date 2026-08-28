@@ -97,6 +97,12 @@
   }
 }
 
+.capstone__blocked {
+  font-size: var(--fs-secondary);
+  line-height: 1.5;
+  color: var(--text-dim);
+}
+
 .capstone__return {
   width: auto;
   align-self: flex-start;

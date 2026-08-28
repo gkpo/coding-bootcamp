@@ -7,6 +7,7 @@ import { planRun } from '../capstone/flowRun';
 import { playRun } from '../capstone/playRun';
 import { replayFrom, slide, snapshotRects, type Rects } from '../capstone/flip';
 import { motionOff, STAGGER, STANDARD } from '../capstone/motion';
+import { LANE_LABEL } from '../capstone/parts';
 import { addStage, give, take, trayFor, type TrayCounts } from '../capstone/tray';
 import { Button } from '../components/Button';
 import { ConfirmDialog } from '../components/ConfirmDialog';
@@ -14,8 +15,10 @@ import { CloseIcon } from '../components/icons';
 import { getCapstone } from '../content';
 import type { Capstone } from '../content/types';
 import {
+  canPlace,
   evaluate,
   firstFailing,
+  PART_LANES,
   place,
   removePart,
   runMoves,
@@ -317,6 +320,16 @@ function CapstoneRun({ capstone }: { capstone: Capstone }) {
           <Button variant="ghost" className="capstone__return" onClick={returnPart}>
             Return to tray
           </Button>
+        )}
+
+        {/* A lane at capacity is a dead end unless it says so. This is also
+            where a decoy earns its keep: the only way to fit one is to take
+            out something the checks already asked for. */}
+        {placing !== null && !canPlace(build, placing) && (
+          <p className="capstone__blocked">
+            The {LANE_LABEL[PART_LANES[placing]].toLowerCase()} lane is full. Take a part back to
+            the tray if you want to make room.
+          </p>
         )}
 
         <CheckStrip

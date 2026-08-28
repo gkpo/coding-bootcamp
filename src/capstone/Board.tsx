@@ -131,8 +131,16 @@ export function Board({
         const pointed = highlight.some(
           (kind) => PART_LANES[kind] === lane && countOfKind(build, kind) === 0,
         );
+        // The armed part's own lane, with no room left in it. Worth showing:
+        // otherwise the chip arms and the board simply does not answer.
+        const full = placing !== null && PART_LANES[placing] === lane && !open;
         return (
-          <div className={`lane${pointed ? ' is-pointed' : ''}`} key={lane}>
+          <div
+            className={['lane', pointed ? 'is-pointed' : '', full ? 'is-full' : '']
+              .filter(Boolean)
+              .join(' ')}
+            key={lane}
+          >
             <span className="lane__label">{LANE_LABEL[lane]}</span>
             <div className="lane__parts">
               {parts.map((part) => (
