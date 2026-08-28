@@ -61,9 +61,6 @@
   --success-bg: rgba(0, 128, 108, 0.1);
   --danger-bg: rgba(207, 46, 78, 0.1);
   --info-bg: rgba(18, 98, 158, 0.1);
-  /* The same blue again, strong enough to draw an edge rather than a fill:
-     the concept chip's hairline ring and the underside it presses into. */
-  --info-edge: rgba(18, 98, 158, 0.28);
 
   /* ---- syntax highlighting ----
      Drawn from the deep end of the track colours, never neon-on-white
