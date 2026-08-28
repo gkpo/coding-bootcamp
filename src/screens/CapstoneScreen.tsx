@@ -506,7 +506,7 @@ function CapstoneRun({ capstone }: { capstone: Capstone }) {
             takes the quieter half of the bar and none of the board's room. */}
         {canWatchAgain && (
           <Button variant="secondary" onClick={watchAgain} disabled={running}>
-            Watch it run
+            Re-run
           </Button>
         )}
         <Button onClick={cleared ? goOn : runIt} quiet disabled={running}>
