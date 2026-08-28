@@ -18,7 +18,8 @@
    padding edge, which is exactly where an absolutely positioned child starts.
    Insetting these by the padding too would count it twice. */
 .board__edges,
-.board__ports {
+.board__ports,
+.board__hits {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -36,6 +37,21 @@
   z-index: 3;
 }
 
+/* Under the chips: a tap near a part belongs to the part, not to a line
+   passing behind it. The layer itself is deaf; only the ribbons below take
+   taps, so a tap on bare paper still reaches the lane underneath. */
+.board__hits {
+  z-index: 1;
+}
+
+.board__hit {
+  fill: none;
+  stroke: transparent;
+  stroke-linecap: round;
+  pointer-events: stroke;
+  cursor: pointer;
+}
+
 /* An odd stroke width and an odd dot diameter share a centre line, so the
    dot sits concentric on the end of its connection at any zoom. An even
    width straddles the axis by half a pixel and the two stop agreeing. */
@@ -49,6 +65,13 @@
 
 .board__port {
   fill: var(--paper-edge);
+}
+
+/* The connections belonging to the part in hand, so the list of links under
+   the board and the picture on it are obviously the same thing. */
+.board__edge.is-live {
+  stroke: var(--ink);
+  stroke-width: 1.6;
 }
 
 .lane {

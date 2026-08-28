@@ -65,6 +65,36 @@ export function boundaryPoint(half: number, radius: number, dx: number, dy: numb
   return { x: dx * hit, y: dy * hit };
 }
 
+/** A wire, sampled along its length, for working out what a tap meant. */
+export interface WireSamples {
+  key: string;
+  points: Point[];
+}
+
+/**
+ * Which wire a tap was aiming at (docs/12 part C).
+ *
+ * Nearest, not topmost. A tap target for a line has to be far wider than the
+ * line, and on a full board those targets overlap; letting the last-drawn one
+ * win means the board removes a connection the user was not pointing at.
+ * Returns null when nothing is within reach, so a tap on empty paper does
+ * nothing rather than something arbitrary.
+ */
+export function nearestWire(wires: WireSamples[], at: Point, reach: number): string | null {
+  let best: string | null = null;
+  let closest = reach;
+  for (const wire of wires) {
+    for (const point of wire.points) {
+      const distance = Math.hypot(point.x - at.x, point.y - at.y);
+      if (distance < closest) {
+        closest = distance;
+        best = wire.key;
+      }
+    }
+  }
+  return best;
+}
+
 export function wireKey(a: number, b: number): string {
   return a < b ? `${a}-${b}` : `${b}-${a}`;
 }

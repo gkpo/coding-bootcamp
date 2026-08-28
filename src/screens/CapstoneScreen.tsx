@@ -8,7 +8,7 @@ import { planRun } from '../capstone/flowRun';
 import { playRun } from '../capstone/playRun';
 import { replayFrom, slide, snapshotRects, type Rects } from '../capstone/flip';
 import { motionOff, STAGGER, STANDARD } from '../capstone/motion';
-import { LANE_LABEL } from '../capstone/parts';
+import { LANE_LABEL, PART_NAME } from '../capstone/parts';
 import { addStage, give, take, trayFor, type TrayCounts } from '../capstone/tray';
 import { Button } from '../components/Button';
 import { ConfirmDialog } from '../components/ConfirmDialog';
@@ -72,6 +72,12 @@ function CapstoneRun({ capstone }: { capstone: Capstone }) {
   const [build, setBuild] = useState<Build>(opening.build);
   const [tray, setTray] = useState<TrayCounts>(opening.tray);
 
+  /**
+   * One step back, as far as the stage's own beginning. The board is the only
+   * place in the app where a tap destroys something the user made, so every
+   * tap that changes it leaves a way back.
+   */
+  const [history, setHistory] = useState<{ build: Build; tray: TrayCounts }[]>([]);
   const [armedPart, setArmedPart] = useState<number | null>(null);
   const [placing, setPlacing] = useState<PartKind | null>(null);
   const [arriving, setArriving] = useState<PartKind[]>([]);
@@ -114,6 +120,15 @@ function CapstoneRun({ capstone }: { capstone: Capstone }) {
     cleared || running || outcome === null ? null : firstFailing(checksSoFar, outcome);
   const highlight = hintLevel >= 2 ? hintedKinds(checksSoFar, hintTarget) : [];
 
+  const linksOf = (id: number | null) => {
+    if (id === null) return [];
+    return build.edges
+      .filter(([a, b]) => a === id || b === id)
+      .map(([a, b]) => (a === id ? b : a))
+      .map((other) => build.parts.find((part) => part.id === other))
+      .filter((part) => part !== undefined);
+  };
+
   const rememberGeometry = useCallback((centers: Centers) => {
     geometry.current = centers;
   }, []);
@@ -149,6 +164,19 @@ function CapstoneRun({ capstone }: { capstone: Capstone }) {
     replayFrom(bodyRef.current, 'data-tray', pending.tray, STANDARD);
   });
 
+  /** Called before anything that changes the board, never after. */
+  const remember = () => setHistory((past) => [...past, { build, tray }]);
+
+  const undo = () => {
+    const last = history.at(-1);
+    if (!last || running) return;
+    setHistory((past) => past.slice(0, -1));
+    setBuild(last.build);
+    setTray(last.tray);
+    setArmedPart(null);
+    setPlacing(null);
+  };
+
   const tapTray = (kind: PartKind) => {
     if (running) return;
     setArmedPart(null);
@@ -159,6 +187,7 @@ function CapstoneRun({ capstone }: { capstone: Capstone }) {
     if (running) return;
     const next = place(build, kind);
     if (next === null) return;
+    remember();
     pendingFlip.current = {
       partId: next.parts[next.parts.length - 1].id,
       from:
@@ -179,13 +208,23 @@ function CapstoneRun({ capstone }: { capstone: Capstone }) {
       setArmedPart(armedPart === id ? null : id);
       return;
     }
+    remember();
     setBuild(toggleEdge(build, armedPart, id));
+    setArmedPart(null);
+  };
+
+  /** A tap that landed on a connection: take it off the board. */
+  const unlink = (a: number, b: number) => {
+    if (running) return;
+    remember();
+    setBuild(toggleEdge(build, a, b));
     setArmedPart(null);
   };
 
   const returnPart = () => {
     const part = build.parts.find((p) => p.id === armedPart);
     if (!part || running) return;
+    remember();
     setBuild(removePart(build, part.id));
     setTray((counts) => give(counts, part.kind));
     setArmedPart(null);
@@ -280,6 +319,7 @@ function CapstoneRun({ capstone }: { capstone: Capstone }) {
     }
     const next = stageIndex + 1;
     setStageIndex(next);
+    setHistory([]);
     setTray((counts) => addStage(counts, capstone.stages[next]));
     setArriving(capstone.stages[next].tray.map((part) => part.kind));
     setHintTaken(false);
@@ -337,12 +377,41 @@ function CapstoneRun({ capstone }: { capstone: Capstone }) {
           onWires={rememberWires}
           onPlace={placeIn}
           onTapPart={tapPart}
+          onTapWire={unlink}
         />
 
-        {armedPart !== null && (
-          <Button variant="ghost" className="capstone__return" onClick={returnPart}>
-            Return to tray
-          </Button>
+        <div className="capstone__tools">
+          {history.length > 0 && (
+            <Button variant="ghost" className="capstone__tool" onClick={undo}>
+              Undo
+            </Button>
+          )}
+          {armedPart !== null && (
+            <Button variant="ghost" className="capstone__tool" onClick={returnPart}>
+              Return to tray
+            </Button>
+          )}
+        </div>
+
+        {/* The guaranteed way to take a connection off. Tapping the line works
+            and is quicker, but on a full board some connections have nowhere
+            left to tap; naming them turns aiming into choosing. */}
+        {armedPart !== null && linksOf(armedPart).length > 0 && (
+          <div className="capstone__links">
+            <p className="capstone__links-label">Remove a link</p>
+            <div className="capstone__links-row">
+              {linksOf(armedPart).map((part) => (
+                <button
+                  type="button"
+                  key={part.id}
+                  className="capstone__link"
+                  onClick={() => unlink(armedPart, part.id)}
+                >
+                  {PART_NAME[part.kind]}
+                </button>
+              ))}
+            </div>
+          </div>
         )}
 
         {/* A lane at capacity is a dead end unless it says so. This is also

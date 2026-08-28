@@ -1,4 +1,12 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState, type RefObject } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type MouseEvent as ReactMouseEvent,
+  type RefObject,
+} from 'react';
 import {
   canPlace,
   countOfKind,
@@ -10,7 +18,7 @@ import {
 import { PartGlyph } from '../components/PartGlyph';
 import { EASE, MICRO, motionOff } from './motion';
 import { LANE_LABEL, PART_LABEL, PART_NAME } from './parts';
-import { planWires, type WirePlan } from './wires';
+import { nearestWire, planWires, type WirePlan } from './wires';
 import './Board.css';
 
 export interface Point {
@@ -25,6 +33,12 @@ export type Centers = Record<number, Point>;
  */
 const CHIP = 62;
 const CHIP_RADIUS = 14;
+/**
+ * How far from a line a tap still counts as meaning it. Wider than the line by
+ * a long way, because a 1px stroke is not a target; the tap is then given to
+ * the nearest wire rather than to whichever one happens to be on top.
+ */
+const WIRE_REACH = 18;
 
 interface Props {
   build: Build;
@@ -44,6 +58,8 @@ interface Props {
   onWires: (paths: Map<string, SVGPathElement>) => void;
   onPlace: (kind: PartKind) => void;
   onTapPart: (id: number) => void;
+  /** A tap that landed on a connection rather than on a part. */
+  onTapWire: (a: number, b: number) => void;
 }
 
 /**
@@ -71,6 +87,7 @@ export function Board({
   onWires,
   onPlace,
   onTapPart,
+  onTapWire,
 }: Props) {
   const boardRef = useRef<HTMLDivElement>(null);
   const chips = useRef(new Map<number, HTMLButtonElement>());
@@ -114,6 +131,29 @@ export function Board({
 
   const drawn = [...wires, ...exiting];
 
+  // Which wire a tap meant: sampled off the drawn paths, so the answer follows
+  // the curve the user is actually looking at.
+  const tapWires = (event: ReactMouseEvent<SVGSVGElement>) => {
+    const box = event.currentTarget.getBoundingClientRect();
+    const at = { x: event.clientX - box.left, y: event.clientY - box.top };
+    const samples = wires.map((wire) => {
+      const path = paths.current.get(wire.key);
+      if (!path) return { key: wire.key, points: [] };
+      const length = path.getTotalLength();
+      const steps = Math.max(2, Math.ceil(length / 4));
+      return {
+        key: wire.key,
+        points: Array.from({ length: steps + 1 }, (_, i) => {
+          const point = path.getPointAtLength((length * i) / steps);
+          return { x: point.x, y: point.y };
+        }),
+      };
+    });
+    const key = nearestWire(samples, at, WIRE_REACH);
+    const wire = wires.find((w) => w.key === key);
+    if (wire) onTapWire(wire.a, wire.b);
+  };
+
   return (
     <div className="board" ref={boardRef}>
       <svg className="board__edges" aria-hidden>
@@ -124,11 +164,27 @@ export function Board({
               if (el) paths.current.set(wire.key, el);
               else paths.current.delete(wire.key);
             }}
-            className="board__edge"
+            className={
+              wire.a === armedPartId || wire.b === armedPartId
+                ? 'board__edge is-live'
+                : 'board__edge'
+            }
             d={wire.d}
           />
         ))}
       </svg>
+
+      {/* Taps on a connection. Only the ribbons take pointer events, so a tap
+          on paper still falls through to the lane underneath, and a tap near a
+          chip belongs to the chip. Placing a part suspends the whole layer:
+          then every tap on the board means "put it here". */}
+      {placing === null && (
+        <svg className="board__hits" aria-hidden onClick={tapWires}>
+          {wires.map((wire) => (
+            <path key={wire.key} className="board__hit" d={wire.d} strokeWidth={WIRE_REACH * 2} />
+          ))}
+        </svg>
+      )}
 
       {/* The dots ride above the chips, overlapping the box they belong to:
           that overlap is what says a connection is plugged in, and a line
