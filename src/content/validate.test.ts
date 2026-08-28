@@ -525,3 +525,78 @@ describe('capstones (docs/12)', () => {
     );
   });
 });
+
+describe('a prompt naming code the user cannot see', () => {
+  it('catches an exercise leaning on a function it never shows', () => {
+    const problems = findContentProblems(
+      bundle({ exercises: [mcq({ prompt: 'Should `addItem` mutate the array it was given?' })] }),
+    );
+    expect(problems.join('\n')).toContain(
+      't1-01 prompt names `addItem`, which the exercise never shows',
+    );
+  });
+
+  it('accepts the name once the snippet is on screen', () => {
+    const problems = findContentProblems(
+      bundle({
+        exercises: [
+          mcq({
+            prompt: 'Should `addItem` mutate the array it was given?',
+            code: { lang: 'js', source: 'addItem(cart, item);' },
+          }),
+        ],
+      }),
+    );
+    expect(problems.join('\n')).not.toContain('prompt names');
+  });
+
+  it('accepts a name an option puts on screen', () => {
+    const problems = findContentProblems(
+      bundle({
+        exercises: [
+          mcq({
+            prompt: 'Which one does `getCity` need?',
+            options: [
+              { text: 'A guard clause in `getCity`', correct: true },
+              { text: 'Nothing', whyWrong: 'Here is why.' },
+            ],
+          }),
+        ],
+      }),
+    );
+    expect(problems.join('\n')).not.toContain('prompt names');
+  });
+
+  it('does not count whyWrong, which the user only sees after answering', () => {
+    const problems = findContentProblems(
+      bundle({
+        exercises: [
+          mcq({
+            prompt: 'What should `addItem` do?',
+            options: [
+              { text: 'Return a new array', correct: true },
+              { text: 'Mutate', whyWrong: 'The caller sees `addItem(cart, x)`, not the docblock.' },
+            ],
+          }),
+        ],
+      }),
+    );
+    expect(problems.join('\n')).toContain('prompt names `addItem`');
+  });
+
+  it('leaves language and framework names alone', () => {
+    const problems = findContentProblems(
+      bundle({
+        exercises: [mcq({ prompt: 'Where does `useMemo` earn its place over `indexOf`?' })],
+      }),
+    );
+    expect(problems.join('\n')).not.toContain('prompt names');
+  });
+
+  it('checks prompt variants too, since any of them can be the one shown', () => {
+    const problems = findContentProblems(
+      bundle({ exercises: [mcq({ promptVariants: ['What does `parseCart` return?'] })] }),
+    );
+    expect(problems.join('\n')).toContain('prompt names `parseCart`');
+  });
+});

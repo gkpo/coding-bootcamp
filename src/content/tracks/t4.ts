@@ -294,6 +294,13 @@ export const t4Exercises: Exercise[] = [
     conceptId: 'pure-functions',
     prompt:
       'Should `addItem` push onto the array it was given, or return a new one? **What is the senior answer?**',
+    code: {
+      lang: 'js',
+      source: `const cart = loadCart();
+
+addItem(cart, item);
+renderCart(cart);`,
+    },
     options: [
       {
         text: 'Return a new array. The caller does not expect their data to change underneath them',
@@ -312,7 +319,7 @@ export const t4Exercises: Exercise[] = [
       {
         text: 'It makes no difference as long as it is documented',
         whyWrong:
-          'Documentation does not travel with the value. The next person sees `addItem(cart, x)` at a call site, not the docblock.',
+          'Documentation does not travel with the value. The next person sees the call site above, not the docblock.',
       },
     ],
     explanation:
