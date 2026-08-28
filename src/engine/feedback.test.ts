@@ -1,8 +1,9 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
-  clearedCue,
+  climbNote,
   CUES,
   DEFAULT_TUNING,
+  landingCue,
   playNotes,
   playTone,
   resetAudioForTests,
@@ -387,73 +388,65 @@ describe('playNotes tuning', () => {
   });
 });
 
-describe('clearedCue', () => {
-  const STEP = 0.08;
-  /** The climb is the notes before the landing chunk's three. */
-  const clings = (rings: number) => clearedCue(rings, STEP).notes.slice(0, -3);
-  /** The held note the climb resolves onto: the loudest of the last three. */
-  const landing = (rings: number) =>
-    clearedCue(rings, STEP)
-      .notes.slice(-3)
-      .reduce((top, n) => (n.level > top.level ? n : top));
+describe('climb and landing', () => {
+  /** The one note a ring turns green on. */
+  const note = (ring: number, rings: number) => climbNote(ring, rings).notes[0];
+  /** The held note the climb resolves onto: the loudest of the landing's three. */
+  const landing = () => landingCue().notes.reduce((top, n) => (n.level > top.level ? n : top));
 
-  it('plays one cling per green ring, then the landing', () => {
-    expect(clings(3)).toHaveLength(3);
-    expect(clings(5)).toHaveLength(5);
+  it('plays one note per green ring, from the moment it resolves', () => {
+    expect(climbNote(0, 5).notes).toHaveLength(1);
+    expect(note(3, 5).at).toBe(0);
   });
 
-  it('climbs, every cling higher than the one before', () => {
-    const freqs = clings(6).map((n) => n.freq);
+  it('climbs, every ring higher than the one before', () => {
+    const freqs = [0, 1, 2, 3, 4, 5].map((ring) => note(ring, 6).freq);
     freqs.forEach((f, i) => {
       if (i > 0) expect(f).toBeGreaterThan(freqs[i - 1]);
     });
-    expect(landing(6).freq).toBeGreaterThan(freqs[freqs.length - 1]);
   });
 
-  it("paces the clings to the cue's own step, landing after the last", () => {
-    const cue = clearedCue(4, STEP);
-    cue.notes.slice(0, 4).forEach((n, i) => expect(n.at).toBeCloseTo(i * STEP, 8));
-    expect(landing(4).at).toBeCloseTo(4 * STEP, 8);
+  it('tops out on the same note however long the strip, just under the landing', () => {
+    expect(note(1, 2).freq).toBe(note(7, 8).freq);
+    expect(landing().freq).toBeGreaterThan(note(7, 8).freq);
   });
 
-  it('always resolves onto the same held note, however long the strip', () => {
-    expect(landing(2).freq).toBe(landing(8).freq);
-    // Held: the landing rings far longer than any cling.
-    expect(landing(8).dur).toBeGreaterThan(1);
+  it('clamps rings past the ladder rather than throwing or descending', () => {
+    expect(note(15, 20).freq).toBeGreaterThanOrEqual(note(9, 20).freq);
+    expect(note(15, 20).freq).toBe(note(19, 20).freq);
   });
 
-  it('survives strips beyond the ladder, and a strip of one', () => {
-    expect(clings(1)).toHaveLength(1);
-    const capped = clings(40).length;
-    expect(capped).toBeGreaterThan(2);
-    expect(capped).toBeLessThan(20);
-    const freqs = clings(40).map((n) => n.freq);
-    freqs.forEach((f, i) => {
-      if (i > 0) expect(f).toBeGreaterThan(freqs[i - 1]);
-    });
+  it('holds the landing, the run coming to a full stop', () => {
+    expect(landing().dur).toBeGreaterThan(1);
   });
 
   it('reuses a room length the app already generates', () => {
     const lengths = Object.values(CUES).map((c) => c.tuning.tailSeconds);
-    expect(lengths).toContain(clearedCue(3, STEP).tuning.tailSeconds);
+    expect(lengths).toContain(landingCue().tuning.tailSeconds);
+    expect(lengths).toContain(climbNote(0, 4).tuning.tailSeconds);
   });
 
   it('stays quieter than the session-complete fanfare', () => {
     const loudest = (notes: Note[]) =>
       notes.reduce((max, n) => Math.max(max, n.sparkle ? 0 : n.level), 0);
-    const cue = clearedCue(5, STEP);
-    expect(loudest(cue.notes) * cue.tuning.level).toBeLessThanOrEqual(
-      loudest(CUES.complete.notes) * CUES.complete.tuning.level,
-    );
+    const ceiling = loudest(CUES.complete.notes) * CUES.complete.tuning.level;
+    const climb = climbNote(4, 5);
+    expect(loudest(climb.notes) * climb.tuning.level).toBeLessThanOrEqual(ceiling);
+    const land = landingCue();
+    expect(loudest(land.notes) * land.tuning.level).toBeLessThanOrEqual(ceiling);
   });
 
   it('is played through playNotes like any other cue', () => {
     const ctx = stubAudio();
-    const cue = clearedCue(3, STEP);
-    playNotes(cue.notes, true, cue.tuning);
+    const climb = climbNote(1, 3);
+    playNotes(climb.notes, true, climb.tuning);
+    const land = landingCue();
+    playNotes(land.notes, true, land.tuning);
     expect(ctx.createOscillator).toHaveBeenCalled();
+
     const silent = stubAudio();
-    playNotes(cue.notes, false, cue.tuning);
+    playNotes(climb.notes, false, climb.tuning);
+    playNotes(land.notes, false, land.tuning);
     expect(silent.createOscillator).not.toHaveBeenCalled();
   });
 });
