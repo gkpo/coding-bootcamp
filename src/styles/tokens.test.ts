@@ -251,3 +251,59 @@ describe('token contrast', () => {
     });
   });
 });
+
+/* A custom property that loses its semicolon does not fail to parse: custom
+ * properties accept almost any token sequence, so `--info-bg` quietly ate the
+ * line below it and swallowed `--tok-keyword` whole. Both then resolved to
+ * nothing wherever they were used, which meant the concept chip lost its tint
+ * and code blocks lost their keyword colour, in silence. Nothing above could
+ * see it, because `token()` reads the file with a regex rather than the way a
+ * browser reads a declaration. These two do.
+ */
+describe('the tokens actually parse', () => {
+  /** Comments are removed before a declaration is read, so remove them here. */
+  function stripComments(css: string): string {
+    return css.replace(/\/\*[\s\S]*?\*\//g, '');
+  }
+
+  /** Every custom property the sheet declares, split the way a parser splits. */
+  function declared(css: string): string[] {
+    return stripComments(css)
+      .split(';')
+      .map((chunk) => chunk.slice(Math.max(chunk.lastIndexOf('{'), chunk.lastIndexOf('}')) + 1))
+      .map((tail) => tail.trim().match(/^(--[\w-]+)\s*:/)?.[1])
+      .filter((name): name is string => name !== undefined);
+  }
+
+  it('declares one property per statement', () => {
+    // A second colon in one statement is the fingerprint of the missing
+    // semicolon: the declaration below has been absorbed into this value.
+    const malformed = stripComments(TOKENS)
+      .split(';')
+      .map((chunk) => chunk.slice(Math.max(chunk.lastIndexOf('{'), chunk.lastIndexOf('}')) + 1).trim())
+      .filter((tail) => tail.startsWith('--'))
+      .filter((tail) => (tail.match(/:/g) ?? []).length !== 1);
+
+    expect(malformed).toEqual([]);
+  });
+
+  it('declares every token the stylesheets ask for', () => {
+    const sheets = import.meta.glob('../**/*.css', {
+      query: '?raw',
+      import: 'default',
+      eager: true,
+    }) as Record<string, string>;
+
+    // Locally scoped properties count as declared: --btn-drop lives on .btn.
+    const names = new Set(Object.values(sheets).flatMap(declared));
+
+    const missing = new Set<string>();
+    for (const css of Object.values(sheets)) {
+      for (const [, name] of stripComments(css).matchAll(/var\(\s*(--[\w-]+)/g)) {
+        if (!names.has(name)) missing.add(name);
+      }
+    }
+
+    expect([...missing].sort()).toEqual([]);
+  });
+});

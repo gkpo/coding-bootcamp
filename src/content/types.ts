@@ -38,7 +38,7 @@ export interface ExerciseBase {
   trackId: TrackId;
   type: ExerciseType;
   difficulty: Difficulty;
-  /** Linked concept card. The target of the "?" chip. */
+  /** Linked concept card. The target of the concept chip. */
   conceptId: string;
   /** Supports a tiny markdown subset: **bold** and `inline code`. */
   prompt: string;

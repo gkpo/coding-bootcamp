@@ -29,7 +29,7 @@ interface ExerciseBase {
   trackId: TrackId;
   type: 'mcq' | 'parsons' | 'spot-bug' | 'blank' | 'complexity' | 'ladder' | 'match' | 'steps';
   difficulty: Difficulty;
-  conceptId: string; // linked concept card (the "?" chip target)
+  conceptId: string; // linked concept card (the concept chip target)
   prompt: string; // may contain **bold** (tiny markdown subset: bold + inline code)
   promptVariants?: string[]; // alternate phrasings, same answer/options/code; one picked per presentation
   code?: CodeBlock; // optional snippet shown under the prompt
