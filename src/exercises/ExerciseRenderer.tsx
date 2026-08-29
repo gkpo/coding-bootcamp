@@ -34,10 +34,16 @@ interface Props {
   exercise: Exercise;
   seed: number;
   revealed: boolean;
-  onResolve: (outcome: Outcome, whyWrong?: string) => void;
+  /**
+   * `recovered` marks a board that was finished after a miss: still scored
+   * 'wrong', but shown without the failure cues. Only `match` sets it.
+   */
+  onResolve: (outcome: Outcome, whyWrong?: string, recovered?: boolean) => void;
+  /** Only `match` reports mid-exercise misses. */
+  onMiss?: () => void;
 }
 
-export function ExerciseRenderer({ exercise, seed, revealed, onResolve }: Props) {
+export function ExerciseRenderer({ exercise, seed, revealed, onResolve, onMiss }: Props) {
   const [checks, setChecks] = useState(0);
   const [wrongParts, setWrongParts] = useState<boolean[] | undefined>();
   const [wrongTaps, setWrongTaps] = useState<number[]>([]);
@@ -161,7 +167,10 @@ export function ExerciseRenderer({ exercise, seed, revealed, onResolve }: Props)
           exercise={exercise}
           seed={seed}
           revealed={revealed}
-          onComplete={(_, missedAny) => onResolve(missedAny ? 'wrong' : 'right')}
+          onMiss={onMiss}
+          onComplete={(_, missedAny) =>
+            onResolve(missedAny ? 'wrong' : 'right', undefined, missedAny || undefined)
+          }
         />
       );
   }

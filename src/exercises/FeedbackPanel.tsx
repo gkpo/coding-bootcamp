@@ -20,6 +20,12 @@ interface Props {
   isLast: boolean;
   /** The correct answer, for types that cannot show it in place. */
   reveal?: ReactNode;
+  /**
+   * The exercise was completed, but not on the first try (a match board
+   * finished after a wrong pair). It scores as a miss, so the outcome stays
+   * 'wrong', but nothing is left unsolved on screen and the panel says so.
+   */
+  recovered?: boolean;
 }
 
 export function FeedbackPanel({
@@ -31,18 +37,23 @@ export function FeedbackPanel({
   seed,
   isLast,
   reveal,
+  recovered,
 }: Props) {
   const affirmation = useMemo(() => AFFIRMATIONS[seed % AFFIRMATIONS.length], [seed]);
 
-  const heading =
-    outcome === 'right'
+  const heading = recovered
+    ? 'All paired, but not on the first try.'
+    : outcome === 'right'
       ? affirmation
       : outcome === 'unsure'
         ? 'No stress. Here’s how it works:'
         : 'Not this one, here’s the idea:';
 
   return (
-    <section className={`feedback feedback--${outcome}`} aria-live="polite">
+    <section
+      className={recovered ? 'feedback feedback--recovered' : `feedback feedback--${outcome}`}
+      aria-live="polite"
+    >
       <p className="feedback__heading">{heading}</p>
 
       {whyWrong && (
