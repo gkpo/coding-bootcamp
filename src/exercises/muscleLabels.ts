@@ -35,7 +35,7 @@ export const muscleLabels: Record<ExerciseType, string> = {
  * The other seven are safe on `type`: their labels describe what the user does
  * with the material in front of them, whether or not that material is code.
  */
-const MCQ_WITHOUT_CODE = 'Make the call';
+const MCQ_WITHOUT_CODE = 'Weigh the options';
 
 /** The kicker to show above one exercise. */
 export function muscleLabelFor(exercise: Exercise): string {
