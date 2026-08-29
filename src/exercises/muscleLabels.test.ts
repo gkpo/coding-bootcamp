@@ -22,7 +22,7 @@ describe('the kicker above a question', () => {
   });
 
   it('does not tell the user to read when nothing is on screen', () => {
-    expect(muscleLabelFor(mcq())).toBe('Make the call');
+    expect(muscleLabelFor(mcq())).toBe('Weigh the options');
   });
 
   it('leaves the other mechanics on their type', () => {
