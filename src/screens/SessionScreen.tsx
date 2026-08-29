@@ -25,7 +25,7 @@ import { CloseIcon } from '../components/icons';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import './SessionScreen.css';
 
-type Answered = { outcome: Outcome; whyWrong?: string } | null;
+type Answered = { outcome: Outcome; whyWrong?: string; recovered?: boolean } | null;
 
 const DECODER_TRACK = 't6';
 
@@ -101,19 +101,29 @@ export function SessionScreen() {
   );
 
   const resolve = useCallback(
-    (outcome: Outcome, whyWrong?: string) => {
+    (outcome: Outcome, whyWrong?: string, recovered?: boolean) => {
       if (!exerciseId) return;
       // Record only the first attempt; the runner keeps the first outcome.
       if (session.firstResults[exerciseId] === undefined) {
         recordAnswer(exerciseId, outcome);
       }
-      const kind = outcome === 'right' ? 'right' : 'wrong';
-      vibrate(kind, haptics);
-      playTone(kind, sound);
-      setAnswered({ outcome, whyWrong });
+      // A recovered exercise (a match board finished after a miss) already
+      // sounded each miss as it happened. The scoring stays 'wrong', but the
+      // ending itself is a full board of green pairs, so it gets no cue.
+      if (!recovered) {
+        const kind = outcome === 'right' ? 'right' : 'wrong';
+        vibrate(kind, haptics);
+        playTone(kind, sound);
+      }
+      setAnswered({ outcome, whyWrong, recovered });
     },
     [exerciseId, recordAnswer, session.firstResults, haptics, sound],
   );
+
+  const onMiss = useCallback(() => {
+    vibrate('wrong', haptics);
+    playTone('wrong', sound);
+  }, [haptics, sound]);
 
   const onContinue = useCallback(() => {
     if (!answered) return;
@@ -181,6 +191,7 @@ export function SessionScreen() {
                   outcome={answered.outcome}
                   explanation={exercise.explanation}
                   whyWrong={answered.whyWrong}
+                  recovered={answered.recovered}
                   sayIt={exercise.type === 'complexity' ? exercise.sayIt : undefined}
                   reveal={
                     answered.outcome !== 'right' && needsExplicitReveal(exercise.type) ? (
@@ -200,6 +211,7 @@ export function SessionScreen() {
               seed={presentationSeed}
               revealed={revealed}
               onResolve={resolve}
+              onMiss={onMiss}
             />
           </ExerciseFrame>
         </div>

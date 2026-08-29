@@ -23,6 +23,11 @@
   border-color: var(--info);
 }
 
+.feedback--recovered {
+  background: var(--info-bg);
+  border: 1px solid var(--info);
+}
+
 .feedback__heading {
   font-size: var(--fs-heading);
   font-weight: 700;

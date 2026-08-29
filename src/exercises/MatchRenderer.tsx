@@ -10,14 +10,19 @@ interface Props {
   seed: number;
   revealed: boolean;
   onComplete: (matched: { left: string; right: string }[], missedAny: boolean) => void;
+  /** Fired on each wrong pair, so the screen can sound the miss right then. */
+  onMiss?: () => void;
 }
 
 /**
  * Tap one from each column to pair them. Correct pairs lock green and leave
- * the board; a wrong pair shakes apart and is remembered as a miss, so the
- * exercise still counts as missed even though the user can carry on.
+ * the board; a wrong pair shakes apart and reports the miss straight away,
+ * which is the moment it happened and the only moment it makes sense to hear
+ * about it. The miss is also remembered: finishing the board after one still
+ * counts as missed, it is just presented calmly rather than as a failure,
+ * since by then every pair on screen is green.
  */
-export function MatchRenderer({ exercise, seed, revealed, onComplete }: Props) {
+export function MatchRenderer({ exercise, seed, revealed, onComplete, onMiss }: Props) {
   const lefts = useMemo(
     () =>
       shuffle(
@@ -54,6 +59,7 @@ export function MatchRenderer({ exercise, seed, revealed, onComplete }: Props) {
     } else {
       setMissed(true);
       setWrongFlash(true);
+      onMiss?.();
       setTimeout(() => {
         setWrongFlash(false);
         setPickedLeft(null);
