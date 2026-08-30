@@ -1,7 +1,7 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type MouseEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '../components/Button';
-import { AnotherIcon, FlameIcon } from '../components/icons';
+import { FlameIcon } from '../components/icons';
 import { RichText } from '../components/RichText';
 import { ConceptIcon } from '../components/ConceptIcon';
 import { ProgressBar } from '../components/ProgressBar';
@@ -21,13 +21,29 @@ const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Satu
 const SWAP_FALLBACK_MS = 600;
 
 /**
- * The part of the concept card that changes when the deck advances: the title
- * line and the plain words. The kicker and the button sit outside it, so they
- * stay put while this slides.
+ * How far the body text may be stepped down to fit the fixed card height.
+ * Every card in the deck is the same height, so the deck reads as a deck; the
+ * few cards whose plain words run long give up two type steps rather than
+ * making all seventy-two carry the tallest one's empty space.
  */
-function ConceptBody({ card }: { card: ConceptCard }) {
+const MAX_FIT_STEP = 2;
+
+/** One face of the deck: the header row, the title line and the plain words. */
+function ConceptFace({
+  card,
+  onSkip,
+}: {
+  card: ConceptCard;
+  onSkip: (event: MouseEvent<HTMLButtonElement>) => void;
+}) {
   return (
     <>
+      <div className="home__concept-header">
+        <p className="home__concept-kicker">Daily concept</p>
+        <Button variant="ghost" className="home__concept-another" onClick={onSkip}>
+          One more
+        </Button>
+      </div>
       <p className="home__concept-title">
         <span className="home__concept-icon">
           <ConceptIcon name={card.icon} size={20} />
@@ -39,6 +55,10 @@ function ConceptBody({ card }: { card: ConceptCard }) {
       </p>
     </>
   );
+}
+
+function stepClass(step: number): string {
+  return step > 0 ? ` home__concept-card--step${step}` : '';
 }
 
 export function HomeScreen() {
@@ -62,14 +82,76 @@ export function HomeScreen() {
   // so a first mount and a day rolling over (which resets skips to zero) both
   // fail the "same day, one more skip" test and simply appear.
   const shown = useRef({ day: today, skips, card });
-  const [leaving, setLeaving] = useState<ConceptCard | null>(null);
+  const [leaving, setLeaving] = useState<{ card: ConceptCard; step: number } | null>(null);
+  // Which type step the card on top is drawn at, and which card that was
+  // measured for. Reset to 0 whenever the card changes, then stepped down
+  // below until the words fit the fixed height.
+  const [fit, setFit] = useState({ id: card?.id, step: 0 });
+  const faceRef = useRef<HTMLDivElement>(null);
+  const returnFocus = useRef(false);
 
+  // The button rides the card, so a swap replaces the very button that was
+  // pressed. A finger does not care, but a keyboard press would drop focus to
+  // the page and the next press would go nowhere, so hand it to the new one.
+  // `detail` is 0 only for a press that came from the keyboard.
+  const handleSkip = (event: MouseEvent<HTMLButtonElement>) => {
+    returnFocus.current = event.detail === 0;
+    skipConcept();
+  };
+
+  // Declared before the fit effect on purpose: when the card changes, this one
+  // runs first and still sees the step the outgoing card was drawn at, so the
+  // snapshot flies out looking exactly as it did a moment ago.
   useLayoutEffect(() => {
     const last = shown.current;
     const tapped = last.day === today && skips > last.skips;
-    if (tapped && last.card && last.card.id !== card?.id) setLeaving(last.card);
+    if (tapped && last.card && last.card.id !== card?.id) {
+      setLeaving({ card: last.card, step: fit.id === last.card.id ? fit.step : 0 });
+      if (returnFocus.current) {
+        // preventScroll: the button is already where the reader is looking.
+        faceRef.current?.querySelector('button')?.focus({ preventScroll: true });
+      }
+    }
+    returnFocus.current = false;
     shown.current = { day: today, skips, card };
+    // `fit` is read, not tracked: this must fire on a card change, not on a
+    // step change, or the snapshot would be replaced mid-flight.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [today, skips, card]);
+
+  // Fit check. Runs before paint, so an overflowing step is never shown: the
+  // face is measured against the height it is allowed, and if the words spill
+  // the next step down is applied and measured again, at most twice.
+  useLayoutEffect(() => {
+    if (!card) return;
+    if (fit.id !== card.id) {
+      setFit({ id: card.id, step: 0 });
+      return;
+    }
+    const face = faceRef.current;
+    if (!face) return;
+    if (fit.step < MAX_FIT_STEP && face.scrollHeight > face.clientHeight) {
+      setFit({ id: card.id, step: fit.step + 1 });
+    }
+  }, [card, fit]);
+
+  // The fit check measures text, and the app's font arrives after the first
+  // paint (font-display: swap in base.css), so the very first visit can
+  // measure the fallback face. Re-run the ladder once the real font is in,
+  // or a card that measured as fitting could end up a line short.
+  useEffect(() => {
+    const fonts = document.fonts;
+    if (!fonts || fonts.status === 'loaded') return;
+    let live = true;
+    fonts.ready
+      .then(() => {
+        if (live) setFit((current) => ({ id: current.id, step: 0 }));
+      })
+      .catch(() => {});
+    return () => {
+      live = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (!leaving) return;
@@ -182,38 +264,35 @@ export function HomeScreen() {
       </section>
 
       {card && (
-        <section className="card home__concept">
-          {/* The button rides the kicker's row and stays outside the stage, so
-              it holds still while the card under it slides. */}
-          <div className="home__concept-header">
-            <p className="home__concept-kicker">Daily concept</p>
-            <Button
-              variant="ghost"
-              className="home__concept-another"
-              aria-label="Show another concept"
-              onClick={skipConcept}
-            >
-              <AnotherIcon size={20} />
-            </Button>
-          </div>
-          <div className="home__concept-stage">
-            {/* The outgoing card is held here for the length of the swap only,
-                laid over the incoming one so the two cross rather than queue. */}
-            {leaving && (
-              <div
-                className="home__concept-body home__concept-body--leaving"
-                key={leaving.id}
-                aria-hidden
-                onAnimationEnd={() => setLeaving(null)}
-              >
-                <ConceptBody card={leaving} />
-              </div>
-            )}
+        // A stage rather than a card: the surfaces below are the deck, and the
+        // one on top is the card being read.
+        <section className="home__concept">
+          <div className="home__concept-under home__concept-under--back" aria-hidden />
+          <div className="home__concept-under home__concept-under--front" aria-hidden />
+          {/* The card just left behind, held for the length of its flight and
+              taken out of reach while it is on screen. */}
+          {leaving && (
             <div
-              className={`home__concept-body ${leaving ? 'home__concept-body--entering' : ''}`}
-              key={card.id}
+              className={`card home__concept-card home__concept-card--leaving${stepClass(leaving.step)}`}
+              key={`leaving-${leaving.card.id}`}
+              aria-hidden
+              inert
+              onAnimationEnd={() => setLeaving(null)}
             >
-              <ConceptBody card={card} />
+              <div className="home__concept-face">
+                <ConceptFace card={leaving.card} onSkip={handleSkip} />
+              </div>
+            </div>
+          )}
+          {/* The card being read. During a swap it starts where the first
+              surface below sits and rises into place, so what arrives is the
+              card that was visibly behind the one leaving. */}
+          <div
+            className={`card home__concept-card${leaving ? ' home__concept-card--entering' : ''}${stepClass(fit.step)}`}
+            key={card.id}
+          >
+            <div className="home__concept-face" ref={faceRef}>
+              <ConceptFace card={card} onSkip={handleSkip} />
             </div>
           </div>
         </section>

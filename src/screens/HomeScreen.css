@@ -1,10 +1,5 @@
 .home {
   gap: var(--sp-4);
-  /* The concept card's deck edges are drawn behind their own card, which puts
-     them behind everything painted before it, including the shell's page
-     colour. Isolating the screen gives them a layer of their own to sit in,
-     above that colour and below the cards. */
-  isolation: isolate;
 }
 
 .streak {
@@ -170,41 +165,75 @@
   margin-top: auto;
 }
 
-/* The concept card sits on two static card edges, so it reads as the top of a
-   deck with more behind it, which is what "Show another" promises. Decoration
-   only: the edges carry no meaning and nothing is drawn on them.
-   The margin keeps the deeper edge clear of whatever follows. */
+/* A real deck: two static surfaces below and the card being read on top of
+   them. The stage itself draws nothing, it only reserves the room, so the
+   height is the card plus the deepest surface's peek.
+
+   Every card is the same height, which is what makes it a deck rather than a
+   pile. 256px was measured, not guessed: at this viewport it takes sixty-six
+   of the seventy-two cards whole, and it is the smallest height at which the
+   longest card in the deck still fits after the two type steps below (that one
+   needs 254px, so this leaves a couple of pixels in hand). The other five long
+   cards take one step. See the fit check in HomeScreen.tsx. */
 .home__concept {
+  --concept-card-h: 256px;
+  --concept-peek: 12px;
   position: relative;
-  margin-bottom: var(--sp-2);
+  height: calc(var(--concept-card-h) + var(--concept-peek));
 }
 
-.home__concept::before,
-.home__concept::after {
-  content: '';
+/* The two surfaces below. Static: the deck is seventy-two deep, so its edges
+   never run out and nothing about them needs to move. */
+.home__concept-under {
   position: absolute;
-  /* Behind the card's own background, so only the offset edge shows. Tall
-     enough that the radius draws a proper corner, with the rest hidden. */
-  height: 32px;
+  top: 0;
+  height: var(--concept-card-h);
   background: var(--surface);
   border: var(--border-w) solid var(--border);
   border-radius: var(--r-card);
 }
 
-.home__concept::before {
-  z-index: -1;
+.home__concept-under--front {
+  z-index: 2;
   left: 10px;
   right: 10px;
-  bottom: -6px;
+  transform: translateY(6px);
 }
 
-/* One step further back and further under, hence the lower layer: at the same
-   level it would paint over the nearer edge and flatten the stack. */
-.home__concept::after {
-  z-index: -2;
+.home__concept-under--back {
+  z-index: 1;
   left: 20px;
   right: 20px;
-  bottom: -12px;
+  transform: translateY(12px);
+}
+
+/* The card being read, and the one on its way out. Takes the app's card
+   treatment from `.card` and adds only what being a layer in a stack needs. */
+.home__concept-card {
+  position: absolute;
+  z-index: 3;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--concept-card-h);
+  overflow: hidden;
+}
+
+/* The measured box for the fit check: exactly the room the words have, with
+   no padding in the arithmetic. */
+.home__concept-face {
+  height: 100%;
+  overflow: hidden;
+}
+
+/* The two steps down a long card takes to fit. Applied by the fit check, one
+   at a time, and only as far as needed. */
+.home__concept-card--step1 .home__concept-plain {
+  font-size: var(--fs-secondary);
+}
+
+.home__concept-card--step2 .home__concept-plain {
+  font-size: 12.5px;
 }
 
 .home__concept-header {
@@ -290,58 +319,76 @@
 
 /* Rides the kicker's row, so it drops the full-width shape and the horizontal
    padding a ghost button carries by default: the same treatment as
-   .summary__debrief. It is a drawn mark with no words, so it takes a square
-   tap target, 44px each way, with the 20px icon centred in it by .btn.
-   That target is kept whole and pulled back in with equal negative margins top
-   and bottom: the mark sits on the kicker's line and the target overhangs it
-   invisibly, rather than the row growing to 44px. Colour comes from
-   .btn--ghost, so the icon draws itself in --info like every other ghost. */
+   .summary__debrief. The size follows .check__hint down to secondary, because
+   a ghost button at the default 19px would shout over the kicker beside it.
+   The 44px tap target from .btn--ghost is kept and pulled back in with equal
+   negative margins top and bottom: the label sits on the kicker's line and the
+   target overhangs it invisibly, rather than the row growing to 44px. */
 .home__concept-another {
   flex: 0 0 auto;
   width: auto;
-  min-width: 44px;
   margin: -12px 0;
   padding: 0;
+  font-size: var(--fs-secondary);
 }
 
-/* The swap on "Show another": the card that is leaving is lifted out of the
-   flow and the two cross over each other, right to left, for one standard
-   beat (docs/06 §Motion). Height is left to snap; animating it as well turns a
-   swap into a stretch. */
-.home__concept-stage {
-  position: relative;
+/* The swap on "One more", for one standard beat (docs/06 §Motion): the card
+   on top flies off to the left while the card that was visibly behind it
+   rises into its place. Nothing else moves, because in a real deck nothing
+   else does. */
+/* Two animations rather than one keyframe list: the flight keeps the system
+   easing all the way across, while the fade runs on its own linear clock so it
+   can stay out of the way until the card is clear. A card that faded while it
+   still covered the one behind it left two sets of words legible on top of
+   each other for the first stretch of the swap. */
+.home__concept-card--leaving {
+  z-index: 4;
+  pointer-events: none;
+  animation:
+    concept-fly-out var(--dur-standard) var(--ease) both,
+    concept-fly-fade var(--dur-standard) linear both;
 }
 
-.home__concept-body--leaving {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  animation: concept-out var(--dur-standard) var(--ease) both;
+/* Starts on the first surface below: down 6px, and narrowed to that surface's
+   10px inset (330px of the 350px stage at this viewport). Growing from the
+   top edge rather than the middle is what keeps it sitting on that surface
+   instead of hovering above it. */
+.home__concept-card--entering {
+  transform-origin: top center;
+  animation: concept-rise var(--dur-standard) var(--ease) both;
 }
 
-.home__concept-body--entering {
-  animation: concept-in var(--dur-standard) var(--ease) both;
-}
-
-@keyframes concept-out {
+/* Right across and off. The concept section is the last thing on the screen,
+   so the card crosses nothing but background on its way out and the stage is
+   left unclipped; a card cut off at the stage edge would read as a card going
+   under something rather than a card being dealt away. */
+@keyframes concept-fly-out {
   from {
-    opacity: 1;
     transform: none;
   }
   to {
-    opacity: 0;
-    transform: translateX(-24px);
+    transform: translateX(-110%);
   }
 }
 
-@keyframes concept-in {
-  from {
+/* Barely moves until the card is clear, then goes out at the tail. */
+@keyframes concept-fly-fade {
+  0% {
+    opacity: 1;
+  }
+  60% {
+    opacity: 0.9;
+  }
+  100% {
     opacity: 0;
-    transform: translateX(24px);
+  }
+}
+
+@keyframes concept-rise {
+  from {
+    transform: translateY(6px) scale(0.943);
   }
   to {
-    opacity: 1;
     transform: none;
   }
 }
@@ -364,23 +411,24 @@
   }
 }
 
-/* Reduced motion keeps the cross-over but drops the travel, the same swap
-   .sheet makes for its rise. Both gates, the OS preference and the in-app
-   toggle, are named because the toggle only zeroes the duration tokens. */
+/* Reduced motion keeps the exchange but drops the flight and the rise, the
+   same swap .sheet makes for its own. Both gates, the OS preference and the
+   in-app toggle, are named because the toggle only zeroes the duration
+   tokens. */
 @media (prefers-reduced-motion: reduce) {
-  .home__concept-body--leaving {
+  .home__concept-card--leaving {
     animation-name: concept-fade-out;
   }
 
-  .home__concept-body--entering {
+  .home__concept-card--entering {
     animation-name: concept-fade-in;
   }
 }
 
-:root[data-reduce-motion='true'] .home__concept-body--leaving {
+:root[data-reduce-motion='true'] .home__concept-card--leaving {
   animation-name: concept-fade-out;
 }
 
-:root[data-reduce-motion='true'] .home__concept-body--entering {
+:root[data-reduce-motion='true'] .home__concept-card--entering {
   animation-name: concept-fade-in;
 }
