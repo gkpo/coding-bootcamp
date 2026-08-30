@@ -21,38 +21,22 @@ const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Satu
 const SWAP_FALLBACK_MS = 600;
 
 /**
- * The part of the concept card that changes when the deck advances: identity,
- * plain words, and one phrase an interviewer might use. The kicker and the
- * button sit outside it, so they stay put while this slides.
+ * The part of the concept card that changes when the deck advances: the title
+ * line and the plain words. The kicker and the button sit outside it, so they
+ * stay put while this slides.
  */
 function ConceptBody({ card }: { card: ConceptCard }) {
-  const trackId = card.trackIds[0];
-  const heard = card.interviewerSays[0];
-
   return (
     <>
-      <div className="home__concept-head">
-        {/* Track identity, drawn the way track cards draw it (docs/06): a
-            tinted chip, the icon at full strength inside it. */}
-        <span
-          className="home__concept-chip"
-          style={trackId ? { color: `var(--track-${trackId})` } : undefined}
-        >
-          <ConceptIcon name={card.icon} size={22} />
+      <p className="home__concept-title">
+        <span className="home__concept-icon">
+          <ConceptIcon name={card.icon} size={20} />
         </span>
-        <p className="home__concept-title">{card.title}</p>
-      </div>
+        {card.title}
+      </p>
       <p className="home__concept-plain">
         <RichText text={card.plainWords} />
       </p>
-      {heard && (
-        <p className="home__concept-heard">
-          <span className="home__concept-heard-label">You might hear</span>
-          <span className="home__concept-quote">
-            “<RichText text={heard} />”
-          </span>
-        </p>
-      )}
     </>
   );
 }
