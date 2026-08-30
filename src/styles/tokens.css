@@ -22,14 +22,15 @@
  * glyphs, which are UI components needing 3:1 rather than 4.5:1.
  *
  * Success used to be pushed toward teal so that "correct" could never read
- * as "the accent again". That is no longer the rule: the user was shown the
- * collision and chose the leaf green anyway, so success now shares the
- * accent's warm family on purpose. What keeps the two apart is role, not
- * hue distance. The accent fills controls: buttons, progress, the toggle,
- * the active tab. Success never fills a control; it only ever appears as a
- * ring, a 10% tint and a soft outline on a surface that has just been
- * graded. Two colours that look alike but never share a component do not
- * blur, because nothing ever asks the eye to tell them apart.
+ * as "the accent again". That rule is retired: what keeps the two apart is
+ * role, not hue distance. The accent fills controls: buttons, progress, the
+ * toggle, the active tab. Success never fills a control; it only ever
+ * appears as a ring, a 10% tint and a soft outline on a surface that has
+ * just been graded. Two colours that never share a component do not blur,
+ * because nothing ever asks the eye to tell them apart. Success is sea
+ * green now, one step off the old teal and well clear of the accent's
+ * yellow-green, so the argument has less work to do than when it was
+ * written. It is the role that carries it either way.
  */
 
 :root {
@@ -85,25 +86,27 @@
   --wire: #948b7c;
 
   /* ---- semantic (full saturation, same rule: dark enough to mean it) ---- */
-  /* Warm by choice, not by accident: see the header note on why success is
-     allowed to sit near the accent now. Full strength is what the mark is
-     drawn in, the ring fill, the chip fill, the text and the glyph. */
-  --success: #4c9426;
-  --danger: #d13b35;
-  /* Ocean petrol rather than the old steel blue. Success no longer occupies
-     teal, so the cyan-adjacent range is free, and a cyan-leaning blue sits
-     with leaf green and warm red where steel read cold beside them. It is
-     the one semantic colour that carries real text (links, ghost buttons,
-     the session bar), so it is measured at the 4.5 text bar, not 3. */
+  /* Picked, not derived: sea green for correct, and danger back at the pink
+     red it started on. See the header note on why role rather than hue keeps
+     success and the accent apart. Full strength is what the mark is drawn
+     in, the ring fill, the chip fill, the text and the glyph. */
+  --success: #0f8a57;
+  --danger: #cf2e4e;
+  /* Ocean petrol rather than the old steel blue. Success has moved back
+     toward that end of the wheel without landing on it: sea green stays
+     green, petrol stays blue, and the blue still reads as chosen alongside
+     the other two where steel read cold beside them. It is the one semantic
+     colour that carries real text (links, ghost buttons, the session bar),
+     so it is measured at the 4.5 text bar, not 3. */
   --info: #1b6d93;
-  --success-bg: rgba(76, 148, 38, 0.1);
-  --danger-bg: rgba(209, 59, 53, 0.1);
+  --success-bg: rgba(15, 138, 87, 0.1);
+  --danger-bg: rgba(207, 46, 78, 0.1);
   --info-bg: rgba(27, 109, 147, 0.1);
   /* The soft step is the graded box outline, and nothing else. It stops short
      of full strength on purpose: an outline drawn at full strength around a
      tinted fill doubles the same signal and turns a graded card into a
-     warning label. At 70% the three land on --surface at #82b467 (2.42),
-     #df7672 (3.01) and #5f99b3 (3.14), so the step now sits on the 3:1 line
+     warning label. At 70% the three land on --surface at #57ad89 (2.71),
+     #dd6d83 (3.19) and #5f99b3 (3.14), so the step now sits on the 3:1 line
      rather than under it, success just below and the other two just above.
      Either way it is not the thing that carries the verdict: the ring, the
      fill and the text all say it at full strength first, and the outline only
