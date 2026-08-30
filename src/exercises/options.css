@@ -77,13 +77,13 @@
 }
 
 .option--correct {
-  border-color: var(--success);
+  border-color: var(--success-soft);
   background: var(--success-bg);
   animation: option-pop var(--dur-standard) var(--ease);
 }
 
 .option--wrong {
-  border-color: var(--danger);
+  border-color: var(--danger-soft);
   background: var(--danger-bg);
   animation: shake-x 250ms var(--ease);
 }

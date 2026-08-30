@@ -40,18 +40,18 @@
 }
 
 .blank__gap.is-aimed {
-  border-color: var(--info);
+  border-color: var(--info-soft);
   background: var(--info-bg);
 }
 
 .blank__gap.is-right {
-  border-color: var(--success);
+  border-color: var(--success-soft);
   background: var(--success-bg);
   color: var(--text);
 }
 
 .blank__gap.is-wrong {
-  border-color: var(--danger);
+  border-color: var(--danger-soft);
   background: var(--danger-bg);
   color: var(--text);
 }

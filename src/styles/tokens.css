@@ -20,6 +20,16 @@
  * matter, so the palette cannot drift back under a threshold unnoticed.
  * --success and --danger only ever appear as borders, tints and small
  * glyphs, which are UI components needing 3:1 rather than 4.5:1.
+ *
+ * Success used to be pushed toward teal so that "correct" could never read
+ * as "the accent again". That is no longer the rule: the user was shown the
+ * collision and chose the leaf green anyway, so success now shares the
+ * accent's warm family on purpose. What keeps the two apart is role, not
+ * hue distance. The accent fills controls: buttons, progress, the toggle,
+ * the active tab. Success never fills a control; it only ever appears as a
+ * ring, a 10% tint and a soft outline on a surface that has just been
+ * graded. Two colours that look alike but never share a component do not
+ * blur, because nothing ever asks the eye to tell them apart.
  */
 
 :root {
@@ -27,7 +37,7 @@
   --bg: #f4f5f6; /* very light neutral grey */
   --surface: #ffffff;
   --surface-2: #eaecef;
-  --border: #e2e5e8;
+  --border: #eaedf0;
   --text: #1a1d21;
   --text-dim: #5d646c;
 
@@ -75,15 +85,29 @@
   --wire: #948b7c;
 
   /* ---- semantic (full saturation, same rule: dark enough to mean it) ---- */
-  /* Success is pushed toward teal so that "correct" never reads as merely
-     "the accent again": on a green-accented app the two would blur, and the
-     feedback panel is the one place a colour has to mean exactly one thing. */
-  --success: #00806c;
-  --danger: #cf2e4e;
-  --info: #12629e;
-  --success-bg: rgba(0, 128, 108, 0.1);
-  --danger-bg: rgba(207, 46, 78, 0.1);
-  --info-bg: rgba(18, 98, 158, 0.1);
+  /* Warm by choice, not by accident: see the header note on why success is
+     allowed to sit near the accent now. Full strength is what the mark is
+     drawn in, the ring fill, the chip fill, the text and the glyph. */
+  --success: #4c9426;
+  --danger: #d13b35;
+  /* Ocean petrol rather than the old steel blue. Success no longer occupies
+     teal, so the cyan-adjacent range is free, and a cyan-leaning blue sits
+     with leaf green and warm red where steel read cold beside them. It is
+     the one semantic colour that carries real text (links, ghost buttons,
+     the session bar), so it is measured at the 4.5 text bar, not 3. */
+  --info: #1b6d93;
+  --success-bg: rgba(76, 148, 38, 0.1);
+  --danger-bg: rgba(209, 59, 53, 0.1);
+  --info-bg: rgba(27, 109, 147, 0.1);
+  /* The soft step is the graded box outline, and nothing else. It sits under
+     3:1 on purpose: an outline drawn at full strength around a tinted fill
+     doubles the same signal and turns a graded card into a warning label. It
+     is legal only because it is never the thing that carries the verdict.
+     The ring, the fill and the text all say it at full strength first; the
+     outline only draws the edge of the box they sit in. */
+  --success-soft: color-mix(in srgb, var(--success) 55%, var(--surface));
+  --danger-soft: color-mix(in srgb, var(--danger) 55%, var(--surface));
+  --info-soft: color-mix(in srgb, var(--info) 55%, var(--surface));
 
   /* ---- syntax highlighting ----
      Drawn from the deep end of the track colours, never neon-on-white
