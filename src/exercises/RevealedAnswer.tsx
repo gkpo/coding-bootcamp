@@ -11,8 +11,11 @@ import './RevealedAnswer.css';
  * item has been answered right once, so an ordered exercise the user cannot
  * solve is a dead end unless the answer is shown.
  *
- * The types that already reveal in place: mcq and complexity highlight the
- * correct option, spot-bug highlights the line, match cannot finish unpaired: * render nothing here.
+ * The types that already reveal in place render nothing here: mcq, ladder and
+ * complexity highlight the correct option, spot-bug highlights the buggy line.
+ * Match does need this block. Its two columns are shuffled independently and
+ * freeze on reveal, so the board itself cannot say which phrase belongs to
+ * which term.
  */
 export function RevealedAnswer({ exercise }: { exercise: Exercise }) {
   switch (exercise.type) {
@@ -56,6 +59,25 @@ export function RevealedAnswer({ exercise }: { exercise: Exercise }) {
         </div>
       );
     }
+
+    case 'match':
+      return (
+        <div className="reveal">
+          <p className="reveal__label">The pairs</p>
+          <dl className="reveal__pairs">
+            {exercise.pairs.map((pair) => (
+              <div className="reveal__pair" key={pair.right}>
+                <dt className="reveal__pair-term">
+                  <RichText text={pair.right} />
+                </dt>
+                <dd className="reveal__pair-phrase">
+                  <RichText text={pair.left} />
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      );
 
     default:
       return null;

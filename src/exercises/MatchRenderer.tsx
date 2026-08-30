@@ -15,12 +15,17 @@ interface Props {
 }
 
 /**
- * Tap one from each column to pair them. Correct pairs lock green and leave
- * the board; a wrong pair shakes apart and reports the miss straight away,
- * which is the moment it happened and the only moment it makes sense to hear
- * about it. The miss is also remembered: finishing the board after one still
- * counts as missed, it is just presented calmly rather than as a failure,
- * since by then every pair on screen is green.
+ * Tap one from each column to pair them. Correct pairs lock green in place and
+ * stop responding; a wrong pair shakes apart and reports the miss straight
+ * away, which is the moment it happened and the only moment it makes sense to
+ * hear about it. The miss is also remembered: finishing the board after one
+ * still counts as missed, it is just presented calmly rather than as a
+ * failure, since by then every pair on screen is green.
+ *
+ * On reveal the board only freezes. It cannot show the pairings the user never
+ * made, because the two columns are shuffled independently and a locked cell
+ * is the only thing here that can say "these two go together". The answer is
+ * listed in the feedback panel instead (see `RevealedAnswer`).
  */
 export function MatchRenderer({ exercise, seed, revealed, onComplete, onMiss }: Props) {
   const lefts = useMemo(

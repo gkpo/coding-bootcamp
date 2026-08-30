@@ -120,10 +120,12 @@ export function gradeMatch(
 /**
  * Types whose correct answer cannot be shown in place on reveal.
  *
- * mcq and complexity highlight the winning option, spot-bug highlights the
- * line, and match cannot complete while a pair is missing, the ordered types
- * have nowhere to put the answer, so the feedback panel shows it instead.
+ * mcq, ladder and complexity highlight the winning option where it already
+ * sits, and spot-bug highlights the buggy line. The ordered types have nowhere
+ * to put the answer, and match cannot express "this phrase goes with that
+ * term" across two frozen shuffled columns, so for both the feedback panel
+ * carries the reveal instead.
  */
 export function needsExplicitReveal(type: ExerciseType): boolean {
-  return type === 'parsons' || type === 'steps' || type === 'blank';
+  return type === 'parsons' || type === 'steps' || type === 'blank' || type === 'match';
 }
