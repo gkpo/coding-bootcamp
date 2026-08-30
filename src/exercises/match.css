@@ -22,8 +22,7 @@
   text-align: left;
   transition:
     border-color var(--dur-micro) var(--ease),
-    background-color var(--dur-micro) var(--ease),
-    opacity var(--dur-standard) var(--ease);
+    background-color var(--dur-micro) var(--ease);
 }
 
 .match__cell--term {
@@ -39,10 +38,12 @@
   background: var(--info-bg);
 }
 
+/* A settled pair is graded, not spent: soft outline, state tint, text at full
+   strength, exactly as a correct option reads. Fading the whole tile put the
+   words behind the outline it was meant to sit inside. */
 .match__cell.is-matched {
   border-color: var(--success-soft);
   background: var(--success-bg);
-  opacity: 0.55;
 }
 
 .match__cell.is-wrong {
