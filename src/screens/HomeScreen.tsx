@@ -183,7 +183,14 @@ export function HomeScreen() {
 
       {card && (
         <section className="card home__concept">
-          <p className="home__concept-kicker">Concept of the day</p>
+          {/* The button rides the kicker's row and stays outside the stage, so
+              it holds still while the card under it slides. */}
+          <div className="home__concept-header">
+            <p className="home__concept-kicker">Concept of the day</p>
+            <Button variant="ghost" className="home__concept-another" onClick={skipConcept}>
+              Show another
+            </Button>
+          </div>
           <div className="home__concept-stage">
             {/* The outgoing card is held here for the length of the swap only,
                 laid over the incoming one so the two cross rather than queue. */}
@@ -204,9 +211,6 @@ export function HomeScreen() {
               <ConceptBody card={card} />
             </div>
           </div>
-          <Button variant="ghost" className="home__concept-another" onClick={skipConcept}>
-            Show another
-          </Button>
         </section>
       )}
     </div>
