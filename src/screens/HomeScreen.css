@@ -234,6 +234,19 @@
   }
 }
 
+/* Sits under the card's own text, so it drops the full-width shape and the
+   horizontal padding a ghost button carries by default and starts on the same
+   left edge as the sentence above it: the same treatment as .summary__debrief.
+   The size follows .check__hint down to secondary, because a ghost button at
+   the default 19px would read as loud as the concept title it sits beneath.
+   The 44px tap target comes from .btn--ghost and is left alone. */
+.home__concept-another {
+  width: auto;
+  margin-top: var(--sp-2);
+  padding: 0;
+  font-size: var(--fs-secondary);
+}
+
 .home__concept-icon {
   display: inline-flex;
   color: var(--accent-text);

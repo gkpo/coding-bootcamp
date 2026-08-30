@@ -31,4 +31,27 @@ describe('conceptOfTheDay', () => {
   it('returns undefined for an empty deck rather than throwing', () => {
     expect(conceptOfTheDay([], '2026-08-26')).toBeUndefined();
   });
+
+  it('behaves exactly as before when skips is left out', () => {
+    expect(conceptOfTheDay(deck, '2026-08-26', 0)).toBe(conceptOfTheDay(deck, '2026-08-26'));
+  });
+
+  it('moves one card forward per skip', () => {
+    const natural = conceptOfTheDay(deck, '2026-08-26');
+    const nextDay = conceptOfTheDay(deck, '2026-08-27');
+    const dayAfter = conceptOfTheDay(deck, '2026-08-28');
+    expect(conceptOfTheDay(deck, '2026-08-26', 1)).toBe(nextDay);
+    expect(conceptOfTheDay(deck, '2026-08-26', 2)).toBe(dayAfter);
+    expect(conceptOfTheDay(deck, '2026-08-26', 1)).not.toBe(natural);
+  });
+
+  it('wraps back to the starting card after a full deck of skips', () => {
+    expect(conceptOfTheDay(deck, '2026-08-26', deck.length)).toBe(
+      conceptOfTheDay(deck, '2026-08-26', 0),
+    );
+  });
+
+  it('stays in range for a day before the epoch that has been skipped', () => {
+    expect(deck).toContain(conceptOfTheDay(deck, '2025-06-14', 5));
+  });
 });

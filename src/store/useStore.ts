@@ -34,6 +34,8 @@ interface StoreState extends Persisted {
     stage: { index: number; total: number; hintTaken: boolean },
   ) => number;
   openConceptCard: (cardId: string) => void;
+  /** Asks Home for a different concept card today; tomorrow rotates as usual. */
+  skipConcept: () => void;
   setLastOpenedTrack: (trackId: TrackId) => void;
   updateSettings: (patch: Partial<Settings>) => void;
   completeOnboarding: () => void;
@@ -59,6 +61,7 @@ function persistable(state: StoreState): Persisted {
     exercises: state.exercises,
     conceptCardsOpened: state.conceptCardsOpened,
     capstones: state.capstones,
+    conceptSkips: state.conceptSkips,
     settings: state.settings,
   };
 }
@@ -158,6 +161,17 @@ export const useStore = create<StoreState>((set, get) => {
       commit({ conceptCardsOpened: [...state.conceptCardsOpened, cardId] });
     },
 
+    skipConcept: () => {
+      const today = todayKey();
+      const before = get().conceptSkips;
+      commit({
+        conceptSkips: {
+          day: today,
+          count: before.day === today ? before.count + 1 : 1,
+        },
+      });
+    },
+
     setLastOpenedTrack: (trackId) => set({ lastOpenedTrackId: trackId }),
 
     updateSettings: (patch) => commit({ settings: { ...get().settings, ...patch } }),
@@ -173,6 +187,7 @@ export const useStore = create<StoreState>((set, get) => {
         exercises: {},
         conceptCardsOpened: [],
         capstones: {},
+        conceptSkips: { day: null, count: 0 },
         settings: get().settings,
       };
       commit(cleared);

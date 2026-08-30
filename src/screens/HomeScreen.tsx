@@ -23,8 +23,13 @@ export function HomeScreen() {
   const dueCount = useStore((s) => s.dueCount());
   const trackTally = useStore((s) => s.trackTally);
   const setLastOpenedTrack = useStore((s) => s.setLastOpenedTrack);
+  const conceptSkips = useStore((s) => s.conceptSkips);
+  const skipConcept = useStore((s) => s.skipConcept);
 
-  const card = conceptOfTheDay(cards, today);
+  // Skips only count for the day they were made: tomorrow starts fresh on the
+  // natural rotation rather than carrying today's offset forward.
+  const skips = conceptSkips.day === today ? conceptSkips.count : 0;
+  const card = conceptOfTheDay(cards, today, skips);
   const activeToday = streak.lastActiveDay === today;
   // The current Monday-to-Sunday week, the same week the profile calendar ends
   // on. A trailing seven days would start on whatever weekday today happens to
@@ -140,6 +145,9 @@ export function HomeScreen() {
           <p className="home__concept-plain">
             <RichText text={card.plainWords} />
           </p>
+          <Button variant="ghost" className="home__concept-another" onClick={skipConcept}>
+            Show another
+          </Button>
         </section>
       )}
     </div>

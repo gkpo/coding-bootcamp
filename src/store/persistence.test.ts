@@ -22,6 +22,7 @@ describe('reconcile', () => {
       },
       conceptCardsOpened: ['big-o'],
       capstones: { 'c5-01': { stagesCleared: 2, assisted: false, completedDay: null } },
+      conceptSkips: { day: '2026-08-26', count: 2 },
       settings: { sound: false, haptics: true, reduceMotion: true },
       onboarded: true,
     };
