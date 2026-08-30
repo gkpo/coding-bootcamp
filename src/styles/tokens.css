@@ -99,15 +99,19 @@
   --success-bg: rgba(76, 148, 38, 0.1);
   --danger-bg: rgba(209, 59, 53, 0.1);
   --info-bg: rgba(27, 109, 147, 0.1);
-  /* The soft step is the graded box outline, and nothing else. It sits under
-     3:1 on purpose: an outline drawn at full strength around a tinted fill
-     doubles the same signal and turns a graded card into a warning label. It
-     is legal only because it is never the thing that carries the verdict.
-     The ring, the fill and the text all say it at full strength first; the
-     outline only draws the edge of the box they sit in. */
-  --success-soft: color-mix(in srgb, var(--success) 55%, var(--surface));
-  --danger-soft: color-mix(in srgb, var(--danger) 55%, var(--surface));
-  --info-soft: color-mix(in srgb, var(--info) 55%, var(--surface));
+  /* The soft step is the graded box outline, and nothing else. It stops short
+     of full strength on purpose: an outline drawn at full strength around a
+     tinted fill doubles the same signal and turns a graded card into a
+     warning label. At 70% the three land on --surface at #82b467 (2.42),
+     #df7672 (3.01) and #5f99b3 (3.14), so the step now sits on the 3:1 line
+     rather than under it, success just below and the other two just above.
+     Either way it is not the thing that carries the verdict: the ring, the
+     fill and the text all say it at full strength first, and the outline only
+     draws the edge of the box they sit in. 55% was the first try and read too
+     faint on a phone in daylight. */
+  --success-soft: color-mix(in srgb, var(--success) 70%, var(--surface));
+  --danger-soft: color-mix(in srgb, var(--danger) 70%, var(--surface));
+  --info-soft: color-mix(in srgb, var(--info) 70%, var(--surface));
 
   /* ---- syntax highlighting ----
      Drawn from the deep end of the track colours, never neon-on-white
