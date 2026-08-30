@@ -1,5 +1,10 @@
 .home {
   gap: var(--sp-4);
+  /* The concept card's deck edges are drawn behind their own card, which puts
+     them behind everything painted before it, including the shell's page
+     colour. Isolating the screen gives them a layer of their own to sit in,
+     above that colour and below the cards. */
+  isolation: isolate;
 }
 
 .streak {
@@ -165,6 +170,43 @@
   margin-top: auto;
 }
 
+/* The concept card sits on two static card edges, so it reads as the top of a
+   deck with more behind it, which is what "Show another" promises. Decoration
+   only: the edges carry no meaning and nothing is drawn on them.
+   The margin keeps the deeper edge clear of whatever follows. */
+.home__concept {
+  position: relative;
+  margin-bottom: var(--sp-2);
+}
+
+.home__concept::before,
+.home__concept::after {
+  content: '';
+  position: absolute;
+  /* Behind the card's own background, so only the offset edge shows. Tall
+     enough that the radius draws a proper corner, with the rest hidden. */
+  height: 32px;
+  background: var(--surface);
+  border: var(--border-w) solid var(--border);
+  border-radius: var(--r-card);
+}
+
+.home__concept::before {
+  z-index: -1;
+  left: 10px;
+  right: 10px;
+  bottom: -6px;
+}
+
+/* One step further back and further under, hence the lower layer: at the same
+   level it would paint over the nearer edge and flatten the stack. */
+.home__concept::after {
+  z-index: -2;
+  left: 20px;
+  right: 20px;
+  bottom: -12px;
+}
+
 .home__concept-kicker {
   color: var(--accent-text);
   font-size: 12px;
@@ -173,20 +215,66 @@
   text-transform: uppercase;
 }
 
-.home__concept-title {
+.home__concept-head {
   margin-top: var(--sp-2);
   display: flex;
   align-items: center;
-  gap: var(--sp-2);
+  gap: var(--sp-3);
+}
+
+/* Track identity, drawn as the track cards draw it (docs/06 §Components):
+   a 40px chip holding a ~12% tint of the track colour, icon at full strength.
+   The colour arrives as `color` from the component, so the tint recipe and the
+   icon both read it from one place. */
+.home__concept-chip {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: var(--surface-2);
+  background: color-mix(in srgb, currentColor 12%, var(--surface));
+}
+
+.home__concept-title {
   color: var(--text);
   font-size: var(--fs-heading);
   font-weight: 600;
+  line-height: 1.3;
 }
 
 .home__concept-plain {
-  margin-top: var(--sp-2);
+  margin-top: var(--sp-3);
   color: var(--text-dim);
   line-height: 1.6;
+}
+
+/* One phrase an interviewer actually says, so the concept arrives attached to
+   the words it will be met in. Quiet on purpose: it is context, not an action,
+   so it takes no border, no tint and no tap target. */
+.home__concept-heard {
+  margin-top: var(--sp-3);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.home__concept-heard-label {
+  color: var(--text-dim);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.home__concept-quote {
+  padding: 6px var(--sp-3);
+  border-radius: 10px;
+  background: var(--surface-2);
+  color: var(--text-dim);
+  font-size: var(--fs-secondary);
+  line-height: 1.5;
 }
 
 .streak__flame--lit {
@@ -247,7 +335,83 @@
   font-size: var(--fs-secondary);
 }
 
-.home__concept-icon {
-  display: inline-flex;
-  color: var(--accent-text);
+/* The swap on "Show another": the card that is leaving is lifted out of the
+   flow and the two cross over each other, right to left, for one standard
+   beat (docs/06 §Motion). Height is left to snap; animating it as well turns a
+   swap into a stretch. */
+.home__concept-stage {
+  position: relative;
+}
+
+.home__concept-body--leaving {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  animation: concept-out var(--dur-standard) var(--ease) both;
+}
+
+.home__concept-body--entering {
+  animation: concept-in var(--dur-standard) var(--ease) both;
+}
+
+@keyframes concept-out {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-24px);
+  }
+}
+
+@keyframes concept-in {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes concept-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes concept-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Reduced motion keeps the cross-over but drops the travel, the same swap
+   .sheet makes for its rise. Both gates, the OS preference and the in-app
+   toggle, are named because the toggle only zeroes the duration tokens. */
+@media (prefers-reduced-motion: reduce) {
+  .home__concept-body--leaving {
+    animation-name: concept-fade-out;
+  }
+
+  .home__concept-body--entering {
+    animation-name: concept-fade-in;
+  }
+}
+
+:root[data-reduce-motion='true'] .home__concept-body--leaving {
+  animation-name: concept-fade-out;
+}
+
+:root[data-reduce-motion='true'] .home__concept-body--entering {
+  animation-name: concept-fade-in;
 }
