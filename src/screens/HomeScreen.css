@@ -171,7 +171,7 @@
 }
 
 /* The concept card sits on two static card edges, so it reads as the top of a
-   deck with more behind it, which is what "Show another" promises. Decoration
+   deck with more behind it, which is what "One more" promises. Decoration
    only: the edges carry no meaning and nothing is drawn on them.
    The margin keeps the deeper edge clear of whatever follows. */
 .home__concept {
@@ -290,21 +290,20 @@
 
 /* Rides the kicker's row, so it drops the full-width shape and the horizontal
    padding a ghost button carries by default: the same treatment as
-   .summary__debrief. It is a drawn mark with no words, so it takes a square
-   tap target, 44px each way, with the 20px icon centred in it by .btn.
-   That target is kept whole and pulled back in with equal negative margins top
-   and bottom: the mark sits on the kicker's line and the target overhangs it
-   invisibly, rather than the row growing to 44px. Colour comes from
-   .btn--ghost, so the icon draws itself in --info like every other ghost. */
+   .summary__debrief. The size follows .check__hint down to secondary, because
+   a ghost button at the default 19px would shout over the kicker beside it.
+   The 44px tap target from .btn--ghost is kept and pulled back in with equal
+   negative margins top and bottom: the label sits on the kicker's line and the
+   target overhangs it invisibly, rather than the row growing to 44px. */
 .home__concept-another {
   flex: 0 0 auto;
   width: auto;
-  min-width: 44px;
   margin: -12px 0;
   padding: 0;
+  font-size: var(--fs-secondary);
 }
 
-/* The swap on "Show another": the card that is leaving is lifted out of the
+/* The swap on "One more": the card that is leaving is lifted out of the
    flow and the two cross over each other, right to left, for one standard
    beat (docs/06 §Motion). Height is left to snap; animating it as well turns a
    swap into a stretch. */

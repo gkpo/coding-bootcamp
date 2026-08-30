@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '../components/Button';
-import { AnotherIcon, FlameIcon } from '../components/icons';
+import { FlameIcon } from '../components/icons';
 import { RichText } from '../components/RichText';
 import { ConceptIcon } from '../components/ConceptIcon';
 import { ProgressBar } from '../components/ProgressBar';
@@ -187,13 +187,8 @@ export function HomeScreen() {
               it holds still while the card under it slides. */}
           <div className="home__concept-header">
             <p className="home__concept-kicker">Daily concept</p>
-            <Button
-              variant="ghost"
-              className="home__concept-another"
-              aria-label="Show another concept"
-              onClick={skipConcept}
-            >
-              <AnotherIcon size={20} />
+            <Button variant="ghost" className="home__concept-another" onClick={skipConcept}>
+              One more
             </Button>
           </div>
           <div className="home__concept-stage">
