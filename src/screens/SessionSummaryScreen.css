@@ -183,7 +183,7 @@
   padding: 8px var(--sp-3);
   border-radius: var(--r-pill);
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: var(--border-w) solid var(--border);
   font-size: var(--fs-secondary);
   font-weight: 600;
 }
@@ -205,7 +205,7 @@
    is a picture of the whiteboard, and a white ground would lose the join. */
 .summary__build {
   background: var(--paper);
-  border: 1px solid var(--paper-edge);
+  border: var(--border-w) solid var(--paper-edge);
 }
 
 /* The way into the debrief, under the drawing it talks about (docs/12 part

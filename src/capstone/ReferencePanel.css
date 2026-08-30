@@ -31,7 +31,7 @@
 .reference__board {
   padding: var(--sp-3);
   background: var(--paper);
-  border: 1px solid var(--paper-edge);
+  border: var(--border-w) solid var(--paper-edge);
   border-radius: var(--r-card);
 }
 

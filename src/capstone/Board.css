@@ -5,7 +5,7 @@
   /* Paper rather than another white card: this is the one surface in the app
      that stands in for a whiteboard, and the faint grid is what says so. */
   background: var(--paper);
-  border: 1px solid var(--paper-edge);
+  border: var(--border-w) solid var(--paper-edge);
   border-radius: 18px;
   padding: 14px;
   background-image: radial-gradient(var(--paper-grid) 1px, transparent 1px);
@@ -152,7 +152,7 @@
      too rather than only the box they are in. */
   gap: 8px;
   background: var(--surface);
-  border: 1px solid var(--paper-edge);
+  border: var(--border-w) solid var(--paper-edge);
   border-radius: 16px;
   box-shadow: 0 1px 2px rgba(70, 58, 34, 0.1);
   color: var(--ink);

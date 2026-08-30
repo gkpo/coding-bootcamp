@@ -40,7 +40,7 @@
   justify-content: center;
   border-radius: var(--r-pill);
   background: var(--surface-2);
-  border: 1px solid var(--border);
+  border: var(--border-w) solid var(--border);
   font-size: 12px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;

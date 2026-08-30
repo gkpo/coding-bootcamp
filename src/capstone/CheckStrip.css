@@ -12,7 +12,7 @@
 .check {
   padding: var(--sp-2) var(--sp-3);
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: var(--border-w) solid var(--border);
   /* Pill at the 44px resting height, and still a sane shape once a hint or a
      say-it line has pushed the row taller. */
   border-radius: 22px;
