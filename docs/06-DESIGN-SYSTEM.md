@@ -16,7 +16,7 @@ The energy comes from **saturation and form, not from lightness**. Fully saturat
 | `--bg`                                       | `#F4F5F6`                                | App background (very light neutral grey)                                                                                       |
 | `--surface`                                  | `#FFFFFF`                                | Cards, tab bar, sheets                                                                                                         |
 | `--surface-2`                                | `#EAECEF`                                | Nested surfaces (code blocks, pressed states, bar tracks)                                                                      |
-| `--border`                                   | `#E2E5E8`                                | Hairline borders, dividers                                                                                                     |
+| `--border`                                   | `#E2E5E8`                                | Box borders (2px, see `--border-w`), dividers                                                                                  |
 | `--text`                                     | `#1A1D21`                                | Primary text (near-black)                                                                                                      |
 | `--text-dim`                                 | `#5D646C`                                | Secondary text, captions (AA on all three surfaces)                                                                            |
 | `--accent`                                   | `#49970A`                                | THE accent (grass green): button fills, progress fills, streak dots and flame, the toggle's on state, active tab icon          |
@@ -76,13 +76,14 @@ Contrast: all text/background pairs must pass WCAG AA (the values above do; keep
 
 - 4px base grid; common paddings 12/16/20; screen gutter 20px.
 - Radii: cards & sheets 16px, buttons 14px, chips/pills 999px, code blocks 12px.
-- Elevation: cards are `--surface` on `--bg` with a 1px `--border` **or** a soft shadow (`0 1px 3px rgba(31,36,48,.06), 0 4px 12px rgba(31,36,48,.05)`). Pick one per component and stay consistent; bottom sheet and modal get a stronger soft shadow. Never harsh black shadows.
+- Border width: every box border is `--border-w` (2px), never a 1px hairline. A 1px stroke renders unevenly from screen to screen, and swept through a corner radius it is mostly antialiasing, so a coloured border (a graded answer option) looks denser at its four corners than along its sides. 2px removes that, and it matches the 2px ring an answer option already carries. The only 1px lines left in the app are the two full-width dividers, under the screen bar and above the tab bar: those are rules rather than box strokes, and 2px there reads heavy.
+- Elevation: cards are `--surface` on `--bg` with a 2px `--border` **or** a soft shadow (`0 1px 3px rgba(31,36,48,.06), 0 4px 12px rgba(31,36,48,.05)`). Pick one per component and stay consistent; bottom sheet and modal get a stronger soft shadow. Never harsh black shadows.
 
 ## Core components
 
 - **Primary button:** full-width, 52px tall, `--accent` bg, `--on-accent` (white) **19px/800** text (see "The large-label rule": the size is what makes the light fill legal), radius 14. It sits on a **solid 4px underside** (`box-shadow: 0 4px 0 var(--accent-pressed)`, a hard colour stop and never a blur) and on press travels down by exactly that 4px while the underside is removed, so the bottom edge lands where the shadow's was. A scale-down reads as the button shrinking away from the finger; travelling into its own shadow reads as the button being depressed, which is what actually happened. Secondary: `--surface` bg + `--border`, same underside in `--border`. Ghost: text-only `--info`, no underside. Under reduced motion the underside stays (it is shape, not motion) and only the travel is dropped.
-- **Card:** `--surface`, radius 16, 16–20px padding, optional 1px border.
-- **Track card:** uniform 1px `--border` and the soft shadow, never an accent edge. Identity is carried by an **icon chip**: a 40px (34px in the Home strip) rounded square, radius 12 (10), filled with a ~12% tint of the track colour, with the drawn icon at full strength inside it. The progress-bar fill repeats the colour. Two deliberate uses beat one smeared along a border.
+- **Card:** `--surface`, radius 16, 16–20px padding, optional 2px border.
+- **Track card:** uniform 2px `--border` and the soft shadow, never an accent edge. Identity is carried by an **icon chip**: a 40px (34px in the Home strip) rounded square, radius 12 (10), filled with a ~12% tint of the track colour, with the drawn icon at full strength inside it. The progress-bar fill repeats the colour. Two deliberate uses beat one smeared along a border.
 - **Progress bar:** 6px tall, radius full, track `--surface-2`, fill = track color or accent; animate width 300ms ease-out.
   Track progress bars carry two stacked fills in that same 6px: the mastered fill at full track colour, over a
   "seen" fill at ~28% track colour mixed into `--surface-2`. Both are absolutely positioned from the left edge, so

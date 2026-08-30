@@ -135,6 +135,15 @@
   --gutter: 20px;
 
   /* ---- shape ---- */
+  /* The width of a box border. A 1px hairline renders unevenly from screen to
+     screen, and on a coloured border the four rounded corners read denser than
+     the sides, because a 1px stroke swept through a radius is mostly
+     antialiasing. At 2px the corner disappears into the stroke, and the width
+     matches the 2px ring on an answer option. Full-width dividers (the tab bar,
+     the screen bar) stay at 1px: they are rules, not box strokes, and 2px there
+     reads heavy. */
+  --border-w: 2px;
+
   --r-card: 16px;
   --r-button: 14px;
   --r-code: 12px;

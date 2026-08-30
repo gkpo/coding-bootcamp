@@ -25,7 +25,7 @@
   padding: 0 var(--sp-2);
   margin: 0 2px;
   border-radius: 8px;
-  border: 1px dashed var(--text-dim);
+  border: var(--border-w) dashed var(--text-dim);
   background: var(--surface);
   font-family: var(--font-mono);
   font-size: var(--fs-mono);
@@ -66,7 +66,7 @@
   min-height: 44px;
   padding: 0 var(--sp-3);
   background: var(--surface-2);
-  border: 1px solid var(--border);
+  border: var(--border-w) solid var(--border);
   border-radius: var(--r-pill);
   font-family: var(--font-mono);
   font-size: var(--fs-mono);

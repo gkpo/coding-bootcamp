@@ -9,13 +9,13 @@
 
 .feedback--right {
   background: var(--success-bg);
-  border: 1px solid var(--success);
+  border: var(--border-w) solid var(--success);
 }
 
 .feedback--wrong,
 .feedback--unsure {
   background: var(--danger-bg);
-  border: 1px solid var(--danger);
+  border: var(--border-w) solid var(--danger);
 }
 
 .feedback--unsure {
@@ -25,7 +25,7 @@
 
 .feedback--recovered {
   background: var(--info-bg);
-  border: 1px solid var(--info);
+  border: var(--border-w) solid var(--info);
 }
 
 .feedback__heading {

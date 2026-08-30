@@ -5,7 +5,7 @@
   padding: var(--sp-4);
   background: var(--surface);
   border-radius: var(--r-card);
-  border: 1px solid var(--border);
+  border: var(--border-w) solid var(--border);
   box-shadow: var(--shadow-card);
   text-decoration: none;
   color: inherit;
@@ -85,7 +85,7 @@
   height: 10px;
   border-radius: var(--r-pill);
   background: var(--surface-2);
-  border: 1px solid var(--border);
+  border: var(--border-w) solid var(--border);
   flex: 0 0 auto;
 }
 
@@ -147,7 +147,7 @@
    --------------------------------------------------------------------------- */
 
 .journey {
-  border: 1px solid var(--border);
+  border: var(--border-w) solid var(--border);
   padding: var(--sp-5);
 }
 
@@ -313,7 +313,7 @@
 /* ---- the station card ---- */
 
 .station {
-  border: 1px solid var(--border);
+  border: var(--border-w) solid var(--border);
 }
 
 /* The pill sits beside the title while it fits and drops to its own line
@@ -361,7 +361,7 @@
   padding: 0 var(--sp-3);
   border-radius: var(--r-pill);
   background: var(--surface-2);
-  border: 1px solid var(--border);
+  border: var(--border-w) solid var(--border);
   font-size: var(--fs-secondary);
   font-weight: 600;
   color: inherit;

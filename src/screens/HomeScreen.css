@@ -56,7 +56,7 @@
   padding: 7px 0 8px;
   border-radius: 12px;
   background: var(--surface-2);
-  border: 1px solid transparent;
+  border: var(--border-w) solid transparent;
 }
 
 .streak__day-name {
@@ -131,7 +131,7 @@
   padding: var(--sp-3) var(--sp-4);
   background: var(--surface);
   border-radius: var(--r-card);
-  border: 1px solid var(--border);
+  border: var(--border-w) solid var(--border);
   box-shadow: var(--shadow-card);
 }
 

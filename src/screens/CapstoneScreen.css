@@ -162,7 +162,7 @@
   padding: 0 var(--sp-4);
   border-radius: var(--r-pill);
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: var(--border-w) solid var(--border);
   font-size: var(--fs-secondary);
   font-weight: 600;
   color: var(--text);

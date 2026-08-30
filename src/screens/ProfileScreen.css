@@ -130,7 +130,7 @@
   aspect-ratio: 1;
   border-radius: 5px;
   background: var(--surface-2);
-  border: 1px solid var(--border);
+  border: var(--border-w) solid var(--border);
 }
 
 .profile__day.is-on {
@@ -216,7 +216,7 @@
   height: 30px;
   border-radius: var(--r-pill);
   background: var(--surface-2);
-  border: 1px solid var(--border);
+  border: var(--border-w) solid var(--border);
   padding: 3px;
   display: flex;
   transition: background-color var(--dur-micro) var(--ease);

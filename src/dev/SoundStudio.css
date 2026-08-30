@@ -75,7 +75,7 @@
   padding: var(--sp-4);
   text-align: left;
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: var(--border-w) solid var(--border);
   border-radius: var(--r-card);
   box-shadow: var(--shadow-card);
   font-family: var(--font-ui);
@@ -118,7 +118,7 @@
   gap: var(--sp-5);
   padding: var(--sp-5) var(--sp-4);
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: var(--border-w) solid var(--border);
   border-radius: var(--r-card);
   box-shadow: var(--shadow-card);
 }
@@ -178,14 +178,14 @@
   height: 6px;
   border-radius: var(--r-pill);
   background: var(--surface-2);
-  border: 1px solid var(--border);
+  border: var(--border-w) solid var(--border);
 }
 
 .knob__range::-moz-range-track {
   height: 6px;
   border-radius: var(--r-pill);
   background: var(--surface-2);
-  border: 1px solid var(--border);
+  border: var(--border-w) solid var(--border);
 }
 
 .knob__range::-webkit-slider-thumb {
@@ -223,7 +223,7 @@
   margin: 0;
   padding: var(--sp-4);
   background: var(--surface-2);
-  border: 1px solid var(--border);
+  border: var(--border-w) solid var(--border);
   border-radius: var(--r-code);
   font-family: var(--font-mono);
   font-size: var(--fs-mono);
