@@ -123,6 +123,23 @@ export function HelpIcon({ size = 16 }: IconProps) {
 }
 
 /**
+ * Deal another card. Two arcs chasing each other, each with its own arrowhead,
+ * so it reads as "go round again" rather than as one thing being undone.
+ * ReviewIcon is a single arc on purpose: that one means "come back to this",
+ * and the two must not be mistaken for each other.
+ */
+export function AnotherIcon({ size = 20 }: IconProps) {
+  return (
+    <svg {...base(size)}>
+      <path d="M3.5 12A8.5 8.5 0 0 1 17.8 5.8L20.5 8" />
+      <path d="M20.5 3.5V8H16" />
+      <path d="M20.5 12A8.5 8.5 0 0 1 6.2 18.2L3.5 16" />
+      <path d="M3.5 20.5V16H8" />
+    </svg>
+  );
+}
+
+/**
  * The drag grip on a sortable pill. Six dots is the shape a phone user has
  * already met in every reorderable list they own, which is the whole point:
  * nothing else on a pill says "this one moves, and you move it by holding it".
