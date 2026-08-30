@@ -35,18 +35,18 @@
 }
 
 .match__cell.is-picked {
-  border-color: var(--info);
+  border-color: var(--info-soft);
   background: var(--info-bg);
 }
 
 .match__cell.is-matched {
-  border-color: var(--success);
+  border-color: var(--success-soft);
   background: var(--success-bg);
   opacity: 0.55;
 }
 
 .match__cell.is-wrong {
-  border-color: var(--danger);
+  border-color: var(--danger-soft);
   background: var(--danger-bg);
   animation: shake-x 250ms var(--ease);
 }

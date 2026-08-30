@@ -9,23 +9,23 @@
 
 .feedback--right {
   background: var(--success-bg);
-  border: var(--border-w) solid var(--success);
+  border: var(--border-w) solid var(--success-soft);
 }
 
 .feedback--wrong,
 .feedback--unsure {
   background: var(--danger-bg);
-  border: var(--border-w) solid var(--danger);
+  border: var(--border-w) solid var(--danger-soft);
 }
 
 .feedback--unsure {
   background: var(--info-bg);
-  border-color: var(--info);
+  border-color: var(--info-soft);
 }
 
 .feedback--recovered {
   background: var(--info-bg);
-  border: var(--border-w) solid var(--info);
+  border: var(--border-w) solid var(--info-soft);
 }
 
 .feedback__heading {
