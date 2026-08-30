@@ -15,6 +15,31 @@
   color: var(--accent-text);
 }
 
+/* One pair per row, term over phrase. Spacing does the separating: the rows
+   are tighter inside than between, so a term and its phrase read as one unit
+   without any character standing in for a link between them. */
+.reveal__pairs {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.reveal__pair-term {
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono);
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.35;
+}
+
+.reveal__pair-phrase {
+  margin: var(--sp-1) 0 0;
+  font-size: var(--fs-secondary);
+  line-height: 1.45;
+  color: var(--text-dim);
+}
+
 .reveal__steps {
   margin: 0;
   padding-left: var(--sp-5);

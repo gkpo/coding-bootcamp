@@ -50,7 +50,9 @@ A ladder exercise is standalone in v1 (one snapshot, one best move). Multi-step 
 
 ## 7. `match`, Decoder pairs
 
-Two columns (or a shuffled grid of pairs on small screens): interviewer phrase ↔ concept term. Tap one from each side to pair; correct pairs lock green, wrong pairs shake apart. 3–5 pairs per exercise.
+Two columns (or a shuffled grid of pairs on small screens): interviewer phrase ↔ concept term. Tap one from each side to pair; correct pairs lock green in place, wrong pairs shake apart. 3–5 pairs per exercise.
+
+On reveal (the user pressed "I'm not sure", so pairs are still unmade) the board just freezes: the two columns are shuffled independently, so nothing on it can show which phrase belongs to which term. The feedback panel lists every pair instead, the same way the ordered types show their answer there.
 
 Used mainly by Track 6: _"a function that remembers" ↔ closure_, _"grows linearly" ↔ O(n)_, _"only one instance ever" ↔ singleton_, _"don't repeat that network call" ↔ memoize/cache_. Also used for system design (component ↔ responsibility).
 

@@ -373,10 +373,13 @@ describe('gradeMatch', () => {
 });
 
 describe('needsExplicitReveal', () => {
-  it('is true for the ordered types, which have nowhere to show the answer', () => {
+  it('is true where the board cannot hold the answer', () => {
+    // The ordered types have nowhere to put it, and a frozen match board of two
+    // shuffled columns cannot draw which phrase belongs to which term.
     expect(needsExplicitReveal('parsons')).toBe(true);
     expect(needsExplicitReveal('steps')).toBe(true);
     expect(needsExplicitReveal('blank')).toBe(true);
+    expect(needsExplicitReveal('match')).toBe(true);
   });
 
   it('is false where the answer is revealed in place', () => {
@@ -386,6 +389,5 @@ describe('needsExplicitReveal', () => {
     expect(needsExplicitReveal('ladder')).toBe(false);
     expect(needsExplicitReveal('complexity')).toBe(false);
     expect(needsExplicitReveal('spot-bug')).toBe(false);
-    expect(needsExplicitReveal('match')).toBe(false);
   });
 });
