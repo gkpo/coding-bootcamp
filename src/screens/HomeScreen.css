@@ -1,5 +1,10 @@
 .home {
   gap: var(--sp-4);
+  /* The concept card's deck edges are drawn behind their own card, which puts
+     them behind everything painted before it, including the shell's page
+     colour. Isolating the screen gives them a layer of their own to sit in,
+     above that colour and below the cards. */
+  isolation: isolate;
 }
 
 .streak {
@@ -165,6 +170,50 @@
   margin-top: auto;
 }
 
+/* The concept card sits on two static card edges, so it reads as the top of a
+   deck with more behind it, which is what "Show another" promises. Decoration
+   only: the edges carry no meaning and nothing is drawn on them.
+   The margin keeps the deeper edge clear of whatever follows. */
+.home__concept {
+  position: relative;
+  margin-bottom: var(--sp-2);
+}
+
+.home__concept::before,
+.home__concept::after {
+  content: '';
+  position: absolute;
+  /* Behind the card's own background, so only the offset edge shows. Tall
+     enough that the radius draws a proper corner, with the rest hidden. */
+  height: 32px;
+  background: var(--surface);
+  border: var(--border-w) solid var(--border);
+  border-radius: var(--r-card);
+}
+
+.home__concept::before {
+  z-index: -1;
+  left: 10px;
+  right: 10px;
+  bottom: -6px;
+}
+
+/* One step further back and further under, hence the lower layer: at the same
+   level it would paint over the nearer edge and flatten the stack. */
+.home__concept::after {
+  z-index: -2;
+  left: 20px;
+  right: 20px;
+  bottom: -12px;
+}
+
+.home__concept-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+}
+
 .home__concept-kicker {
   color: var(--accent-text);
   font-size: 12px;
@@ -181,6 +230,11 @@
   color: var(--text);
   font-size: var(--fs-heading);
   font-weight: 600;
+}
+
+.home__concept-icon {
+  display: inline-flex;
+  color: var(--accent-text);
 }
 
 .home__concept-plain {
@@ -234,7 +288,98 @@
   }
 }
 
-.home__concept-icon {
-  display: inline-flex;
-  color: var(--accent-text);
+/* Rides the kicker's row, so it drops the full-width shape and the horizontal
+   padding a ghost button carries by default: the same treatment as
+   .summary__debrief. The size follows .check__hint down to secondary, because
+   a ghost button at the default 19px would shout over the kicker beside it.
+   The 44px tap target from .btn--ghost is kept and pulled back in with equal
+   negative margins top and bottom: the label sits on the kicker's line and the
+   target overhangs it invisibly, rather than the row growing to 44px. */
+.home__concept-another {
+  flex: 0 0 auto;
+  width: auto;
+  margin: -12px 0;
+  padding: 0;
+  font-size: var(--fs-secondary);
+}
+
+/* The swap on "Show another": the card that is leaving is lifted out of the
+   flow and the two cross over each other, right to left, for one standard
+   beat (docs/06 §Motion). Height is left to snap; animating it as well turns a
+   swap into a stretch. */
+.home__concept-stage {
+  position: relative;
+}
+
+.home__concept-body--leaving {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  animation: concept-out var(--dur-standard) var(--ease) both;
+}
+
+.home__concept-body--entering {
+  animation: concept-in var(--dur-standard) var(--ease) both;
+}
+
+@keyframes concept-out {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-24px);
+  }
+}
+
+@keyframes concept-in {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes concept-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes concept-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Reduced motion keeps the cross-over but drops the travel, the same swap
+   .sheet makes for its rise. Both gates, the OS preference and the in-app
+   toggle, are named because the toggle only zeroes the duration tokens. */
+@media (prefers-reduced-motion: reduce) {
+  .home__concept-body--leaving {
+    animation-name: concept-fade-out;
+  }
+
+  .home__concept-body--entering {
+    animation-name: concept-fade-in;
+  }
+}
+
+:root[data-reduce-motion='true'] .home__concept-body--leaving {
+  animation-name: concept-fade-out;
+}
+
+:root[data-reduce-motion='true'] .home__concept-body--entering {
+  animation-name: concept-fade-in;
 }

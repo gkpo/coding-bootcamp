@@ -39,6 +39,13 @@ export interface Persisted {
    * which reconciles to an empty record, so no schemaVersion bump is needed.
    */
   capstones: Record<string, CapstoneProgress>;
+  /**
+   * How many times the reader asked for a different concept card, and the day
+   * they asked. Also additive: an older document has no key and reconciles to
+   * the default, so there is no schemaVersion bump. The count only counts for
+   * the day it names; any other day starts again at the natural rotation.
+   */
+  conceptSkips: { day: DayKey | null; count: number };
   settings: Settings;
   /** False until the intro has been seen (or skipped) once. */
   onboarded: boolean;
@@ -52,6 +59,7 @@ export function defaultPersisted(): Persisted {
     exercises: {},
     conceptCardsOpened: [],
     capstones: {},
+    conceptSkips: { day: null, count: 0 },
     settings: { sound: true, haptics: true, reduceMotion: false },
     onboarded: false,
   };
@@ -77,6 +85,7 @@ export function reconcile(parsed: unknown): Persisted {
   const xp = isRecord(parsed.xp) ? parsed.xp : {};
   const streak = isRecord(parsed.streak) ? parsed.streak : {};
   const settings = isRecord(parsed.settings) ? parsed.settings : {};
+  const conceptSkips = isRecord(parsed.conceptSkips) ? parsed.conceptSkips : {};
 
   return migrate({
     schemaVersion: typeof parsed.schemaVersion === 'number' ? parsed.schemaVersion : SCHEMA_VERSION,
@@ -99,6 +108,10 @@ export function reconcile(parsed: unknown): Persisted {
     capstones: isRecord(parsed.capstones)
       ? (parsed.capstones as Record<string, CapstoneProgress>)
       : {},
+    conceptSkips: {
+      day: typeof conceptSkips.day === 'string' ? conceptSkips.day : null,
+      count: typeof conceptSkips.count === 'number' ? conceptSkips.count : 0,
+    },
     settings: {
       sound: typeof settings.sound === 'boolean' ? settings.sound : true,
       haptics: typeof settings.haptics === 'boolean' ? settings.haptics : true,
