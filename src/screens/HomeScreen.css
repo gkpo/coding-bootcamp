@@ -87,17 +87,6 @@
   border-color: var(--accent);
 }
 
-/* Later this week: not a missed day yet, so the tile is left as an outline. */
-.streak__day.is-future {
-  background: none;
-  border-color: var(--border);
-  border-style: dashed;
-}
-
-.streak__day.is-future .streak__dot {
-  background: none;
-}
-
 .streak__day.is-today .streak__day-name {
   color: var(--accent-text);
 }
@@ -336,23 +325,26 @@
 
 /* The deal on "One more", for one standard beat (docs/06 §Motion). Every
    layer moves up one place on the same clock and the same curve, so the stack
-   behaves like a stack: the card on top flies off, the card that was visibly
-   behind it rises into its place, the first surface below takes the second
-   surface's place, and a fresh edge arrives at the bottom. Because each layer
+   behaves like a stack: the card on top dissolves where it lies, the card that
+   was visibly behind it rises into its place, the first surface below takes
+   the second surface's place, and a fresh edge arrives at the bottom. Because each layer
    starts exactly where the layer above it sat a moment ago, the first frame of
    the deal is indistinguishable from the resting stack, and the last frame is
    the resting stack again. */
-/* Two animations rather than one keyframe list: the flight keeps the system
-   easing all the way across, while the fade runs on its own linear clock so it
-   can stay out of the way until the card is clear. A card that faded while it
-   still covered the one behind it left two sets of words legible on top of
-   each other for the first stretch of the swap. */
+/* The card does not go anywhere, it stops being there: a small lift and swell
+   on the system curve, while it blurs and thins out. Two animations rather
+   than one keyframe list, because the two halves want different clocks. The
+   drift keeps the system easing; the dissolve runs linear so the blur can lead
+   and the card can be fully gone by the time the one below has finished
+   arriving. The blur is load bearing, not decoration: this card dissolves
+   directly over the words of the next one, and without it the overlap reads as
+   two paragraphs printed on top of each other. */
 .home__concept-card--leaving {
   z-index: 4;
   pointer-events: none;
   animation:
-    concept-fly-out var(--dur-standard) var(--ease) both,
-    concept-fly-fade var(--dur-standard) linear both;
+    concept-puff-drift var(--dur-standard) var(--ease) both,
+    concept-puff-out var(--dur-standard) linear both;
 }
 
 /* Starts on the first surface below: down 6px, and narrowed to that surface's
@@ -379,29 +371,34 @@
   animation: concept-arrive var(--dur-standard) var(--ease) both;
 }
 
-/* Right across and off. The concept section is the last thing on the screen,
-   so the card crosses nothing but background on its way out and the stage is
-   left unclipped; a card cut off at the stage edge would read as a card going
-   under something rather than a card being dealt away. */
-@keyframes concept-fly-out {
+/* Up and out a little. Small numbers on purpose: a card that swells much more
+   than this stops reading as one leaving and starts reading as one arriving. */
+@keyframes concept-puff-drift {
   from {
     transform: none;
   }
   to {
-    transform: translateX(-110%);
+    transform: translateY(-6px) scale(1.04);
   }
 }
 
-/* Barely moves until the card is clear, then goes out at the tail. */
-@keyframes concept-fly-fade {
+/* The blur leads and the opacity follows it down, gone by seven tenths of the
+   way through. Blurring first is what stops the two sets of words being
+   legible at once: by the time there is enough of the card left to read, there
+   is not enough of it in focus to read. */
+@keyframes concept-puff-out {
   0% {
     opacity: 1;
+    filter: blur(0);
   }
-  60% {
-    opacity: 0.9;
+  30% {
+    opacity: 0.55;
+    filter: blur(4px);
   }
+  70%,
   100% {
     opacity: 0;
+    filter: blur(5px);
   }
 }
 
@@ -457,10 +454,11 @@
   }
 }
 
-/* Reduced motion keeps the exchange but drops the flight and the rise, the
-   same swap .sheet makes for its own. Both gates, the OS preference and the
-   in-app toggle, are named because the toggle only zeroes the duration
-   tokens. */
+/* Reduced motion keeps the exchange but drops the drift, the blur and the
+   rise, the same swap .sheet makes for its own. Naming a single animation here
+   also drops the second one the leaving card carries, which is the point: no
+   transform and no filter are left to animate. Both gates are named because
+   the in-app toggle only zeroes the duration tokens. */
 @media (prefers-reduced-motion: reduce) {
   .home__concept-card--leaving {
     animation-name: concept-fade-out;
