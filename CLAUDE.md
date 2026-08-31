@@ -31,6 +31,7 @@ Exempt from delegation: read-only questions, git operations, and edits to coordi
 
 - Branch: work on the designated feature branch; never push elsewhere without permission.
 - Commits: one milestone step per commit, imperative mood ("Add Parsons exercise renderer"), no model names in commit messages.
+- Merging: once the work is verified (build, lint, tests, browser check) and pushed, open the PR and squash-merge it yourself; do not wait to be asked. Hold off only when the user says not to merge, or when the change reverses a product decision that has not been discussed with them.
 - Keep dependencies minimal: see the allowed list in `docs/05-ARCHITECTURE.md`.
 - Commands (scaffold exists as of M0):
   - `npm run dev`. Vite dev server at `/coding-bootcamp/`
