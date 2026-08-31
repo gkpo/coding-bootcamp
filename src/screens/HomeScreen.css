@@ -87,17 +87,6 @@
   border-color: var(--accent);
 }
 
-/* Later this week: not a missed day yet, so the tile is left as an outline. */
-.streak__day.is-future {
-  background: none;
-  border-color: var(--border);
-  border-style: dashed;
-}
-
-.streak__day.is-future .streak__dot {
-  background: none;
-}
-
 .streak__day.is-today .streak__day-name {
   color: var(--accent-text);
 }
