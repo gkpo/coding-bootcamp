@@ -161,9 +161,14 @@ export function HomeScreen() {
     return () => clearTimeout(timer);
   }, [leaving]);
 
-  // The current Monday-to-Sunday week, the same week the profile calendar ends
-  // on. A trailing seven days would start on whatever weekday today happens to
-  // be, which reads as a week that begins on a Friday.
+  // The row keeps calendar order, Monday first, so it never reads as a week
+  // that begins on a Friday. Each tile holds the most recent occurrence of its
+  // weekday: the days up to today are this week's, and a weekday still to come
+  // stands for the same weekday last week. That is what keeps a practiced day
+  // lit for a full seven days, so a streak started last Thursday is still on
+  // screen come Monday. When a weekday comes around again its tile starts
+  // representing the new day, which is why a lit tile goes out on the morning
+  // it becomes today.
   const thisWeek = Array.from({ length: 7 }, (_, i) => addDays(startOfWeek(today), i));
 
   return (
@@ -189,17 +194,24 @@ export function HomeScreen() {
       </header>
 
       {/* Monday on the left through Sunday on the right, each tile named from
-          its own date and today ringed. Days still to come are drawn as holes
-          rather than as missed days. */}
-      <div className="streak__week" aria-label="This week">
+          its own weekday and today ringed. A tile for a weekday still to come
+          carries that weekday from last week, so a day stays lit for seven days
+          and last Thursday's work is still visible on Monday. A weekday still
+          to come with nothing behind it is drawn as a hole rather than as a
+          missed day. */}
+      <div className="streak__week" aria-label="Your week">
         {thisWeek.map((day) => {
-          const practiced = (xpByDay[day] ?? 0) > 0;
           const isToday = day === today;
-          const future = day > today;
+          const ahead = day > today;
+          // The tile for a weekday still to come stands for last week's
+          // occurrence of it, which is the most recent one that has happened.
+          const carried = ahead && (xpByDay[addDays(day, -7)] ?? 0) > 0;
+          const practiced = ahead ? carried : (xpByDay[day] ?? 0) > 0;
+          const empty = ahead && !carried;
           const weekday = weekdayIndex(day);
           return (
             <span
-              className={`streak__day ${practiced ? 'is-on' : ''} ${isToday ? 'is-today' : ''} ${future ? 'is-future' : ''}`}
+              className={`streak__day ${practiced ? 'is-on' : ''} ${isToday ? 'is-today' : ''} ${empty ? 'is-future' : ''}`}
               key={day}
             >
               <span className="streak__day-name" aria-hidden>
@@ -208,7 +220,13 @@ export function HomeScreen() {
               <span className="streak__dot" aria-hidden />
               <span className="visually-hidden">
                 {isToday ? 'Today' : DAY_NAMES[weekday]}
-                {future ? ': still to come' : practiced ? ': practiced' : ': not practiced'}
+                {ahead
+                  ? carried
+                    ? ': practiced last week'
+                    : ': still to come'
+                  : practiced
+                    ? ': practiced'
+                    : ': not practiced'}
               </span>
             </span>
           );
