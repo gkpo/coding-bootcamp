@@ -182,8 +182,10 @@
   height: calc(var(--concept-card-h) + var(--concept-peek));
 }
 
-/* The two surfaces below. Static: the deck is seventy-two deep, so its edges
-   never run out and nothing about them needs to move. */
+/* The two surfaces below. At rest they are the edges of the cards still to
+   come; on a deal they each move up one place (see the promote and arrive
+   animations). The deck is seventy-two deep, so the bottom of it never runs
+   out and a fresh edge can always join. */
 .home__concept-under {
   position: absolute;
   top: 0;
@@ -332,10 +334,14 @@
   font-size: var(--fs-secondary);
 }
 
-/* The swap on "One more", for one standard beat (docs/06 §Motion): the card
-   on top flies off to the left while the card that was visibly behind it
-   rises into its place. Nothing else moves, because in a real deck nothing
-   else does. */
+/* The deal on "One more", for one standard beat (docs/06 §Motion). Every
+   layer moves up one place on the same clock and the same curve, so the stack
+   behaves like a stack: the card on top flies off, the card that was visibly
+   behind it rises into its place, the first surface below takes the second
+   surface's place, and a fresh edge arrives at the bottom. Because each layer
+   starts exactly where the layer above it sat a moment ago, the first frame of
+   the deal is indistinguishable from the resting stack, and the last frame is
+   the resting stack again. */
 /* Two animations rather than one keyframe list: the flight keeps the system
    easing all the way across, while the fade runs on its own linear clock so it
    can stay out of the way until the card is clear. A card that faded while it
@@ -356,6 +362,21 @@
 .home__concept-card--entering {
   transform-origin: top center;
   animation: concept-rise var(--dur-standard) var(--ease) both;
+}
+
+/* The first surface below, taking the second one's place. Same idea as the
+   entering card one layer up: it starts wearing the geometry of the surface
+   behind it and grows into its own. */
+.home__concept-under--promoting {
+  transform-origin: top center;
+  animation: concept-promote var(--dur-standard) var(--ease) both;
+}
+
+/* The new bottom of the deck. It arrives where it belongs and only fades,
+   with a couple of pixels of rise: anything more and the eye follows the
+   quietest layer in the stack instead of the card being read. */
+.home__concept-under--arriving {
+  animation: concept-arrive var(--dur-standard) var(--ease) both;
 }
 
 /* Right across and off. The concept section is the last thing on the screen,
@@ -393,6 +414,31 @@
   }
 }
 
+/* Both ends spell out the whole transform, because an animation replaces the
+   resting one for as long as it runs: the end state has to be the rest state
+   exactly, or the surface would jump the moment the class comes off. 0.939 is
+   310/330, the second surface's width over this one's own, so the start of the
+   promote sits precisely where the second surface sits. */
+@keyframes concept-promote {
+  from {
+    transform: translateY(12px) scale(0.939);
+  }
+  to {
+    transform: translateY(6px);
+  }
+}
+
+@keyframes concept-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(12px);
+  }
+}
+
 @keyframes concept-fade-out {
   from {
     opacity: 1;
@@ -420,7 +466,9 @@
     animation-name: concept-fade-out;
   }
 
-  .home__concept-card--entering {
+  .home__concept-card--entering,
+  .home__concept-under--promoting,
+  .home__concept-under--arriving {
     animation-name: concept-fade-in;
   }
 }
@@ -429,6 +477,8 @@
   animation-name: concept-fade-out;
 }
 
-:root[data-reduce-motion='true'] .home__concept-card--entering {
+:root[data-reduce-motion='true'] .home__concept-card--entering,
+:root[data-reduce-motion='true'] .home__concept-under--promoting,
+:root[data-reduce-motion='true'] .home__concept-under--arriving {
   animation-name: concept-fade-in;
 }
