@@ -8,7 +8,7 @@ import { ProgressBar } from '../components/ProgressBar';
 import { cards, tracks } from '../content';
 import type { ConceptCard } from '../content/types';
 import { conceptOfTheDay } from '../engine/conceptOfTheDay';
-import { addDays, todayKey, weekdayIndex } from '../engine/dates';
+import { addDays, startOfWeek, todayKey, weekdayIndex } from '../engine/dates';
 import { TARGET_SESSION_SIZE } from '../engine/sessionComposer';
 import { useStore } from '../store/useStore';
 import './HomeScreen.css';
@@ -161,12 +161,10 @@ export function HomeScreen() {
     return () => clearTimeout(timer);
   }, [leaving]);
 
-  // The row is here to show the streak's recent days, so it follows today
-  // rather than the calendar. A Monday-to-Sunday week emptied it every Monday
-  // morning: on a Monday every day already practiced belongs to last week, so a
-  // live streak showed as seven blank tiles. A trailing window always holds the
-  // last seven days, with today on the right.
-  const lastSevenDays = Array.from({ length: 7 }, (_, i) => addDays(today, i - 6));
+  // The current Monday-to-Sunday week, the same week the profile calendar ends
+  // on. A trailing seven days would start on whatever weekday today happens to
+  // be, which reads as a week that begins on a Friday.
+  const thisWeek = Array.from({ length: 7 }, (_, i) => addDays(startOfWeek(today), i));
 
   return (
     <div className="stack home">
@@ -190,18 +188,18 @@ export function HomeScreen() {
         </div>
       </header>
 
-      {/* Six days back on the left through today on the right, each tile named
-          from its own date and today ringed. The window ends on today, so every
-          tile is a day that has already happened: either practiced or missed,
-          with nothing still to come. */}
-      <div className="streak__week" aria-label="Last 7 days">
-        {lastSevenDays.map((day) => {
+      {/* Monday on the left through Sunday on the right, each tile named from
+          its own date and today ringed. Days still to come are drawn as holes
+          rather than as missed days. */}
+      <div className="streak__week" aria-label="This week">
+        {thisWeek.map((day) => {
           const practiced = (xpByDay[day] ?? 0) > 0;
           const isToday = day === today;
+          const future = day > today;
           const weekday = weekdayIndex(day);
           return (
             <span
-              className={`streak__day ${practiced ? 'is-on' : ''} ${isToday ? 'is-today' : ''}`}
+              className={`streak__day ${practiced ? 'is-on' : ''} ${isToday ? 'is-today' : ''} ${future ? 'is-future' : ''}`}
               key={day}
             >
               <span className="streak__day-name" aria-hidden>
@@ -210,7 +208,7 @@ export function HomeScreen() {
               <span className="streak__dot" aria-hidden />
               <span className="visually-hidden">
                 {isToday ? 'Today' : DAY_NAMES[weekday]}
-                {practiced ? ': practiced' : ': not practiced'}
+                {future ? ': still to come' : practiced ? ': practiced' : ': not practiced'}
               </span>
             </span>
           );
