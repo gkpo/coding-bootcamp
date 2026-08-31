@@ -8,7 +8,7 @@ import { ProgressBar } from '../components/ProgressBar';
 import { cards, tracks } from '../content';
 import type { ConceptCard } from '../content/types';
 import { conceptOfTheDay } from '../engine/conceptOfTheDay';
-import { addDays, startOfWeek, todayKey, weekdayIndex } from '../engine/dates';
+import { addDays, todayKey, weekdayIndex } from '../engine/dates';
 import { TARGET_SESSION_SIZE } from '../engine/sessionComposer';
 import { useStore } from '../store/useStore';
 import './HomeScreen.css';
@@ -161,10 +161,26 @@ export function HomeScreen() {
     return () => clearTimeout(timer);
   }, [leaving]);
 
-  // The current Monday-to-Sunday week, the same week the profile calendar ends
-  // on. A trailing seven days would start on whatever weekday today happens to
-  // be, which reads as a week that begins on a Friday.
-  const thisWeek = Array.from({ length: 7 }, (_, i) => addDays(startOfWeek(today), i));
+  // The week row. Two constraints, both binding, and this shape is the one
+  // that holds both at once. Read this before changing it: the row has been
+  // rewritten three times, once in each direction.
+  //
+  //  - The DATA is the trailing seven days, today and the six before it, so a
+  //    live streak is always somewhere in the row. Built from the Monday of
+  //    the current calendar week instead, the row empties every Monday
+  //    morning and a reader on a five day streak sees seven blank tiles.
+  //  - The ORDER is by weekday, Monday first, so the row always reads Mon
+  //    through Sun. Laid out in date order instead, the row starts on
+  //    whatever weekday today happens to be, and a week that begins on a
+  //    Friday is not a week anyone recognises.
+  //
+  // Seven consecutive days contain each weekday exactly once, so the mapping
+  // is total: every column holds exactly one day, and it is the most recent
+  // occurrence of that weekday. Every tile is therefore a day that has
+  // already happened, which is why no tile is ever drawn as still to come.
+  const weekRow = Array.from({ length: 7 }, (_, i) => addDays(today, i - 6)).sort(
+    (a, b) => weekdayIndex(a) - weekdayIndex(b),
+  );
 
   return (
     <div className="stack home">
@@ -189,17 +205,15 @@ export function HomeScreen() {
       </header>
 
       {/* Monday on the left through Sunday on the right, each tile named from
-          its own date and today ringed. Days still to come are drawn as holes
-          rather than as missed days. */}
-      <div className="streak__week" aria-label="This week">
-        {thisWeek.map((day) => {
+          its own date and today ringed. */}
+      <div className="streak__week" aria-label="Last 7 days">
+        {weekRow.map((day) => {
           const practiced = (xpByDay[day] ?? 0) > 0;
           const isToday = day === today;
-          const future = day > today;
           const weekday = weekdayIndex(day);
           return (
             <span
-              className={`streak__day ${practiced ? 'is-on' : ''} ${isToday ? 'is-today' : ''} ${future ? 'is-future' : ''}`}
+              className={`streak__day ${practiced ? 'is-on' : ''} ${isToday ? 'is-today' : ''}`}
               key={day}
             >
               <span className="streak__day-name" aria-hidden>
@@ -208,7 +222,7 @@ export function HomeScreen() {
               <span className="streak__dot" aria-hidden />
               <span className="visually-hidden">
                 {isToday ? 'Today' : DAY_NAMES[weekday]}
-                {future ? ': still to come' : practiced ? ': practiced' : ': not practiced'}
+                {practiced ? ': practiced' : ': not practiced'}
               </span>
             </span>
           );
