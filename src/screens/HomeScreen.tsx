@@ -269,8 +269,19 @@ export function HomeScreen() {
         // A stage rather than a card: the surfaces below are the deck, and the
         // one on top is the card being read.
         <section className="home__concept">
-          <div className="home__concept-under home__concept-under--back" aria-hidden />
-          <div className="home__concept-under home__concept-under--front" aria-hidden />
+          {/* The rest of the deck. Keyed on the card being read so that a
+              second tap mid-flight restarts them with the card layers rather
+              than leaving them stranded half way through the last deal. */}
+          <div
+            className={`home__concept-under home__concept-under--back${leaving ? ' home__concept-under--arriving' : ''}`}
+            key={`under-back-${card.id}`}
+            aria-hidden
+          />
+          <div
+            className={`home__concept-under home__concept-under--front${leaving ? ' home__concept-under--promoting' : ''}`}
+            key={`under-front-${card.id}`}
+            aria-hidden
+          />
           {/* The card just left behind, held for the length of its flight and
               taken out of reach while it is on screen. */}
           {leaving && (
