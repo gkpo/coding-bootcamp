@@ -252,11 +252,11 @@ export function climbNote(ring: number, rings: number): Cue {
   return rungCue(LADDER, ring, rings, CLEARED_TUNING);
 }
 
-/** E3 up to E4 in A major pentatonic. The correct-answer cue's A4 sits above it. */
-const MATCH_LADDER = [164.81, 185.0, 220, 246.94, 277.18, 329.63];
+/** E4 up to E5 in A major pentatonic. The correct-answer cue's held E5 tops it. */
+const MATCH_LADDER = [329.63, 369.99, 440, 493.88, 554.37, 659.25];
 
-/** The pentatonic continued below the ladder: B2, C#3, then the ladder itself. */
-const MATCH_ROLL_LADDER = [123.47, 138.59, ...MATCH_LADDER];
+/** The pentatonic continued below the ladder: B3, C#4, then the ladder itself. */
+const MATCH_ROLL_LADDER = [246.94, 277.18, ...MATCH_LADDER];
 
 // Seconds between the notes of the roll. Two steps at this spacing put the rung
 // itself 80ms after the tap: fast enough that the three notes read as one
@@ -274,10 +274,13 @@ const MATCH_TUNING: Tuning = { level: 1, width: 0.6, tail: 0.8, tailSeconds: 2.4
  *
  * A finished board ends on the same correct-answer cue as every other exercise
  * type rather than on the capstone's landing, so this climb is pitched to hand
- * over to that cue instead: the ladder is A major pentatonic and tops out on
- * the dominant, E4, which leaves the cue's opening A4 sitting a fourth above
- * the last rung and arriving as the resolution. The range is low on purpose
- * too, matching the warm, lower character the `right` cue was tuned to.
+ * over to that cue instead: the ladder is A major pentatonic and ends on the
+ * dominant, E5, which is the very note the cue's held peak plays. The cue
+ * arrives already holding the note the climb ended on, resolves it into the
+ * tonic chord underneath, and rings its sparkle octave above the whole climb.
+ * The climb lives up where the correct cue's own melody does because phone
+ * speakers roll off steeply below about 400Hz; a first pass an octave down was
+ * barely audible on a phone.
  *
  * The rung is played as a roll rather than as one note: two grace tones come up
  * the same pentatonic into it, like a flick across harp strings, so a lock has
@@ -302,14 +305,14 @@ export function matchRung(pair: number, pairs: number): Cue {
     freq: MATCH_ROLL_LADDER[rung - 2],
     at: 0,
     dur: 0.14,
-    level: level * 0.55,
+    level: level * 0.65,
     send: 0.4,
   };
   const grace2: Note = {
     freq: MATCH_ROLL_LADDER[rung - 1],
     at: ROLL_STEP,
     dur: 0.16,
-    level: level * 0.75,
+    level: level * 0.85,
     send: 0.55,
   };
 

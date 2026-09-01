@@ -483,12 +483,15 @@ describe('match climb', () => {
     });
   });
 
-  it('tops out on E4 however many pairs, under the note the correct cue opens on', () => {
-    expect(note(3, 4).freq).toBe(329.63);
-    expect(note(4, 5).freq).toBe(329.63);
-    // The cue that ends a clean board starts on A4, a fourth above the last
-    // rung, so the board resolves rather than stopping where the climb did.
-    expect(440).toBeGreaterThan(note(3, 4).freq);
+  it('tops out on the note the correct cue holds, however many pairs', () => {
+    expect(note(3, 4).freq).toBe(659.25);
+    expect(note(4, 5).freq).toBe(659.25);
+    // The cue that ends a clean board arrives already holding the note the
+    // climb ended on, so the board resolves rather than restarting elsewhere.
+    const peak = CUES.right.notes
+      .filter((n) => !n.sparkle)
+      .reduce((top, n) => Math.max(top, n.freq), 0);
+    expect(peak).toBe(659.25);
   });
 
   it('clamps pair indexes past the ladder rather than throwing or descending', () => {
@@ -530,7 +533,7 @@ describe('match climb', () => {
   });
 
   it('rolls inside the same pentatonic the ladder is cut from', () => {
-    const scale = [123.47, 138.59, 164.81, 185.0, 220, 246.94, 277.18, 329.63];
+    const scale = [246.94, 277.18, 329.63, 369.99, 440, 493.88, 554.37, 659.25];
     [4, 5].forEach((pairs) => {
       Array.from({ length: pairs }, (_, pair) => pair).forEach((pair) => {
         matchRung(pair, pairs)
