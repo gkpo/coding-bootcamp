@@ -457,13 +457,18 @@ describe('climb and landing', () => {
 });
 
 describe('match climb', () => {
-  /** The rung a pair locks on, without the sparkle stacked on top of it. */
+  /**
+   * The rung a pair locks on: the loudest note that is not the sparkle, since
+   * the grace notes rolling into it are quieter than it by construction.
+   */
   const note = (pair: number, pairs: number) =>
-    matchRung(pair, pairs).notes.filter((n) => !n.sparkle)[0];
+    matchRung(pair, pairs)
+      .notes.filter((n) => !n.sparkle)
+      .reduce((top, n) => (n.level > top.level ? n : top));
 
   it('rings a rung and its octave per locked pair, from the moment it locks', () => {
-    expect(matchRung(0, 4).notes).toHaveLength(2);
-    expect(note(2, 4).at).toBe(0);
+    expect(matchRung(0, 4).notes).toHaveLength(4);
+    expect(note(2, 4).at).toBe(0.08);
     const sparkle = matchRung(2, 4).notes.filter((n) => n.sparkle);
     expect(sparkle).toHaveLength(1);
     expect(sparkle[0].freq).toBe(note(2, 4).freq * 2);
@@ -503,5 +508,39 @@ describe('match climb', () => {
     const ceiling = loudest(CUES.complete.notes) * CUES.complete.tuning.level;
     const rung = matchRung(3, 4);
     expect(loudest(rung.notes) * rung.tuning.level).toBeLessThanOrEqual(ceiling);
+  });
+
+  /** The two grace notes rolling into a rung: everything under it in level. */
+  const graces = (pair: number, pairs: number) =>
+    matchRung(pair, pairs).notes.filter((n) => !n.sparkle && n.level < note(pair, pairs).level);
+
+  it('strums upward into the rung, the rung landing last', () => {
+    const rung = note(2, 4);
+    const roll = matchRung(2, 4).notes.filter((n) => !n.sparkle && n.level < rung.level);
+    expect(roll).toHaveLength(2);
+    roll.forEach((n) => expect(n.freq).toBeLessThan(rung.freq));
+    expect(roll[1].freq).toBeGreaterThan(roll[0].freq);
+    expect(roll[1].at).toBeGreaterThan(roll[0].at);
+    expect(rung.at).toBeGreaterThan(roll[1].at);
+  });
+
+  it('keeps the graces under the rung, so the climb is still heard on the rung', () => {
+    const rung = note(2, 4);
+    graces(2, 4).forEach((n) => expect(n.level).toBeLessThan(rung.level));
+  });
+
+  it('rolls inside the same pentatonic the ladder is cut from', () => {
+    const scale = [123.47, 138.59, 164.81, 185.0, 220, 246.94, 277.18, 329.63];
+    [4, 5].forEach((pairs) => {
+      Array.from({ length: pairs }, (_, pair) => pair).forEach((pair) => {
+        matchRung(pair, pairs)
+          .notes.filter((n) => !n.sparkle)
+          .forEach((n) => expect(scale).toContain(n.freq));
+      });
+    });
+  });
+
+  it('leaves the graces narrow, so the roll blooms out into the wide rung', () => {
+    graces(2, 4).forEach((n) => expect(n.spread).toBeUndefined());
   });
 });

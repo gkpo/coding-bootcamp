@@ -255,6 +255,15 @@ export function climbNote(ring: number, rings: number): Cue {
 /** E3 up to E4 in A major pentatonic. The correct-answer cue's A4 sits above it. */
 const MATCH_LADDER = [164.81, 185.0, 220, 246.94, 277.18, 329.63];
 
+/** The pentatonic continued below the ladder: B2, C#3, then the ladder itself. */
+const MATCH_ROLL_LADDER = [123.47, 138.59, ...MATCH_LADDER];
+
+// Seconds between the notes of the roll. Two steps at this spacing put the rung
+// itself 80ms after the tap: fast enough that the three notes read as one
+// gesture rather than a melody, and still inside what a thumb reads as
+// immediate.
+const ROLL_STEP = 0.04;
+
 // The room the `right` cue already carries, borrowed whole: the board's rungs
 // and the cue that ends it ring in the same space, and no second impulse
 // response is generated for the sake of a climb four notes long.
@@ -269,9 +278,45 @@ const MATCH_TUNING: Tuning = { level: 1, width: 0.6, tail: 0.8, tailSeconds: 2.4
  * the dominant, E4, which leaves the cue's opening A4 sitting a fourth above
  * the last rung and arriving as the resolution. The range is low on purpose
  * too, matching the warm, lower character the `right` cue was tuned to.
+ *
+ * The rung is played as a roll rather than as one note: two grace tones come up
+ * the same pentatonic into it, like a flick across harp strings, so a lock has
+ * movement of its own. The rung is still the note the climb is heard on, the
+ * loudest and widest of the three and the one carrying the sparkle octave, and
+ * the graces sit under it in both level and stereo, so the whole thing reads as
+ * one strummed gesture arriving on the rung rather than as three notes.
  */
 export function matchRung(pair: number, pairs: number): Cue {
-  return rungCue(MATCH_LADDER, pair, pairs, MATCH_TUNING);
+  // The same clamped geometry `rungCue` walks, repeated here only to locate the
+  // rung it will pick inside the full ladder, so the graces underneath it are
+  // the two tones below that exact note.
+  const count = Math.min(Math.max(pairs, 1), MATCH_LADDER.length);
+  const idx = Math.min(Math.max(pair, 0), count - 1);
+  const rung = MATCH_LADDER.length - count + idx + 2;
+
+  const cue = rungCue(MATCH_LADDER, pair, pairs, MATCH_TUNING);
+  const level = cue.notes.filter((n) => !n.sparkle)[0].level;
+  // No spread and the default sine on the graces: they stay narrow and centred
+  // so the roll blooms outwards into the wide rung.
+  const grace1: Note = {
+    freq: MATCH_ROLL_LADDER[rung - 2],
+    at: 0,
+    dur: 0.14,
+    level: level * 0.55,
+    send: 0.4,
+  };
+  const grace2: Note = {
+    freq: MATCH_ROLL_LADDER[rung - 1],
+    at: ROLL_STEP,
+    dur: 0.16,
+    level: level * 0.75,
+    send: 0.55,
+  };
+
+  return {
+    notes: [grace1, grace2, ...cue.notes.map((n) => ({ ...n, at: n.at + 2 * ROLL_STEP }))],
+    tuning: MATCH_TUNING,
+  };
 }
 
 /**

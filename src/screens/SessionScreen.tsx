@@ -118,11 +118,14 @@ export function SessionScreen() {
         // other exercise type, delayed so the last pair's rung sounds before
         // the cue resolves it. The delay is written into the note times, which
         // puts it on the audio clock: that rung is still ringing as this is
-        // scheduled, and the cue has to arrive after it rather than on top.
+        // scheduled, and the cue has to arrive after it rather than on top. The
+        // extra 0.08 covers the roll in front of the final rung, whose own note
+        // now starts two roll steps in, so the gap the cue leaves after that
+        // rung stays what it was.
         if (exercise?.type === 'match' && outcome === 'right') {
           const cue = CUES.right;
           playNotes(
-            cue.notes.map((n) => ({ ...n, at: n.at + 0.28 })),
+            cue.notes.map((n) => ({ ...n, at: n.at + 0.36 })),
             sound,
             cue.tuning,
           );
