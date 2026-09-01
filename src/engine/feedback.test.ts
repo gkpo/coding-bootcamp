@@ -546,4 +546,18 @@ describe('match climb', () => {
   it('leaves the graces narrow, so the roll blooms out into the wide rung', () => {
     graces(2, 4).forEach((n) => expect(n.spread).toBeUndefined());
   });
+
+  it('voices the graces as triangles, like the cue they hand over to', () => {
+    const moving = graces(2, 4);
+    expect(moving).toHaveLength(2);
+    moving.forEach((n) => expect(n.type).toBe('triangle'));
+  });
+
+  it('rings a brighter octave than the capstone rung, matching the cue on top', () => {
+    const sparkle = (notes: Note[]) => notes.filter((n) => n.sparkle)[0];
+    expect(sparkle(matchRung(2, 4).notes).level).toBe(0.013);
+    expect(sparkle(matchRung(2, 4).notes).level).toBeGreaterThan(
+      sparkle(climbNote(2, 4).notes).level,
+    );
+  });
 });
