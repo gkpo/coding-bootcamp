@@ -41,9 +41,11 @@ interface Props {
   onResolve: (outcome: Outcome, whyWrong?: string, recovered?: boolean) => void;
   /** Only `match` reports mid-exercise misses. */
   onMiss?: () => void;
+  /** Only `match` reports locked pairs. */
+  onPair?: (index: number, count: number) => void;
 }
 
-export function ExerciseRenderer({ exercise, seed, revealed, onResolve, onMiss }: Props) {
+export function ExerciseRenderer({ exercise, seed, revealed, onResolve, onMiss, onPair }: Props) {
   const [checks, setChecks] = useState(0);
   const [wrongParts, setWrongParts] = useState<boolean[] | undefined>();
   const [wrongTaps, setWrongTaps] = useState<number[]>([]);
@@ -168,6 +170,7 @@ export function ExerciseRenderer({ exercise, seed, revealed, onResolve, onMiss }
           seed={seed}
           revealed={revealed}
           onMiss={onMiss}
+          onPair={onPair}
           onComplete={(_, missedAny) =>
             onResolve(missedAny ? 'wrong' : 'right', undefined, missedAny || undefined)
           }

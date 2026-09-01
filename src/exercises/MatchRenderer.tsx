@@ -12,11 +12,19 @@ interface Props {
   onComplete: (matched: { left: string; right: string }[], missedAny: boolean) => void;
   /** Fired on each wrong pair, so the screen can sound the miss right then. */
   onMiss?: () => void;
+  /**
+   * Fired as each correct pair locks, so the screen can sound the climb right
+   * then. `index` is how many pairs were already locked before this one
+   * (0-based), `count` is `exercise.pairs.length`.
+   */
+  onPair?: (index: number, count: number) => void;
 }
 
 /**
  * Tap one from each column to pair them. Correct pairs lock green in place and
- * stop responding; a wrong pair shakes apart and reports the miss straight
+ * stop responding, and each lock also reports itself, so the board can be heard
+ * as a climb with one rung per pair. A wrong pair shakes apart and reports the
+ * miss straight
  * away, which is the moment it happened and the only moment it makes sense to
  * hear about it. The miss is also remembered: finishing the board after one
  * still counts as missed, it is just presented calmly rather than as a
@@ -27,7 +35,7 @@ interface Props {
  * is the only thing here that can say "these two go together". The answer is
  * listed in the feedback panel instead (see `RevealedAnswer`).
  */
-export function MatchRenderer({ exercise, seed, revealed, onComplete, onMiss }: Props) {
+export function MatchRenderer({ exercise, seed, revealed, onComplete, onMiss, onPair }: Props) {
   const lefts = useMemo(
     () =>
       shuffle(
@@ -60,6 +68,7 @@ export function MatchRenderer({ exercise, seed, revealed, onComplete, onMiss }: 
       setMatched(next);
       setPickedLeft(null);
       setPickedRight(null);
+      onPair?.(next.length - 1, exercise.pairs.length);
       if (next.length === exercise.pairs.length) onComplete(next, missed);
     } else {
       setMissed(true);
