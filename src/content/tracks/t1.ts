@@ -376,10 +376,26 @@ export const t1Exercises: Exercise[] = [
     conceptId: 'big-o',
     prompt: 'Pair each notation with the plain-words phrase you would say out loud.',
     pairs: [
-      { left: 'The size makes no difference', right: 'O(1)' },
-      { left: 'It halves each step', right: 'O(log n)' },
-      { left: 'It scales with the input', right: 'O(n)' },
-      { left: 'It checks every pair', right: 'O(n²)' },
+      {
+        left: 'The size makes no difference',
+        right: 'O(1)',
+        why: 'The work is a fixed number of steps, so a list of ten and a list of ten million both cost the same.',
+      },
+      {
+        left: 'It halves each step',
+        right: 'O(log n)',
+        why: 'Throwing away half of what is left at every step means a million items are down to one in about twenty steps.',
+      },
+      {
+        left: 'It scales with the input',
+        right: 'O(n)',
+        why: 'One pass that touches every item makes the time track the count: twice the items, twice the work.',
+      },
+      {
+        left: 'It checks every pair',
+        right: 'O(n²)',
+        why: 'Comparing every item against every other item is n times n comparisons, so ten items cost a hundred and a hundred cost ten thousand.',
+      },
     ],
     explanation:
       'Interviewers frequently score the *phrase*, not the symbol. Knowing a loop is O(n) is worth little if you cannot say "it grows linearly. Double the input, double the work". Practise the pairing until the plain words arrive first and the notation follows.',

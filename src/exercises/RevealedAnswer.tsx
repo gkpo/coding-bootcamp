@@ -16,8 +16,48 @@ import './RevealedAnswer.css';
  * Match does need this block. Its two columns are shuffled independently and
  * freeze on reveal, so the board itself cannot say which phrase belongs to
  * which term.
+ *
+ * Match is also the one type that renders on a correct answer, as the reasons
+ * each pair holds. Four or five pairings need four or five reasons and the
+ * single explanation field cannot carry them, and getting them all right on
+ * the first try is exactly when the reasoning is cheapest to take in, the same
+ * argument FeedbackPanel makes for always showing the explanation. The correct
+ * variant drops the phrase line: the locked board above already restates every
+ * pairing, so repeating it would push the reasons off the screen.
  */
-export function RevealedAnswer({ exercise }: { exercise: Exercise }) {
+export function RevealedAnswer({
+  exercise,
+  correct = false,
+}: {
+  exercise: Exercise;
+  correct?: boolean;
+}) {
+  if (exercise.type === 'match' && correct) {
+    const explained = exercise.pairs.flatMap((pair) =>
+      pair.why ? [{ term: pair.right, why: pair.why }] : [],
+    );
+    if (explained.length === 0) return null;
+    return (
+      <div className="reveal">
+        <p className="reveal__label">Why each pair works</p>
+        <dl className="reveal__pairs">
+          {explained.map((pair) => (
+            <div className="reveal__pair" key={pair.term}>
+              <dt className="reveal__pair-term">
+                <RichText text={pair.term} />
+              </dt>
+              <dd className="reveal__pair-why">
+                <RichText text={pair.why} />
+              </dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+    );
+  }
+
+  if (correct) return null;
+
   switch (exercise.type) {
     case 'parsons':
       return (
@@ -73,6 +113,11 @@ export function RevealedAnswer({ exercise }: { exercise: Exercise }) {
                 <dd className="reveal__pair-phrase">
                   <RichText text={pair.left} />
                 </dd>
+                {pair.why && (
+                  <dd className="reveal__pair-why">
+                    <RichText text={pair.why} />
+                  </dd>
+                )}
               </div>
             ))}
           </dl>

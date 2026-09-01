@@ -590,11 +590,31 @@ function fib(n) {
     conceptId: 'pattern-map',
     prompt: 'Pair each problem statement with the pattern it points at.',
     pairs: [
-      { left: 'Longest stretch with no repeats', right: 'Sliding window' },
-      { left: 'Two numbers adding to a target', right: 'Hash map' },
-      { left: 'The array is sorted, find a pair', right: 'Two pointers' },
-      { left: 'How many times does each appear', right: 'Frequency map' },
-      { left: 'Fewest coins for an amount', right: 'Greedy' },
+      {
+        left: 'Longest stretch with no repeats',
+        right: 'Sliding window',
+        why: 'Only the right edge grows and only the left edge shrinks, so one pass finds the best stretch without re-checking the middle.',
+      },
+      {
+        left: 'Two numbers adding to a target',
+        right: 'Hash map',
+        why: 'Storing each number as you pass it lets you ask whether the partner you need was already seen, in one step instead of a second loop.',
+      },
+      {
+        left: 'The array is sorted, find a pair',
+        right: 'Two pointers',
+        why: 'Sorted order tells you which way to move: too small, step the left pointer up; too big, step the right one down.',
+      },
+      {
+        left: 'How many times does each appear',
+        right: 'Frequency map',
+        why: 'One pass adding one to a counter per item gives you every count at once, with no re-scanning for each value.',
+      },
+      {
+        left: 'Fewest coins for an amount',
+        right: 'Greedy',
+        why: 'With the usual coin sets, taking the biggest coin that still fits at every step lands on the fewest coins with no search at all.',
+      },
     ],
     explanation:
       'This mapping is the single highest-value thing in the track. Interviews are won in the first sixty seconds by recognising the shape, and the statements above are the costumes these five patterns almost always wear.',

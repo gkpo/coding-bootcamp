@@ -571,13 +571,29 @@ console.log(original.name);`,
     conceptId: 'event-loop',
     prompt: 'Pair each plain-words phrase with the feature it describes.',
     pairs: [
-      { left: 'Runs after this code, before any timer', right: 'Microtask' },
-      { left: 'Copies the top layer only', right: 'Shallow copy' },
-      { left: 'Remembers where it was born', right: 'Closure' },
-      { left: 'Decides `this` when it is called', right: 'Normal function' },
+      {
+        left: 'Runs after this code, before any timer',
+        right: 'Microtask',
+        why: 'Promise callbacks sit on a queue the engine drains as soon as the current code finishes, and that queue empties before any timer gets a turn.',
+      },
+      {
+        left: 'Copies the top layer only',
+        right: 'Shallow copy',
+        why: 'Spreading an object copies the outer keys, but a nested object is still the same one, now shared by both copies.',
+      },
+      {
+        left: 'Remembers where it was born',
+        right: 'Closure',
+        why: 'The function keeps a reference to the scope it was created in, so those variables stay alive as long as the function does.',
+      },
+      {
+        left: 'Decides `this` when it is called',
+        right: 'Normal function',
+        why: 'A normal function takes its `this` from the call site, so the same function can see a different object depending on how you call it.',
+      },
     ],
     explanation:
-      'These four sit behind a large share of JavaScript interview questions, and each has a plain-words handle that is easier to hold than the formal definition. Being able to go from the phrase to the term, and back. Is the reflex this track is building.',
+      'These four sit behind a large share of JavaScript interview questions, and each has a plain-words handle that is easier to hold than the formal definition. Being able to go from the phrase to the term, and back, is the reflex this track is building.',
   },
 ];
 

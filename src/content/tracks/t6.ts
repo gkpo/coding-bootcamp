@@ -19,10 +19,23 @@ export const t6Exercises: Exercise[] = [
       {
         left: 'It keeps access to its variables after the outer function is gone',
         right: 'Closure',
+        why: 'The inner function holds on to the scope it was created in, so those variables outlive the call that made them.',
       },
-      { left: 'Double the input, double the time', right: 'O(n)' },
-      { left: 'You pay memory to make lookups instant', right: 'Hash map' },
-      { left: 'Handled in the order they arrived', right: 'Queue' },
+      {
+        left: 'Double the input, double the time',
+        right: 'O(n)',
+        why: 'One pass over every item makes the cost track the count in a straight line, with no extra work per item.',
+      },
+      {
+        left: 'You pay memory to make lookups instant',
+        right: 'Hash map',
+        why: 'Keys are stored in a table built for fast access, which buys a one-step lookup at the cost of holding that table in memory.',
+      },
+      {
+        left: 'Handled in the order they arrived',
+        right: 'Queue',
+        why: 'Items leave from the front while new ones join the back, so nothing overtakes and the oldest waiting item goes first.',
+      },
     ],
     explanation:
       'Interviewers frequently score the word, not the understanding. You can describe exactly how a counter keeps its value between calls and still lose the point by never saying "closure". Learn the mapping in both directions. Riddle to term, and term to plain words.',
@@ -35,10 +48,26 @@ export const t6Exercises: Exercise[] = [
     conceptId: 'decoder',
     prompt: 'Everyday habits under their formal names. Pair each phrase with the term.',
     pairs: [
-      { left: 'The second call is free', right: 'Memoization' },
-      { left: 'Cap how often the handler is allowed to fire', right: 'Throttle' },
-      { left: 'What runs first, and what waits its turn', right: 'Event loop' },
-      { left: 'Never change what you were handed', right: 'Immutability' },
+      {
+        left: 'The second call is free',
+        right: 'Memoization',
+        why: 'The result is stored under the arguments that produced it, so the same call hands back the saved answer instead of computing again.',
+      },
+      {
+        left: 'Cap how often the handler is allowed to fire',
+        right: 'Throttle',
+        why: 'It lets the handler run at most once per time window and drops the rest, turning a flood of events into a steady trickle.',
+      },
+      {
+        left: 'What runs first, and what waits its turn',
+        right: 'Event loop',
+        why: 'One thread runs the current code to the end, then picks up the next waiting callback, which is why nothing interrupts halfway.',
+      },
+      {
+        left: 'Never change what you were handed',
+        right: 'Immutability',
+        why: 'Making a new value instead of editing the old one means nobody else holding that value is surprised by a change they did not make.',
+      },
     ],
     explanation:
       'Each of these is a concept you already use daily under a name you might not reach for under pressure. The gap being closed here is vocabulary, not knowledge, which is precisely why it is trainable in five-minute sessions.',
@@ -270,10 +299,26 @@ export const t6Exercises: Exercise[] = [
     conceptId: 'decoder',
     prompt: 'Full stack phrases. Pair each one with the term.',
     pairs: [
-      { left: 'One place that owns the value', right: 'State management' },
-      { left: 'Keep the long job off the main thread', right: 'Async or worker' },
-      { left: 'What shape does the response come back in', right: 'API schema' },
-      { left: 'It keeps working with no network', right: 'Cache or PWA' },
+      {
+        left: 'One place that owns the value',
+        right: 'State management',
+        why: 'When one store owns the value and everything else reads from it, two copies cannot drift apart and start disagreeing.',
+      },
+      {
+        left: 'Keep the long job off the main thread',
+        right: 'Async or worker',
+        why: 'The thread that draws the screen has to stay free, so slow work either waits on a callback or runs in a separate worker.',
+      },
+      {
+        left: 'What shape does the response come back in',
+        right: 'API schema',
+        why: 'An agreed shape for the fields and their types lets both sides build against it, and makes a mismatch fail loudly instead of quietly.',
+      },
+      {
+        left: 'It keeps working with no network',
+        right: 'Cache or PWA',
+        why: 'Storing the files and the last known data on the device lets the app render from that copy when the network is gone.',
+      },
     ],
     explanation:
       'These come up in full stack rounds constantly, usually as an aside rather than a question. Recognising the phrase lets you answer the real question behind it: "does it work offline?" is asking about caching strategy, not about whether you have tried aeroplane mode.',
@@ -320,10 +365,23 @@ export const t6Exercises: Exercise[] = [
       {
         left: 'A stretch that grows on one side and shrinks on the other',
         right: 'Sliding window',
+        why: 'One edge moves forward to take more in and the other moves up to drop what no longer fits, so each item is visited about once.',
       },
-      { left: 'Walk in from both ends until they meet', right: 'Two pointers' },
-      { left: 'A tally kept as you go', right: 'Frequency map' },
-      { left: 'Throw away half of what is left, every step', right: 'Binary search' },
+      {
+        left: 'Walk in from both ends until they meet',
+        right: 'Two pointers',
+        why: 'Starting at both ends and moving inward, each step rules out one end, so the whole array is settled in a single pass.',
+      },
+      {
+        left: 'A tally kept as you go',
+        right: 'Frequency map',
+        why: 'A count per item, updated as you walk, so every total is ready at the end without going back over anything.',
+      },
+      {
+        left: 'Throw away half of what is left, every step',
+        right: 'Binary search',
+        why: 'Each look at the middle tells you which half cannot hold the answer, so what is left to search halves every step.',
+      },
     ],
     explanation:
       'The pattern never changes; the sentence does. If you learned "longest stretch with no repeats" as the only way a window is described, a colleague saying "grows on one side, shrinks on the other" will not land. Recognising the shape from any description is the whole skill.',
@@ -336,10 +394,26 @@ export const t6Exercises: Exercise[] = [
     conceptId: 'decoder',
     prompt: 'Timing and async. Pair the phrase with the term.',
     pairs: [
-      { left: 'Wait until they stop typing, then do it once', right: 'Debounce' },
-      { left: 'It reads like normal code but pauses at each await', right: 'Async and await' },
-      { left: 'Wait a bit longer after each failure', right: 'Backoff' },
-      { left: 'Doing it twice changes nothing', right: 'Idempotency' },
+      {
+        left: 'Wait until they stop typing, then do it once',
+        right: 'Debounce',
+        why: 'Every new event restarts the timer, so the work runs once after the burst has stopped rather than once per keystroke.',
+      },
+      {
+        left: 'It reads like normal code but pauses at each await',
+        right: 'Async and await',
+        why: 'The function hands the thread back at each await and resumes where it left off when the promise settles, so the page stays responsive.',
+      },
+      {
+        left: 'Wait a bit longer after each failure',
+        right: 'Backoff',
+        why: 'Each retry waits longer than the last, which gives a struggling service time to recover instead of piling more load onto it.',
+      },
+      {
+        left: 'Doing it twice changes nothing',
+        right: 'Idempotency',
+        why: 'The handler keys off something stable, like a request id, so a repeat call finds the work already done and changes nothing.',
+      },
     ],
     explanation:
       'These four come up in almost every full stack round, usually as an aside rather than a question. The one people miss is idempotency: interviewers rarely say the word, they say "what if the user taps pay twice?", and the word is what they are scoring.',
@@ -352,10 +426,26 @@ export const t6Exercises: Exercise[] = [
     conceptId: 'decoder',
     prompt: 'Frontend phrases. Pair each one with what they are asking about.',
     pairs: [
-      { left: 'It drew again when nothing it shows had changed', right: 'Unnecessary re-render' },
-      { left: 'The list got reordered and the wrong row kept its text', right: 'Missing keys' },
-      { left: 'Tear it down when the component goes away', right: 'Effect cleanup' },
-      { left: 'Two components need the same value', right: 'Lifting state up' },
+      {
+        left: 'It drew again when nothing it shows had changed',
+        right: 'Unnecessary re-render',
+        why: 'A parent redrew, or a prop arrived as a fresh object, so the child ran again even though the data it shows was identical.',
+      },
+      {
+        left: 'The list got reordered and the wrong row kept its text',
+        right: 'Missing keys',
+        why: 'With no stable key per row, the framework matches old rows to new ones by position, so state sticks to the slot instead of the item.',
+      },
+      {
+        left: 'Tear it down when the component goes away',
+        right: 'Effect cleanup',
+        why: 'The timer or subscription an effect started keeps running unless the effect returns a function that stops it when the component goes.',
+      },
+      {
+        left: 'Two components need the same value',
+        right: 'Lifting state up',
+        why: 'Moving the value to the nearest common parent gives both children one source to read from, instead of two copies to keep in step.',
+      },
     ],
     explanation:
       'Frontend interviewers describe symptoms rather than naming causes, because naming the cause is your job. Each phrase here is a bug report; the term is the diagnosis, and saying the diagnosis before the fix is what separates a strong answer from a lucky one.',
@@ -368,10 +458,26 @@ export const t6Exercises: Exercise[] = [
     conceptId: 'decoder',
     prompt: 'Data phrases. Pair each one with the term.',
     pairs: [
-      { left: 'It got slower as the table grew', right: 'Missing index' },
-      { left: 'Half the update landed and half did not', right: 'No transaction' },
-      { left: 'The page loads 200 rows and fires 201 queries', right: 'N+1' },
-      { left: 'Do not send the whole table down the wire', right: 'Pagination' },
+      {
+        left: 'It got slower as the table grew',
+        right: 'Missing index',
+        why: 'With no index the database reads every row to find the matching ones, so the cost climbs as the table grows.',
+      },
+      {
+        left: 'Half the update landed and half did not',
+        right: 'No transaction',
+        why: 'Writes sent one at a time can be interrupted between them; grouped in a transaction they either all land or none do.',
+      },
+      {
+        left: 'The page loads 200 rows and fires 201 queries',
+        right: 'N+1',
+        why: 'One query fetches the list and then a query per row fetches its detail, where a single join or one batched query would do.',
+      },
+      {
+        left: 'Do not send the whole table down the wire',
+        right: 'Pagination',
+        why: 'Asking for a page at a time keeps the response small and predictable, however large the table behind it grows.',
+      },
     ],
     explanation:
       'Backend rounds lean on symptoms too, and these four cover most of what goes wrong with a database in practice. Notice that each phrase describes something a user or a graph would notice, which is usually how you will first hear about it in a real job as well.',
@@ -384,10 +490,26 @@ export const t6Exercises: Exercise[] = [
     conceptId: 'decoder',
     prompt: 'Code quality phrases. Pair each one with what they want.',
     pairs: [
-      { left: 'Handle the odd cases first and get out', right: 'Guard clause' },
-      { left: 'This function is doing three jobs', right: 'Single responsibility' },
-      { left: 'Same answer every time, nothing else touched', right: 'Pure function' },
-      { left: 'What does this variable actually hold?', right: 'Better naming' },
+      {
+        left: 'Handle the odd cases first and get out',
+        right: 'Guard clause',
+        why: 'Returning early on the empty and invalid cases leaves the rest of the function dealing with one situation, at one level of indentation.',
+      },
+      {
+        left: 'This function is doing three jobs',
+        right: 'Single responsibility',
+        why: 'A function with one reason to change can be named, tested and reused; three jobs in one means every change risks the other two.',
+      },
+      {
+        left: 'Same answer every time, nothing else touched',
+        right: 'Pure function',
+        why: 'It depends only on its arguments and writes to nothing outside itself, which is what makes it safe to call anywhere and easy to test.',
+      },
+      {
+        left: 'What does this variable actually hold?',
+        right: 'Better naming',
+        why: 'A name that says what the value holds removes the need to read the code above it to find out.',
+      },
     ],
     explanation:
       'Review-style questions almost never use the formal term, so the term is the part being tested. "This function is doing three jobs" is an invitation to say "single responsibility" and then split it, in that order. The word first, the change second.',

@@ -222,8 +222,12 @@ export function SessionScreen() {
                   recovered={answered.recovered}
                   sayIt={exercise.type === 'complexity' ? exercise.sayIt : undefined}
                   reveal={
-                    answered.outcome !== 'right' && needsExplicitReveal(exercise.type) ? (
-                      <RevealedAnswer exercise={exercise} />
+                    // Match reveals on a correct board too, for the per-pair
+                    // reasons; every other type has nothing left to show once
+                    // the answer is right.
+                    needsExplicitReveal(exercise.type) &&
+                    (answered.outcome !== 'right' || exercise.type === 'match') ? (
+                      <RevealedAnswer exercise={exercise} correct={answered.outcome === 'right'} />
                     ) : undefined
                   }
                   onContinue={onContinue}

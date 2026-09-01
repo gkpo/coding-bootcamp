@@ -509,10 +509,26 @@ function List({ items }) {
     conceptId: 'memo-hooks',
     prompt: 'Pair each riddle with the tool it describes.',
     pairs: [
-      { left: 'Remembers without re-rendering', right: 'useRef' },
-      { left: 'Runs after the render is on screen', right: 'useEffect' },
-      { left: 'Skips the child if the props are unchanged', right: 'memo' },
-      { left: 'Keeps the same function between renders', right: 'useCallback' },
+      {
+        left: 'Remembers without re-rendering',
+        right: 'useRef',
+        why: 'It holds a value in a box that survives renders, and writing to that box does not tell React to draw again.',
+      },
+      {
+        left: 'Runs after the render is on screen',
+        right: 'useEffect',
+        why: 'React paints first and runs the effect after, which is why subscriptions and fetches belong there rather than in the render body.',
+      },
+      {
+        left: 'Skips the child if the props are unchanged',
+        right: 'memo',
+        why: 'It wraps a component and compares the incoming props with the previous ones, reusing the last output when they match.',
+      },
+      {
+        left: 'Keeps the same function between renders',
+        right: 'useCallback',
+        why: 'It hands back the same function identity until a dependency changes, so a memo child does not see a new prop every render.',
+      },
     ],
     explanation:
       'These four get mixed up constantly, usually `useRef` with state and `useMemo` with `useCallback`. The split that sticks: `useRef` and `useMemo` hold a value, `useCallback` holds a function, `memo` wraps a component. Say the riddle back with the tool name attached and the question is answered.',

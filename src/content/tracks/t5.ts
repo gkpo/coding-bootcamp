@@ -33,11 +33,31 @@ export const t5Exercises: Exercise[] = [
     conceptId: 'lb-cache-queue',
     prompt: 'Pair each component with the job it does.',
     pairs: [
-      { left: 'Spreads requests across servers', right: 'Load balancer' },
-      { left: 'Holds recent answers in fast storage', right: 'Cache' },
-      { left: 'Holds work to be done later', right: 'Queue' },
-      { left: 'Serves files from near the user', right: 'CDN' },
-      { left: 'The source of truth', right: 'Database' },
+      {
+        left: 'Spreads requests across servers',
+        right: 'Load balancer',
+        why: 'It sits in front and hands each request to one of several identical servers, so no single machine takes the whole crowd.',
+      },
+      {
+        left: 'Holds recent answers in fast storage',
+        right: 'Cache',
+        why: 'Keeping the answer close to the caller means the slow work behind it runs once instead of once per request.',
+      },
+      {
+        left: 'Holds work to be done later',
+        right: 'Queue',
+        why: 'Writing the job to a list and answering straight away lets the slow part run in its own time, and survive a busy minute.',
+      },
+      {
+        left: 'Serves files from near the user',
+        right: 'CDN',
+        why: 'Copies of the file sit in many locations, so the bytes travel a short distance instead of crossing the world every time.',
+      },
+      {
+        left: 'The source of truth',
+        right: 'Database',
+        why: 'Everything else can be rebuilt or thrown away; this is the one copy that has to be right and has to survive a restart.',
+      },
     ],
     explanation:
       'Almost every design you will be asked for is assembled from these five. Knowing what each one is *for*, in one sentence and without jargon, is what lets you place them confidently rather than sprinkling boxes and hoping.',
@@ -353,10 +373,26 @@ export const t5Exercises: Exercise[] = [
     conceptId: 'resilience',
     prompt: 'Pair each failure mode with its standard mitigation.',
     pairs: [
-      { left: 'Everything retries at the same instant', right: 'Backoff with jitter' },
-      { left: 'One key gets all the traffic', right: 'Sharding' },
-      { left: 'A dead service is still being called', right: 'Circuit breaker' },
-      { left: 'A background job fails and vanishes', right: 'Retry plus dead letter queue' },
+      {
+        left: 'Everything retries at the same instant',
+        right: 'Backoff with jitter',
+        why: 'A little random extra delay spreads the retries out, so the recovering service is not hit by every client in the same second.',
+      },
+      {
+        left: 'One key gets all the traffic',
+        right: 'Sharding',
+        why: 'Splitting the data across machines by a key that spreads evenly, or splitting the hot key itself, puts the load on many boxes instead of one.',
+      },
+      {
+        left: 'A dead service is still being called',
+        right: 'Circuit breaker',
+        why: 'After enough failures the breaker opens and calls fail fast, giving the dead service room to recover instead of a queue of doomed requests.',
+      },
+      {
+        left: 'A background job fails and vanishes',
+        right: 'Retry plus dead letter queue',
+        why: 'Failed jobs are retried a few times, then parked where someone can inspect and replay them, so nothing is lost silently.',
+      },
     ],
     explanation:
       'These four pairs cover most of what a generalist design round asks about failure. Each name is doing real work: saying "thundering herd" and "jitter" in the same breath tells the interviewer you have seen the problem, not just read about retries.',
