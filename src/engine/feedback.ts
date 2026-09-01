@@ -287,7 +287,9 @@ const MATCH_TUNING: Tuning = { level: 1, width: 0.6, tail: 0.8, tailSeconds: 2.4
  * movement of its own. The rung is still the note the climb is heard on, the
  * loudest and widest of the three and the one carrying the sparkle octave, and
  * the graces sit under it in both level and stereo, so the whole thing reads as
- * one strummed gesture arriving on the rung rather than as three notes.
+ * one strummed gesture arriving on the rung rather than as three notes. The
+ * strum copies the cue's anatomy, triangles on the notes in motion and a sine
+ * with a bright octave on the note of arrival, so climb and cue share one voice.
  */
 export function matchRung(pair: number, pairs: number): Cue {
   // The same clamped geometry `rungCue` walks, repeated here only to locate the
@@ -299,13 +301,16 @@ export function matchRung(pair: number, pairs: number): Cue {
 
   const cue = rungCue(MATCH_LADDER, pair, pairs, MATCH_TUNING);
   const level = cue.notes.filter((n) => !n.sparkle)[0].level;
-  // No spread and the default sine on the graces: they stay narrow and centred
-  // so the roll blooms outwards into the wide rung.
+  // No spread on the graces: they stay narrow and centred so the roll blooms
+  // outwards into the wide rung. They are triangles for the same reason the
+  // correct cue's own moving notes are, the odd harmonics giving the roll the
+  // cue's sheen where a sine at this register reads dull.
   const grace1: Note = {
     freq: MATCH_ROLL_LADDER[rung - 2],
     at: 0,
     dur: 0.14,
     level: level * 0.65,
+    type: 'triangle',
     send: 0.4,
   };
   const grace2: Note = {
@@ -313,11 +318,23 @@ export function matchRung(pair: number, pairs: number): Cue {
     at: ROLL_STEP,
     dur: 0.16,
     level: level * 0.85,
+    type: 'triangle',
     send: 0.55,
   };
 
   return {
-    notes: [grace1, grace2, ...cue.notes.map((n) => ({ ...n, at: n.at + 2 * ROLL_STEP }))],
+    notes: [
+      grace1,
+      grace2,
+      // The octave on top is pushed a little past the helper's default so the
+      // rung keeps the glassy top the cue has; the rung body stays sine like
+      // the cue's own held peak.
+      ...cue.notes.map((n) =>
+        n.sparkle
+          ? { ...n, at: n.at + 2 * ROLL_STEP, level: 0.013 }
+          : { ...n, at: n.at + 2 * ROLL_STEP },
+      ),
+    ],
     tuning: MATCH_TUNING,
   };
 }
