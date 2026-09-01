@@ -128,8 +128,12 @@ export interface BlankExercise extends ExerciseBase {
 
 export interface MatchExercise extends ExerciseBase {
   type: 'match';
-  /** 3–5 pairs; left = interviewer phrase, right = term. */
-  pairs: { left: string; right: string }[];
+  /**
+   * 3–5 pairs; left = interviewer phrase, right = term. `why` is one sentence
+   * saying why this pair belongs together; the single `explanation` cannot
+   * carry the reasoning for four or five pairings at once.
+   */
+  pairs: { left: string; right: string; why?: string }[];
 }
 
 export interface StepsExercise extends ExerciseBase {

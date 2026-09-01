@@ -289,10 +289,26 @@ return posts;`,
     conceptId: 'decoder',
     prompt: 'Pair each description with the term.',
     pairs: [
-      { left: 'The index at the back of the book', right: 'Database index' },
-      { left: 'All of it, or none of it', right: 'Transaction' },
-      { left: 'One query per row', right: 'N+1' },
-      { left: 'Only the rows that matched on both sides', right: 'INNER JOIN' },
+      {
+        left: 'The index at the back of the book',
+        right: 'Database index',
+        why: 'A sorted lookup structure kept beside the table points straight at the matching rows, so the database skips reading the rest.',
+      },
+      {
+        left: 'All of it, or none of it',
+        right: 'Transaction',
+        why: 'The writes are grouped so they commit together or roll back together, which is what stops a half finished change being visible.',
+      },
+      {
+        left: 'One query per row',
+        right: 'N+1',
+        why: 'The list costs one query and then every row costs another, so a page of two hundred rows quietly becomes two hundred and one round trips.',
+      },
+      {
+        left: 'Only the rows that matched on both sides',
+        right: 'INNER JOIN',
+        why: 'Rows with no partner on the other side are dropped, which is the difference from an outer join that keeps them and fills in nulls.',
+      },
     ],
     explanation:
       'Four things you will be asked to name rather than explain. "One query per row" in particular is the phrase interviewers use to see whether you recognise N+1 from a description, without being shown a query log.',

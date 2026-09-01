@@ -87,7 +87,8 @@ interface BlankExercise extends ExerciseBase {
 
 interface MatchExercise extends ExerciseBase {
   type: 'match';
-  pairs: { left: string; right: string }[]; // 3–5; left = phrase, right = term
+  // 3–5; left = phrase, right = term; why = one sentence, why this pair belongs together
+  pairs: { left: string; right: string; why?: string }[];
 }
 
 interface StepsExercise extends ExerciseBase {

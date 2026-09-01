@@ -35,6 +35,7 @@ function userVisibleStrings(): { where: string; text: string }[] {
       exercise.pairs.forEach((p, i) => {
         out.push({ where: `${exercise.id}.pairs[${i}].left`, text: p.left });
         out.push({ where: `${exercise.id}.pairs[${i}].right`, text: p.right });
+        if (p.why) out.push({ where: `${exercise.id}.pairs[${i}].why`, text: p.why });
       });
     }
   }

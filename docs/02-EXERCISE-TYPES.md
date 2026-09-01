@@ -54,6 +54,8 @@ Two columns (or a shuffled grid of pairs on small screens): interviewer phrase �
 
 On reveal (the user pressed "I'm not sure", so pairs are still unmade) the board just freezes: the two columns are shuffled independently, so nothing on it can show which phrase belongs to which term. The feedback panel lists every pair instead, the same way the ordered types show their answer there.
 
+Each pair carries an optional one-sentence `why`, and that sentence is what makes the pairing teach rather than just resolve: one `explanation` cannot say why four or five separate pairings hold. In the reveal list the why sits under its phrase. On a board finished correctly on the first try, the panel shows the same reasons under the heading "Why each pair works", term and why only, since the locked board above already restates every pairing.
+
 Used mainly by Track 6: _"a function that remembers" ↔ closure_, _"grows linearly" ↔ O(n)_, _"only one instance ever" ↔ singleton_, _"don't repeat that network call" ↔ memoize/cache_. Also used for system design (component ↔ responsibility).
 
 ## 8. `steps`, Order the plan

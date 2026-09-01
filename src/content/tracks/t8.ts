@@ -103,11 +103,31 @@ export const t8Exercises: Exercise[] = [
     conceptId: 'status-codes',
     prompt: 'Pair each message with the code that carries it.',
     pairs: [
-      { left: 'Created, and here is where it lives', right: '201' },
-      { left: 'Moved, and not coming back', right: '301' },
-      { left: 'Your request is malformed', right: '400' },
-      { left: 'No such thing here', right: '404' },
-      { left: 'Down for now, try again shortly', right: '503' },
+      {
+        left: 'Created, and here is where it lives',
+        right: '201',
+        why: 'The 2xx family means it worked, and 201 adds that something new now exists, with the Location header saying where to find it.',
+      },
+      {
+        left: 'Moved, and not coming back',
+        right: '301',
+        why: 'The 3xx family sends you elsewhere, and 301 says the move is permanent, so clients and search engines should update the link.',
+      },
+      {
+        left: 'Your request is malformed',
+        right: '400',
+        why: 'The 4xx family blames the caller, and 400 says the request could not be read at all, so sending it again unchanged will fail again.',
+      },
+      {
+        left: 'No such thing here',
+        right: '404',
+        why: 'Also a caller error: the address was understood but nothing lives at it, which is different from being refused access.',
+      },
+      {
+        left: 'Down for now, try again shortly',
+        right: '503',
+        why: 'The 5xx family blames the server, and 503 says it is temporarily unable to cope, so the same request may well work in a moment.',
+      },
     ],
     explanation:
       'The first digit carries the headline: 2 worked, 3 go elsewhere, 4 the caller got it wrong, 5 the server did. That alone answers most of the question, and the specific codes above are the ones that come up in API design rounds.',
@@ -425,10 +445,26 @@ export const t8Exercises: Exercise[] = [
     conceptId: 'decoder',
     prompt: 'Pair each description with the term an interviewer wants to hear.',
     pairs: [
-      { left: 'The browser refuses the cross-site read', right: 'CORS' },
-      { left: 'A script smuggled into the page', right: 'XSS' },
-      { left: 'A forged request from another site', right: 'CSRF' },
-      { left: 'A quote that breaks out of the query', right: 'SQL injection' },
+      {
+        left: 'The browser refuses the cross-site read',
+        right: 'CORS',
+        why: 'The browser blocks a page from reading another origin unless that server sends headers allowing it, so this is a rule being enforced, not an attack.',
+      },
+      {
+        left: 'A script smuggled into the page',
+        right: 'XSS',
+        why: 'Untrusted input ends up rendered as markup instead of text, so the attacker code runs in the page with the same access as your own.',
+      },
+      {
+        left: 'A forged request from another site',
+        right: 'CSRF',
+        why: 'The browser attaches the cookies automatically, so a request fired from another site arrives already logged in unless a token proves the user meant it.',
+      },
+      {
+        left: 'A quote that breaks out of the query',
+        right: 'SQL injection',
+        why: 'Input pasted into the query text can close the value and start new SQL, which is why values have to be sent as parameters instead.',
+      },
     ],
     explanation:
       'These four get described far more often than they get named, and the name is what gets scored. CORS is a rule the browser enforces, not an attack. The other three are attacks, and the giveaway in each description is where the untrusted thing ends up: in the page, in a request, or in a query.',

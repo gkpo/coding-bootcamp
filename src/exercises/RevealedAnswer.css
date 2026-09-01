@@ -40,6 +40,15 @@
   color: var(--text-dim);
 }
 
+/* Full --text where the phrase above it is --text-dim, on purpose: the
+   reasoning is the payload, the phrase is only the question restated. */
+.reveal__pair-why {
+  margin: var(--sp-1) 0 0;
+  font-size: var(--fs-secondary);
+  line-height: 1.5;
+  color: var(--text);
+}
+
 .reveal__steps {
   margin: 0;
   padding-left: var(--sp-5);
