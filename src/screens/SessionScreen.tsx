@@ -20,7 +20,7 @@ import {
 import { randomSeed, shuffle } from '../engine/shuffle';
 import { todayKey } from '../engine/dates';
 import { useStore } from '../store/useStore';
-import { playTone, vibrate } from '../engine/feedback';
+import { climbNote, landingCue, playNotes, playTone, vibrate } from '../engine/feedback';
 import { CloseIcon } from '../components/icons';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import './SessionScreen.css';
@@ -108,22 +108,47 @@ export function SessionScreen() {
         recordAnswer(exerciseId, outcome);
       }
       // A recovered exercise (a match board finished after a miss) already
-      // sounded each miss as it happened. The scoring stays 'wrong', but the
+      // sounded each miss as it happened, and with the climb its last pair has
+      // just sounded its rung as well. The scoring stays 'wrong', but the
       // ending itself is a full board of green pairs, so it gets no cue.
       if (!recovered) {
         const kind = outcome === 'right' ? 'right' : 'wrong';
         vibrate(kind, haptics);
-        playTone(kind, sound);
+        // A clean match board ends the climb its pairs have been playing, so it
+        // takes the landing instead of the correct-answer chime. The delay is
+        // written into the note times, which puts it on the audio clock: the
+        // last pair's rung is still sounding as this is scheduled, and the
+        // landing has to arrive after it rather than on top of it.
+        if (exercise?.type === 'match' && outcome === 'right') {
+          const landing = landingCue();
+          playNotes(
+            landing.notes.map((n) => ({ ...n, at: n.at + 0.28 })),
+            sound,
+            landing.tuning,
+          );
+        } else {
+          playTone(kind, sound);
+        }
       }
       setAnswered({ outcome, whyWrong, recovered });
     },
-    [exerciseId, recordAnswer, session.firstResults, haptics, sound],
+    [exerciseId, recordAnswer, session.firstResults, haptics, sound, exercise],
   );
 
   const onMiss = useCallback(() => {
     vibrate('wrong', haptics);
     playTone('wrong', sound);
   }, [haptics, sound]);
+
+  // One rung of the climb per locked pair, sound only. The capstone strip's
+  // climb does not vibrate either, and a buzz on every lock would be noisy.
+  const onPair = useCallback(
+    (index: number, count: number) => {
+      const cue = climbNote(index, count);
+      playNotes(cue.notes, sound, cue.tuning);
+    },
+    [sound],
+  );
 
   const onContinue = useCallback(() => {
     if (!answered) return;
@@ -212,6 +237,7 @@ export function SessionScreen() {
               revealed={revealed}
               onResolve={resolve}
               onMiss={onMiss}
+              onPair={onPair}
             />
           </ExerciseFrame>
         </div>
