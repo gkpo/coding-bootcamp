@@ -20,7 +20,7 @@ import {
 import { randomSeed, shuffle } from '../engine/shuffle';
 import { todayKey } from '../engine/dates';
 import { useStore } from '../store/useStore';
-import { climbNote, landingCue, playNotes, playTone, vibrate } from '../engine/feedback';
+import { CUES, matchRung, playNotes, playTone, vibrate } from '../engine/feedback';
 import { CloseIcon } from '../components/icons';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import './SessionScreen.css';
@@ -114,17 +114,17 @@ export function SessionScreen() {
       if (!recovered) {
         const kind = outcome === 'right' ? 'right' : 'wrong';
         vibrate(kind, haptics);
-        // A clean match board ends the climb its pairs have been playing, so it
-        // takes the landing instead of the correct-answer chime. The delay is
-        // written into the note times, which puts it on the audio clock: the
-        // last pair's rung is still sounding as this is scheduled, and the
-        // landing has to arrive after it rather than on top of it.
+        // A clean match board ends on the same correct-answer cue as every
+        // other exercise type, delayed so the last pair's rung sounds before
+        // the cue resolves it. The delay is written into the note times, which
+        // puts it on the audio clock: that rung is still ringing as this is
+        // scheduled, and the cue has to arrive after it rather than on top.
         if (exercise?.type === 'match' && outcome === 'right') {
-          const landing = landingCue();
+          const cue = CUES.right;
           playNotes(
-            landing.notes.map((n) => ({ ...n, at: n.at + 0.28 })),
+            cue.notes.map((n) => ({ ...n, at: n.at + 0.28 })),
             sound,
-            landing.tuning,
+            cue.tuning,
           );
         } else {
           playTone(kind, sound);
@@ -144,7 +144,7 @@ export function SessionScreen() {
   // climb does not vibrate either, and a buzz on every lock would be noisy.
   const onPair = useCallback(
     (index: number, count: number) => {
-      const cue = climbNote(index, count);
+      const cue = matchRung(index, count);
       playNotes(cue.notes, sound, cue.tuning);
     },
     [sound],

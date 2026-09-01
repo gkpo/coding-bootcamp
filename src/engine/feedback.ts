@@ -182,14 +182,15 @@ export const CUES: Record<CueName, Cue> = {
 };
 
 /**
- * The stage-clear sound: a climb played live, one note per green ring as the
- * run confirms it, and a held landing once the run is over.
+ * Climbs played live, one note per step as the screen confirms it.
  *
- * Built rather than listed in `CUES` because its length is the check strip's,
- * not a constant: the run itself paces the climb, so a stage with five checks
- * earns a longer run-up than a stage with two. The climb walks the major
- * pentatonic, which has no wrong intervals, so any slice of it resolves
- * cleanly onto the landing note.
+ * Built rather than listed in `CUES` because their length is the board's or
+ * the check strip's, not a constant: the run itself paces the climb, so a
+ * stage with five checks earns a longer run-up than a stage with two. Both
+ * climbs walk a major pentatonic, which has no wrong intervals, so any slice
+ * of one resolves cleanly onto the note it hands over to. The capstone climb
+ * resolves onto its own held landing, below; the match board's resolves onto
+ * the shipped correct-answer cue.
  */
 
 /** C4 up to A5 in C major pentatonic. The landing note, C6, sits above it. */
@@ -203,13 +204,20 @@ const LANDING = 1046.5;
 // and the note it resolves onto, sits in the one bigger room.
 const CLEARED_TUNING: Tuning = { level: 1, width: 0.6, tail: 1, tailSeconds: 3, sparkle: 1.6 };
 
-/** One rung of the climb and its sparkle octave, played as its ring turns green. */
-export function climbNote(ring: number, rings: number): Cue {
-  // The climb always ends on A5 so the landing lands the same way every time;
-  // a longer strip starts lower down the ladder rather than reaching higher,
-  // and a ring past the ladder repeats the top note rather than descending.
-  const count = Math.min(Math.max(rings, 1), LADDER.length);
-  const climb = LADDER.slice(LADDER.length - count);
+/**
+ * One rung of a climb: the note its step lands on, plus the octave above it.
+ *
+ * The ladder is walked from the top down, so a climb always ends on the same
+ * note however many steps it has and the note it resolves onto arrives the
+ * same way every time; a longer run starts lower down the ladder rather than
+ * reaching higher, and a step past the ladder repeats the top note rather than
+ * descending. Everything that moves across the climb, level, width and how
+ * much room the note is sent to, is interpolated on how far up it is, so the
+ * run opens up as it rises.
+ */
+function rungCue(ladder: number[], ring: number, rings: number, tuning: Tuning): Cue {
+  const count = Math.min(Math.max(rings, 1), ladder.length);
+  const climb = ladder.slice(ladder.length - count);
   const idx = Math.min(Math.max(ring, 0), count - 1);
   const t = count === 1 ? 1 : idx / (count - 1);
 
@@ -235,8 +243,35 @@ export function climbNote(ring: number, rings: number): Cue {
         sparkle: true,
       },
     ],
-    tuning: CLEARED_TUNING,
+    tuning,
   };
+}
+
+/** One rung of the capstone climb, played as its ring turns green. */
+export function climbNote(ring: number, rings: number): Cue {
+  return rungCue(LADDER, ring, rings, CLEARED_TUNING);
+}
+
+/** E3 up to E4 in A major pentatonic. The correct-answer cue's A4 sits above it. */
+const MATCH_LADDER = [164.81, 185.0, 220, 246.94, 277.18, 329.63];
+
+// The room the `right` cue already carries, borrowed whole: the board's rungs
+// and the cue that ends it ring in the same space, and no second impulse
+// response is generated for the sake of a climb four notes long.
+const MATCH_TUNING: Tuning = { level: 1, width: 0.6, tail: 0.8, tailSeconds: 2.4, sparkle: 2.5 };
+
+/**
+ * One rung of the match board's climb, played as a pair locks.
+ *
+ * A finished board ends on the same correct-answer cue as every other exercise
+ * type rather than on the capstone's landing, so this climb is pitched to hand
+ * over to that cue instead: the ladder is A major pentatonic and tops out on
+ * the dominant, E4, which leaves the cue's opening A4 sitting a fourth above
+ * the last rung and arriving as the resolution. The range is low on purpose
+ * too, matching the warm, lower character the `right` cue was tuned to.
+ */
+export function matchRung(pair: number, pairs: number): Cue {
+  return rungCue(MATCH_LADDER, pair, pairs, MATCH_TUNING);
 }
 
 /**

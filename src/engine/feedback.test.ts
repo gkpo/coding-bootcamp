@@ -4,6 +4,7 @@ import {
   CUES,
   DEFAULT_TUNING,
   landingCue,
+  matchRung,
   playNotes,
   playTone,
   resetAudioForTests,
@@ -452,5 +453,55 @@ describe('climb and landing', () => {
     playNotes(climb.notes, false, climb.tuning);
     playNotes(land.notes, false, land.tuning);
     expect(silent.createOscillator).not.toHaveBeenCalled();
+  });
+});
+
+describe('match climb', () => {
+  /** The rung a pair locks on, without the sparkle stacked on top of it. */
+  const note = (pair: number, pairs: number) =>
+    matchRung(pair, pairs).notes.filter((n) => !n.sparkle)[0];
+
+  it('rings a rung and its octave per locked pair, from the moment it locks', () => {
+    expect(matchRung(0, 4).notes).toHaveLength(2);
+    expect(note(2, 4).at).toBe(0);
+    const sparkle = matchRung(2, 4).notes.filter((n) => n.sparkle);
+    expect(sparkle).toHaveLength(1);
+    expect(sparkle[0].freq).toBe(note(2, 4).freq * 2);
+  });
+
+  it('climbs, every pair higher than the one before', () => {
+    [4, 5].forEach((pairs) => {
+      const freqs = Array.from({ length: pairs }, (_, pair) => note(pair, pairs).freq);
+      freqs.forEach((f, i) => {
+        if (i > 0) expect(f).toBeGreaterThan(freqs[i - 1]);
+      });
+    });
+  });
+
+  it('tops out on E4 however many pairs, under the note the correct cue opens on', () => {
+    expect(note(3, 4).freq).toBe(329.63);
+    expect(note(4, 5).freq).toBe(329.63);
+    // The cue that ends a clean board starts on A4, a fourth above the last
+    // rung, so the board resolves rather than stopping where the climb did.
+    expect(440).toBeGreaterThan(note(3, 4).freq);
+  });
+
+  it('clamps pair indexes past the ladder rather than throwing or descending', () => {
+    expect(note(12, 20).freq).toBeGreaterThanOrEqual(note(5, 20).freq);
+    expect(note(12, 20).freq).toBe(note(19, 20).freq);
+  });
+
+  it('reuses a room length the app already generates', () => {
+    const lengths = Object.values(CUES).map((c) => c.tuning.tailSeconds);
+    expect(lengths).toContain(matchRung(0, 4).tuning.tailSeconds);
+    expect(matchRung(0, 4).tuning.tailSeconds).toBe(CUES.right.tuning.tailSeconds);
+  });
+
+  it('stays quieter than the session-complete fanfare', () => {
+    const loudest = (notes: Note[]) =>
+      notes.reduce((max, n) => Math.max(max, n.sparkle ? 0 : n.level), 0);
+    const ceiling = loudest(CUES.complete.notes) * CUES.complete.tuning.level;
+    const rung = matchRung(3, 4);
+    expect(loudest(rung.notes) * rung.tuning.level).toBeLessThanOrEqual(ceiling);
   });
 });
