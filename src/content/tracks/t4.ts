@@ -40,7 +40,7 @@ export const t4Exercises: Exercise[] = [
 }`,
     },
     options: [
-      { text: 'Name the magic number: `const ONE_DAY_MS = 86_400_000`', correct: true },
+      { text: 'Name the magic number: `ONE_DAY_MS`', correct: true },
       {
         text: 'Add TypeScript types to the parameter and return',
         whyWrong:
@@ -52,7 +52,7 @@ export const t4Exercises: Exercise[] = [
           'That is a style preference and changes nothing about clarity. The linter can have this argument; the interviewer is asking about meaning.',
       },
       {
-        text: 'Memoize the result',
+        text: 'Memoize the result for repeat calls',
         whyWrong:
           'There is nothing expensive here. One comparison. Optimising a function that does no work is the definition of premature.',
       },
@@ -78,7 +78,7 @@ export const t4Exercises: Exercise[] = [
 }`,
     },
     options: [
-      { text: 'Pull the duplicated `log` call out above the branch', correct: true },
+      { text: 'Pull the duplicated `log` call above the branch', correct: true },
       {
         text: 'Extract each branch into its own function',
         whyWrong:
@@ -119,7 +119,7 @@ export const t4Exercises: Exercise[] = [
 }`,
     },
     options: [
-      { text: 'Invert the conditions into guard clauses that return early', correct: true },
+      { text: 'Invert the conditions into guard clauses', correct: true },
       {
         text: 'Combine them into one `if` with `&&`',
         whyWrong:
@@ -178,7 +178,7 @@ export const t4Exercises: Exercise[] = [
     },
     options: [
       {
-        text: 'Nail down the behaviour on empty input and multiple duplicates first, then optimise',
+        text: 'Pin down the behaviour on empty input first',
         correct: true,
       },
       {
@@ -264,7 +264,7 @@ export const t4Exercises: Exercise[] = [
       'You are shown an unfamiliar function and asked to improve it. **What do you do first?**',
     options: [
       {
-        text: 'Say out loud what it does and what is wrong with it, before changing anything',
+        text: 'Say out loud what it does and what is wrong with it',
         correct: true,
       },
       {
@@ -278,7 +278,7 @@ export const t4Exercises: Exercise[] = [
           'One clarifying question is fine, but handing back the whole reading task looks like you cannot read unfamiliar code, which is much of the job.',
       },
       {
-        text: 'Add tests before touching it',
+        text: 'Add tests before touching it, to be safe',
         whyWrong:
           'Genuinely good practice, and worth mentioning. But in a short interview it burns the clock, and they asked for a critique rather than a safety net.',
       },
@@ -303,11 +303,11 @@ renderCart(cart);`,
     },
     options: [
       {
-        text: 'Return a new array. The caller does not expect their data to change underneath them',
+        text: 'Return a new array and leave the original alone',
         correct: true,
       },
       {
-        text: 'Mutate it, copying wastes memory',
+        text: 'Mutate it, since copying the cart wastes memory',
         whyWrong:
           'The copy is real but almost always irrelevant next to the debugging cost of action-at-a-distance. Where it does matter, that is a measured decision worth stating.',
       },
@@ -323,7 +323,7 @@ renderCart(cart);`,
       },
     ],
     explanation:
-      'A function that returns a new array is pure: same input, same output, nothing changed elsewhere. That makes it trivially testable and safe to call from anywhere. Mutation is legitimate in a hot loop over a large array, but then say so, and make the name announce it, like `pushItem`.',
+      'A function that returns a new array is pure: same input, same output, and the data the caller holds never changes underneath them. That makes it trivially testable and safe to call from anywhere. Mutation is legitimate in a hot loop over a large array, but then say so, and make the name announce it, like `pushItem`.',
   },
   {
     id: 't4-11',

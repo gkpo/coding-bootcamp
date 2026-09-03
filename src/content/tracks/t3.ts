@@ -243,7 +243,7 @@ setTimeout(() => console.log(4), 0);`,
     },
     options: [
       {
-        text: 'undefined. An arrow function has no `this` of its own, so it uses the outer one',
+        text: 'undefined. An arrow function has no `this` of its own',
         correct: true,
       },
       {
@@ -300,7 +300,7 @@ setTimeout(() => console.log(4), 0);`,
       'You need to fetch 50 independent URLs. Which do you reach for, and what is the trade-off?',
     options: [
       {
-        text: '`Promise.all`. They are independent, so run them at once and wait once',
+        text: '`Promise.all`, since they are independent',
         correct: true,
       },
       {
@@ -394,7 +394,7 @@ console.log(original.name);`,
           'The *reference* is copied, not the object. Both names point at the same object, so a change through either is visible through the other.',
       },
       {
-        text: 'It throws, because `original` is a const',
+        text: 'It throws, because `original` is declared const',
         whyWrong:
           '`const` stops you reassigning the binding, not changing the object it points at. `original = {}` would throw; `original.name = ...` is allowed.',
       },
@@ -460,27 +460,27 @@ console.log(original.name);`,
     prompt: '**"interface or type?"** What is the strongest answer?',
     options: [
       {
-        text: 'Interface for object shapes that may be extended or merged, type for unions and aliases, and consistency matters more than the choice',
+        text: 'Interface for object shapes, type for unions and aliases',
         correct: true,
       },
       {
-        text: 'Always interface. It is the TypeScript way',
+        text: 'Always interface, it is the TypeScript way for object shapes',
         whyWrong:
           'Interfaces cannot express a union, which is one of the most useful things `type` does. An absolute rule here reads as repeating advice rather than having formed a view.',
       },
       {
-        text: 'Always type. It can do everything interface can',
+        text: 'Always type, it can do everything interface can and more',
         whyWrong:
           'Nearly true, but interfaces support declaration merging, which matters when you are augmenting types from a library. And "always" invites the follow-up you cannot answer.',
       },
       {
-        text: 'They are identical, so it makes no difference',
+        text: 'They are identical, so pick whichever reads better',
         whyWrong:
-          'Mostly interchangeable for plain object shapes, but not identical: only `type` does unions, only `interface` merges. Saying "no difference" invites exactly that correction.',
+          'Mostly interchangeable for plain object shapes, but not identical: only `type` does unions, only `interface` merges. Calling them the same thing invites exactly that correction.',
       },
     ],
     explanation:
-      'For a plain object shape they are interchangeable, and the honest senior answer says so. The real differences: `type` can express unions and mapped types; `interface` can be reopened and merged, which libraries rely on. Interviewers are checking whether you have an informed preference rather than a memorised rule.',
+      'For a plain object shape they are interchangeable, and the honest senior answer says so. The real differences: `type` can express unions and mapped types; `interface` can be reopened and merged, which libraries rely on. Interviewers are checking whether you have an informed preference rather than a memorised rule, and picking one and staying consistent matters more than which one you pick.',
   },
   {
     id: 't3-17',
@@ -519,7 +519,7 @@ console.log(original.name);`,
     prompt: '**`unknown` versus `any`**. Why do interviewers ask this?',
     options: [
       {
-        text: '`unknown` forces you to narrow the value before using it; `any` switches type checking off entirely',
+        text: '`unknown` forces you to narrow before using it; `any` does not',
         correct: true,
       },
       {
@@ -533,7 +533,7 @@ console.log(original.name);`,
           'API responses are a good use for `unknown`, but that is a consequence of the rule rather than the rule itself. It applies anywhere the type is not yet established.',
       },
       {
-        text: '`any` is faster to compile',
+        text: '`any` is faster for the compiler to check',
         whyWrong:
           'Compile time is not the consideration. The difference is entirely about what the compiler will let you get away with.',
       },

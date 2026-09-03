@@ -81,7 +81,7 @@ export const t6Exercises: Exercise[] = [
     prompt: 'The interviewer asks **"how does this scale?"**. What are they actually asking for?',
     options: [
       {
-        text: 'The complexity in plain words, plus which line is the bottleneck',
+        text: 'The complexity in plain words, and which line is worst',
         correct: true,
       },
       {
@@ -112,16 +112,16 @@ export const t6Exercises: Exercise[] = [
     prompt: 'The interviewer asks **"can you make this cleaner?"**. Decode it.',
     options: [
       {
-        text: 'Readability. Naming, nesting, functions doing too much. Not performance.',
+        text: 'Readability: naming, nesting, a function doing too much',
         correct: true,
       },
       {
-        text: 'Performance, they want it faster',
+        text: 'Performance. They want the same thing but faster',
         whyWrong:
           'They would say "can you make this faster?" or "how does this scale?". Optimising when asked for clarity answers a question nobody asked.',
       },
       {
-        text: 'They want fewer lines of code',
+        text: 'Brevity. They want the same thing in fewer lines',
         whyWrong:
           'Shorter is not cleaner. Collapsing readable code into a dense one-liner usually makes it worse, and doing it on request suggests you conflate the two.',
       },
@@ -159,7 +159,7 @@ export const t6Exercises: Exercise[] = [
     prompt: 'You want to start with the brute force. **Which phrasing lands best?**',
     options: [
       {
-        text: '"I\'ll start simple so we have something working, then optimise from there."',
+        text: '"I\'ll start simple, then optimise from there."',
         correct: true,
       },
       {
@@ -191,7 +191,7 @@ export const t6Exercises: Exercise[] = [
       'Mid-problem, the interviewer says **"what if the array were sorted?"**. What is happening?',
     options: [
       {
-        text: 'A hint. They are steering you toward binary search or two pointers, take it and say so.',
+        text: 'A hint, steering you toward binary search or two pointers',
         correct: true,
       },
       {
@@ -200,12 +200,12 @@ export const t6Exercises: Exercise[] = [
           'Interviewers do sometimes test assumptions, but that comes as "what do you know about the input?". An unprompted extra condition is help, not a trap.',
       },
       {
-        text: 'Small talk while you think',
+        text: 'A hypothetical to answer yes to, then carry on as before',
         whyWrong:
-          'They are not filling silence. A specific property of the data, offered unprompted, is always pointing somewhere.',
+          'Agreeing and then changing nothing is the commonest way this hint gets wasted. They are not asking for your opinion, they are handing you a property of the data to use right now.',
       },
       {
-        text: 'They want you to write the sort first',
+        text: 'They want you to sort the array first yourself',
         whyWrong:
           'Backwards. Sorting costs O(n log n), which usually undoes the gain. They are telling you it is *already* sorted so you can exploit it.',
       },
@@ -222,21 +222,21 @@ export const t6Exercises: Exercise[] = [
     prompt: '**"Any edge cases?"** What is the canonical checklist answer?',
     options: [
       {
-        text: 'Empty, one item, very large, duplicates, and negatives or unusual characters',
+        text: 'Empty, one item, very large, duplicates, negatives',
         correct: true,
       },
       {
-        text: '"I think it handles everything."',
+        text: 'Failure modes: network errors, timeouts, bad permissions',
         whyWrong:
-          'Closes down the conversation and shows no method. Even when true, it gives them nothing to score.',
+          'Those are error paths, and they matter in production code. An edge case is an awkward *input*, and awkward inputs are what this question is sweeping for.',
       },
       {
-        text: 'Null and undefined inputs',
+        text: 'Null and undefined inputs, guarded at the top',
         whyWrong:
           'A real case and worth naming, but on its own it is a fragment. They are looking for a systematic sweep, not one example.',
       },
       {
-        text: '"I would write tests to find out."',
+        text: 'Whatever the tests turn up once they are written',
         whyWrong:
           'Right instinct in a codebase, evasive in an interview. They are asking you to reason about the awkward inputs now, out loud.',
       },
@@ -269,7 +269,7 @@ export const t6Exercises: Exercise[] = [
     prompt: 'Three minutes into an approach, it is not coming together. **What do you do?**',
     options: [
       {
-        text: 'Say out loud that it is not working, and propose trying a different angle',
+        text: 'Say out loud that it is not working, and switch',
         correct: true,
       },
       {
@@ -332,21 +332,21 @@ export const t6Exercises: Exercise[] = [
     prompt: '**"Walk me through your thinking."** Which transcript sounds like a strong candidate?',
     options: [
       {
-        text: '"It is asking for the longest stretch with no repeats. Brute force is every substring, so O(n²). Stretch suggests a sliding window. Let me try growing right and shrinking left."',
+        text: '"Longest stretch, no repeats. Brute force is every substring, O(n²). Stretch means a window: grow right, shrink left."',
         correct: true,
       },
       {
-        text: '"I would use a sliding window with a Set, tracking start and end, updating the max as I go."',
+        text: '"I would use a sliding window with a Set, tracking start and end, and updating the longest length as I go."',
         whyWrong:
           'Correct and efficient, but it is the destination with no journey. They asked for the thinking, and a jump straight to the answer looks memorised rather than derived.',
       },
       {
-        text: '"Let me code it up and then explain what I did."',
+        text: '"Let me code it up first, then I will explain what I did."',
         whyWrong:
           'This defers exactly what they asked for. Silent coding followed by a summary is the pattern the question exists to interrupt.',
       },
       {
-        text: '"I have seen this one before. It is the classic sliding window problem."',
+        text: '"I have seen this one before, it is the classic sliding window problem, so I will write that."',
         whyWrong:
           'Honest, and fine as an aside. But on its own it answers "do you recognise this?" rather than "how do you think?", and it invites a harder variant.',
       },
@@ -527,7 +527,7 @@ export const t6Exercises: Exercise[] = [
     ],
     options: [
       {
-        text: 'A hint that a sorted input unlocks binary search or two pointers, and an invitation to say which',
+        text: 'A hint that sorted input unlocks binary search or two pointers',
         correct: true,
       },
       {
@@ -536,14 +536,14 @@ export const t6Exercises: Exercise[] = [
           'They said "if I gave you", which means the sort is free. Adding one yourself costs O(n log n) and answers a different question from the one asked.',
       },
       {
-        text: 'A hint that your current answer is wrong',
+        text: 'A hint that your current answer is wrong somewhere',
         whyWrong:
           'Hints about correctness sound like "walk me through it with an empty list". This one is about cost, and it usually means your answer is right but improvable.',
       },
       {
-        text: 'Small talk while they read your code',
+        text: 'An offer you can decline, since your solution already works fine',
         whyWrong:
-          'Interviewers rarely ask hypotheticals for no reason, and a question about the *shape of the input* is nearly always steering you toward a specific technique.',
+          'Declining is the commonest way this hint gets wasted. Working is the floor, and the question is about what the work costs, so the sorted copy is being offered as a way to lower it.',
       },
     ],
     explanation:
@@ -562,7 +562,7 @@ export const t6Exercises: Exercise[] = [
     ],
     options: [
       {
-        text: 'Which line breaks first at scale, and whether memory or time gives out',
+        text: 'Which line breaks first, and whether memory or time gives out',
         correct: true,
       },
       {
@@ -571,7 +571,7 @@ export const t6Exercises: Exercise[] = [
           'That is the answer in a system design round. Asked about the function in front of you, they want the bottleneck inside it, not the infrastructure around it.',
       },
       {
-        text: 'A request to rewrite it in a faster language',
+        text: 'A request to rewrite it in a faster language like Rust or Go',
         whyWrong:
           'A faster language changes the constant, not the shape. Something quadratic stays quadratic, so this answers a question about seconds rather than about growth.',
       },
@@ -597,7 +597,7 @@ export const t6Exercises: Exercise[] = [
     ],
     options: [
       {
-        text: 'Edge cases and tests: empty input, duplicates, sizes at the boundary, and what you would assert',
+        text: 'Edge cases and tests, named before they ask',
         correct: true,
       },
       {
@@ -611,7 +611,7 @@ export const t6Exercises: Exercise[] = [
           'In a coding round the subject is the code in front of you. Talking about pipelines here reads as avoiding the question rather than answering it.',
       },
       {
-        text: 'They are wrapping up and being polite',
+        text: 'They are wrapping up and being polite about it',
         whyWrong:
           'It is a scored question, and "no, I think it is fine" is a weak answer to it. Even solid code has inputs worth naming out loud.',
       },

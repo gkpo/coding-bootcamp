@@ -53,7 +53,7 @@ export const t7Exercises: Exercise[] = [
     },
     options: [
       {
-        text: 'React compares the new state with the old, sees the same array, and skips the render',
+        text: 'React sees the same array as before, so it skips the render',
         correct: true,
       },
       {
@@ -107,7 +107,7 @@ export const t7Exercises: Exercise[] = [
     prompt: 'React asks for a `key` on every item in a list. **What does it use the key for?**',
     options: [
       {
-        text: 'To tell which item is which across renders, so it can move an item rather than rebuild it',
+        text: 'To tell which item is which across renders',
         correct: true,
       },
       {
@@ -127,7 +127,7 @@ export const t7Exercises: Exercise[] = [
       },
     ],
     explanation:
-      'Between two renders React holds an old list and a new one, and has to work out which item is which. The key is your answer to that question. With no key it falls back to position and assumes the third item is still the third item, which is fine right up until the list reorders.',
+      'Between two renders React holds an old list and a new one, and has to work out which item is which. The key is your answer to that question, and it is what lets React move an existing item instead of tearing it down and building a new one. With no key it falls back to position and assumes the third item is still the third item, which is fine right up until the list reorders.',
   },
   {
     id: 't7-05',
@@ -324,7 +324,7 @@ useEffect(() => {
     prompt: 'An interviewer calls the search box **"a controlled input"**. What do they mean?',
     options: [
       {
-        text: 'React state holds the value, and the input shows whatever state says',
+        text: 'React state holds the value and the input shows it',
         correct: true,
       },
       {
@@ -355,7 +355,7 @@ useEffect(() => {
     prompt: 'Where does `useMemo` actually earn its place?',
     options: [
       {
-        text: 'Around genuinely expensive work, or to keep a value stable for something downstream that compares it',
+        text: 'Around genuinely expensive work, or to keep a value stable',
         correct: true,
       },
       {
@@ -402,11 +402,11 @@ function List({ items }) {
     },
     options: [
       {
-        text: 'A fresh arrow function is built on every render, so `onPick` is a different value each time',
+        text: 'A fresh arrow function is built on every render',
         correct: true,
       },
       {
-        text: '`memo` only compares the first prop',
+        text: '`memo` only compares the first prop it is given',
         whyWrong:
           'It compares all of them, one level deep. The trouble is that one of them genuinely is new every time.',
       },
@@ -479,7 +479,7 @@ function List({ items }) {
     },
     options: [
       {
-        text: 'Pull the loading into a `useUser(id)` hook, leaving the component to render',
+        text: 'Pull the loading into a `useUser(id)` hook',
         correct: true,
       },
       {
@@ -493,7 +493,7 @@ function List({ items }) {
           'There is barely any markup to split, and doing it leaves both halves still tangled up with the fetch.',
       },
       {
-        text: 'Add error handling to the fetch',
+        text: 'Add error handling to the fetch first',
         whyWrong:
           'A real gap, and fair to mention. But they asked about structure, and error handling makes this component do one more thing rather than one less.',
       },
@@ -612,7 +612,7 @@ const search = useCallback(() => {
     },
     options: [
       {
-        text: 'The object literal is a new object on every render, so the props are never equal',
+        text: 'The object literal is a new object on every render',
         correct: true,
       },
       {
@@ -648,7 +648,7 @@ return <input value={name} />;`,
     },
     options: [
       {
-        text: 'It is controlled with no `onChange`, so React puts `name` back after every keystroke',
+        text: 'It is controlled with no `onChange`',
         correct: true,
       },
       {

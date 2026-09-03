@@ -19,11 +19,11 @@ export const t2Exercises: Exercise[] = [
       '**"Given a list of numbers, find two that add up to a target."** Which approach does an interviewer expect you to reach for?',
     options: [
       {
-        text: 'Store what you have seen in a Set, and check for target − current as you go',
+        text: 'Store what you have seen in a Set, and check for target − current',
         correct: true,
       },
       {
-        text: 'Two nested loops over every pair',
+        text: 'Two nested loops, testing every pair against the target',
         whyWrong:
           'That is the brute force, and it is a fine thing to *mention*, but it is O(n²) and the question is asking for the improvement.',
       },
@@ -33,7 +33,7 @@ export const t2Exercises: Exercise[] = [
           'This genuinely works and is O(n log n). Better than brute force, worse than the Set, and it loses the original positions if the answer needs indexes.',
       },
       {
-        text: 'A sliding window over the list',
+        text: 'A sliding window over the list, grown until the sum hits the target',
         whyWrong:
           'Sliding windows need a contiguous stretch. The two numbers here can be anywhere, so there is no window to slide.',
       },
@@ -50,7 +50,7 @@ export const t2Exercises: Exercise[] = [
     prompt:
       '**"An ATM must pay out an amount using the fewest banknotes."** With ordinary note values, what is this problem called?',
     options: [
-      { text: 'Greedy. Repeatedly hand out the largest note that still fits', correct: true },
+      { text: 'Greedy. Take the largest note that still fits', correct: true },
       {
         text: 'A one-off loop you invent on the spot',
         whyWrong:
@@ -62,7 +62,7 @@ export const t2Exercises: Exercise[] = [
           'Binary search finds a value in sorted data. Here you are not looking for a note, you are choosing how many of each to dispense.',
       },
       {
-        text: 'A frequency map of the notes in the machine',
+        text: 'A frequency map of the notes left in the machine',
         whyWrong:
           'Counting what is loaded in the cassettes is a different question. This one asks which notes to hand out.',
       },
@@ -104,7 +104,7 @@ export const t2Exercises: Exercise[] = [
       'Your stamps come in **1, 3 and 4**. The postage you need is **6**. Greedy takes 4, then 1, then 1. Three stamps. What does that tell you?',
     options: [
       {
-        text: 'Greedy is not always optimal: 3 + 3 is two stamps, so this needs dynamic programming',
+        text: 'Greedy is not always optimal here: 3 + 3 is only two stamps',
         correct: true,
       },
       {
@@ -135,21 +135,21 @@ export const t2Exercises: Exercise[] = [
     prompt: '**"Find the longest stretch of a string with no repeated characters."** Pattern?',
     options: [
       {
-        text: 'Sliding window. Grow from the right, shrink from the left on a repeat',
+        text: 'Sliding window. Grow right, shrink left on a repeat',
         correct: true,
       },
       {
-        text: 'Sort the characters, then scan for runs',
+        text: 'Sort the characters, then scan for the longest run',
         whyWrong:
           'Sorting destroys the order, and the question is about a *stretch* of the original string. After sorting there is no such thing as the original stretch.',
       },
       {
-        text: 'Check every possible substring',
+        text: 'Check every possible substring and keep the longest',
         whyWrong:
           'That is the brute force at O(n²) or worse. Worth naming out loud, but the window does the same job in one pass.',
       },
       {
-        text: 'Two pointers from both ends',
+        text: 'Two pointers from both ends, moving inward',
         whyWrong:
           'Close. It is two pointers, but both move forward from the left rather than inward from the ends. That specific variant is the sliding window.',
       },
@@ -208,16 +208,16 @@ export const t2Exercises: Exercise[] = [
       'Your word-safe splitter meets an alert containing a tracking link **longer than the 160-character limit**, with no space anywhere inside it. What happens if you have not handled it?',
     options: [
       {
-        text: 'There is no space to cut at, so the loop makes no progress and hangs',
+        text: 'There is no space to cut at, so the loop hangs',
         correct: true,
       },
       {
-        text: 'It throws an error you can catch',
+        text: 'It throws an error you can catch and log',
         whyWrong:
           'It would be kinder if it did. `lastIndexOf` returns -1 rather than throwing, so the code carries on with a nonsense cut point instead of failing loudly.',
       },
       {
-        text: 'It silently drops the long link',
+        text: 'It silently drops the link and sends the rest',
         whyWrong:
           'Nothing removes it. The slice at a bad cut point returns an empty string while the message stays the same length, so it repeats rather than disappears.',
       },
@@ -239,7 +239,7 @@ export const t2Exercises: Exercise[] = [
     prompt:
       '**"Have I seen this before?"**. Duplicates, membership, "is X in this group". Which structure?',
     options: [
-      { text: 'A Set. Membership in one step regardless of size', correct: true },
+      { text: 'A Set. Membership in one step', correct: true },
       {
         text: 'An array with `includes`',
         whyWrong:
@@ -288,7 +288,7 @@ export const t2Exercises: Exercise[] = [
     conceptId: 'two-pointers',
     prompt: '**"Merge two already-sorted lists into one sorted list."** Pattern?',
     options: [
-      { text: 'Two pointers. One per list, always take the smaller head', correct: true },
+      { text: 'Two pointers, always taking the smaller head', correct: true },
       {
         text: 'Concatenate them and sort the result',
         whyWrong:
@@ -406,7 +406,7 @@ for (let end = 0; end < s.length; end++) {
     prompt: '**"Find the first character that never repeats."** What is the shape of the solution?',
     options: [
       {
-        text: 'Two passes: count everything first, then scan again for the first count of 1',
+        text: 'Two passes: count first, then scan for the first count of 1',
         correct: true,
       },
       {
@@ -438,7 +438,7 @@ for (let end = 0; end < s.length; end++) {
       '**"What is the minimum number of moves to reach the end?"** What does "minimum number of moves" point at?',
     options: [
       {
-        text: 'Breadth-first search. The first time it arrives, that route is the shortest',
+        text: 'Breadth-first search, one ring of moves at a time',
         correct: true,
       },
       {
@@ -452,7 +452,7 @@ for (let end = 0; end < s.length; end++) {
           'Sometimes right, often not. A big jump can land somewhere with no good continuation, and greedy never reconsiders. Some jump problems do have a greedy solution, but "minimum" alone does not guarantee it.',
       },
       {
-        text: 'Sort the moves and binary search',
+        text: 'Sort the moves and binary search for the target',
         whyWrong:
           'There is no sorted structure to search. The answer is a sequence of moves through states, not a value hiding in a list.',
       },
@@ -509,7 +509,7 @@ for (let end = 0; end < s.length; end++) {
       'You wrote a recursive tree traversal. The interviewer asks: **"what happens on a very deep tree?"** What are they probing?',
     options: [
       {
-        text: 'That deep recursion can exhaust the call stack, and an iterative version avoids it',
+        text: 'That deep recursion can exhaust the call stack',
         correct: true,
       },
       {
@@ -560,7 +560,7 @@ function fib(n) {
     prompt: '**"Alert if a user makes more than 100 requests in any rolling minute."** Pattern?',
     options: [
       {
-        text: 'A sliding window over timestamps. Drop anything older than a minute',
+        text: 'A sliding window over the timestamps, a minute wide',
         correct: true,
       },
       {
@@ -569,7 +569,7 @@ function fib(n) {
           'That is a fixed window, and it misses bursts that straddle the boundary: 100 requests at 10:00:59 and 100 more at 10:01:01 never trip it, despite 200 in two seconds.',
       },
       {
-        text: 'A frequency map keyed by user',
+        text: 'A frequency map of requests keyed by user',
         whyWrong:
           'You do need to count per user, but a plain tally has no notion of time, so it can only ever grow. The time dimension is the whole problem.',
       },
@@ -629,21 +629,21 @@ function fib(n) {
       'Careful with this one. **"Find the shortest stretch of the array containing every distinct value at least once."** Which is it?',
     options: [
       {
-        text: 'Sliding window *and* a frequency map. The window slides, the map tracks what is inside it',
+        text: 'Both. A sliding window with a frequency map inside it',
         correct: true,
       },
       {
-        text: 'Sliding window alone',
+        text: 'Sliding window alone, because the answer is a stretch',
         whyWrong:
           'The window is right, but a bare window cannot answer "does this stretch contain everything?". You need counts of what is currently inside it.',
       },
       {
-        text: 'Frequency map alone',
+        text: 'Frequency map alone, because it is about distinct values',
         whyWrong:
           'A map counts the whole array without any notion of a stretch. The question asks for a contiguous region, which is what the window supplies.',
       },
       {
-        text: 'Two pointers from both ends',
+        text: 'Two pointers from both ends of the array',
         whyWrong:
           'Both-ends pointers shrink toward the middle and would skip over stretches in the interior. Here both pointers move forward, which is the sliding window.',
       },
@@ -664,7 +664,7 @@ function fib(n) {
       '**"Match each refund to its order. There are tens of thousands of both."** What is the shape of the answer?',
     ],
     options: [
-      { text: 'Build a Map from order id to order once, then look each one up', correct: true },
+      { text: 'Build a Map from order id to order, then look each one up', correct: true },
       {
         text: 'For each refund, scan the orders array with `find`',
         whyWrong:
@@ -732,7 +732,7 @@ function fib(n) {
     ],
     options: [
       {
-        text: 'One pass with a Map of durations seen so far, checking for budget minus current',
+        text: 'One pass with a Map, checking for budget minus current',
         correct: true,
       },
       {
@@ -741,12 +741,12 @@ function fib(n) {
           'A genuinely good answer, O(n log n), and worth saying out loud. It loses the request ids unless you sort pairs, and the Map does the job in one pass.',
       },
       {
-        text: 'Check every pair of log lines',
+        text: 'Check every pair of log lines against the budget',
         whyWrong:
           'The brute force, O(n²). Fine to name as a starting point, but the whole question is what you do instead of it.',
       },
       {
-        text: 'A sliding window over the log lines',
+        text: 'A sliding window over the log lines, summing durations',
         whyWrong:
           'A window covers a contiguous stretch. The two requests can be anywhere in the file, so there is nothing to slide.',
       },
@@ -836,7 +836,7 @@ function fib(n) {
     ],
     options: [
       {
-        text: 'A fixed-size sliding window: add the minute entering, subtract the one leaving',
+        text: 'A fixed-size sliding window ten minutes wide',
         correct: true,
       },
       {
@@ -871,11 +871,11 @@ function fib(n) {
     ],
     options: [
       {
-        text: 'A growing and shrinking window: extend right, pull the left edge in when the total goes over',
+        text: 'A growing and shrinking window over the transactions',
         correct: true,
       },
       {
-        text: 'A fixed-size sliding window',
+        text: 'A fixed-size sliding window over the transactions',
         whyWrong:
           'Close, but the length is what you are looking for, so it cannot be fixed in advance. The window has to be free to grow and shrink.',
       },
@@ -885,7 +885,7 @@ function fib(n) {
           'That is the greedy move, and it answers "how many charges fit", not "which consecutive run fits". Sorting destroys the run.',
       },
       {
-        text: 'Binary search on the answer length',
+        text: 'Binary search on the length of the run',
         whyWrong:
           'It can be made to work, and it is a good thing to mention as a second approach, but it is a heavier tool than the window and needs a check pass per guess.',
       },
@@ -906,7 +906,7 @@ function fib(n) {
     ],
     options: [
       {
-        text: 'Two pointers, one per calendar, always advancing the one that ends earlier',
+        text: 'Two pointers, one per calendar, advancing the earlier end',
         correct: true,
       },
       {
@@ -975,14 +975,14 @@ function fib(n) {
       '**"Report the three most common reaction words in the channel."** Which approach?',
     ],
     options: [
-      { text: 'Count each word in a Map, then take the three highest counts', correct: true },
+      { text: 'Count each word in a Map, then take the top three', correct: true },
       {
         text: 'Sort all the words, then measure each run of equal words',
         whyWrong:
           'It works, and it is what you would do if the data did not fit in memory. In memory it costs O(n log n) for something counting does in O(n).',
       },
       {
-        text: 'A Set of the words used',
+        text: 'A Set of the reaction words used',
         whyWrong:
           'A Set throws away exactly the information you need. It can tell you *which* words appeared, never how often.',
       },
@@ -1008,7 +1008,7 @@ function fib(n) {
     ],
     options: [
       {
-        text: 'Count the sizes in each folder with a Map, then compare the two counts',
+        text: 'Count the sizes in each folder, then compare the counts',
         correct: true,
       },
       {
@@ -1044,11 +1044,11 @@ function fib(n) {
     ],
     options: [
       {
-        text: 'Greedy: sort by finishing time and take every request that still fits',
+        text: 'Greedy: sort by finishing time and take what fits',
         correct: true,
       },
       {
-        text: 'Greedy: take the shortest requests first',
+        text: 'Greedy: take the shortest requests first, to fit more in',
         whyWrong:
           'Plausible and wrong. A short meeting sitting across the middle of the day can block two longer ones that would both have fitted around it.',
       },
@@ -1079,7 +1079,7 @@ function fib(n) {
     ],
     options: [
       {
-        text: 'It is bin packing. Greedy gets close but is not optimal, and the exact answer is expensive',
+        text: 'It is bin packing. Greedy gets close but is not optimal',
         correct: true,
       },
       {
@@ -1114,7 +1114,7 @@ function fib(n) {
     ],
     options: [
       {
-        text: 'Binary search for the boundary, keeping the leftmost candidate as you narrow',
+        text: 'Binary search for the boundary, not for an exact match',
         correct: true,
       },
       {
@@ -1149,7 +1149,7 @@ function fib(n) {
     ],
     options: [
       {
-        text: 'Binary search on the answer: guess a maximum size, check whether it fits in the rooms',
+        text: 'Binary search on the answer: guess a maximum room size',
         correct: true,
       },
       {
@@ -1163,7 +1163,7 @@ function fib(n) {
           'Round-robin balances counts, not sizes, and the question is about size. It is a reasonable first answer to name before you improve on it.',
       },
       {
-        text: 'A sliding window over the queue',
+        text: 'A sliding window over the queue of players',
         whyWrong:
           'A window would give you one grouping at a time with no way to compare it against the best possible. The search here is over candidate answers, not over positions.',
       },
@@ -1216,7 +1216,7 @@ function fib(n) {
     ],
     options: [
       {
-        text: 'A flood fill: breadth-first or depth-first from the tapped tile, marking visited tiles',
+        text: 'A flood fill from the tapped tile, marking visited tiles',
         correct: true,
       },
       {
@@ -1250,9 +1250,9 @@ function fib(n) {
       '**"The recursive price calculation recomputes the same sub-basket over and over."** What fixes it?',
     ],
     options: [
-      { text: "Memoize: cache each basket's price the first time it is worked out", correct: true },
+      { text: "Memoize: cache each basket's price the first time", correct: true },
       {
-        text: 'Rewrite it as a loop',
+        text: 'Rewrite it as a loop instead of recursion',
         whyWrong:
           'A loop removes the call stack, not the repeated work. If the same sub-basket is priced twice, an iterative version prices it twice too.',
       },
@@ -1282,7 +1282,7 @@ function fib(n) {
       '**"Each folder recomputes the sizes of everything beneath it, and so does its parent."** What do you reach for?',
     ],
     options: [
-      { text: "Cache each folder's computed size, keyed by folder id", correct: true },
+      { text: "Cache each folder's size, keyed by folder id", correct: true },
       {
         text: 'Compute the sizes on a background thread',
         whyWrong:
@@ -1294,7 +1294,7 @@ function fib(n) {
           'It would prove the problem exists, which is useful for a bug report and useless as a fix. Counting visits does not remove them.',
       },
       {
-        text: 'Debounce the size calculation',
+        text: 'Debounce the size calculation per folder',
         whyWrong:
           'Debouncing helps when the *same* call fires repeatedly in quick succession from an event. Here the repeats are different folders asking for overlapping work.',
       },
@@ -1315,11 +1315,11 @@ function fib(n) {
     ],
     options: [
       {
-        text: 'Merge the busy blocks with pointers across the three calendars, then take the first gap wide enough',
+        text: 'Pointers across the three calendars, then the first gap',
         correct: true,
       },
       {
-        text: 'A sliding window over the day',
+        text: 'A sliding window over the day, 30 minutes wide',
         whyWrong:
           'This is the near miss. "At least 30 minutes" sounds like a window, but the data is intervals rather than a list of positions, so there is nothing to slide over.',
       },
@@ -1329,7 +1329,7 @@ function fib(n) {
           'Greedy is right about "earliest wins", but a slot has to clear all three calendars. Committing to the first gap in one of them ignores the other two.',
       },
       {
-        text: 'Binary search over the times of day',
+        text: 'Binary search over the times of day for a free slot',
         whyWrong:
           'Binary search needs the answer to be monotone: if a time works, all later times work. Availability comes and goes through the day, so that does not hold.',
       },

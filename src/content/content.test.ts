@@ -101,6 +101,48 @@ describe('the authored content', () => {
   });
 });
 
+describe('no length tell on multiple choice', () => {
+  // A user worked out they could skip the question and pick the longest option.
+  // That happens when the right answer is written as claim plus "because"
+  // plus mechanism while the distractors are bare slogans, so the mechanism
+  // belongs in the explanation and the distractors have to argue for
+  // themselves. These three keep the shape of an option from leaking the
+  // answer.
+  const choices: { id: string; correct: number; wrong: number[] }[] = [];
+  for (const exercise of exercises) {
+    if (exercise.type !== 'mcq' && exercise.type !== 'ladder') continue;
+    const correct = exercise.options.find((o) => o.correct === true);
+    if (!correct) continue;
+    choices.push({
+      id: exercise.id,
+      correct: correct.text.trim().length,
+      wrong: exercise.options.filter((o) => o.correct !== true).map((o) => o.text.trim().length),
+    });
+  }
+
+  it('never lets the right answer run away from its longest distractor', () => {
+    expect(choices.length).toBeGreaterThan(100);
+    const offenders = choices
+      .filter((e) => e.correct > 1.5 * Math.max(...e.wrong))
+      .map((e) => `${e.id}: correct ${e.correct} vs longest wrong ${Math.max(...e.wrong)}`);
+    expect(offenders.join('\n')).toBe('');
+  });
+
+  it('keeps "pick the longest" from paying off across the bank', () => {
+    const longest = choices.filter((e) => e.correct > Math.max(...e.wrong));
+    const share = longest.length / choices.length;
+    expect(share, `longest in ${longest.map((e) => e.id).join(', ')}`).toBeLessThanOrEqual(0.35);
+  });
+
+  it('keeps "pick the shortest" from paying off either', () => {
+    // The obvious overcorrection: trim every right answer to a stub and the
+    // tell is back, pointing the other way.
+    const shortest = choices.filter((e) => e.correct < Math.min(...e.wrong));
+    const share = shortest.length / choices.length;
+    expect(share, `shortest in ${shortest.map((e) => e.id).join(', ')}`).toBeLessThanOrEqual(0.35);
+  });
+});
+
 describe('the authored concept cards', () => {
   it('covers every track that has exercises', () => {
     for (const track of tracks) {

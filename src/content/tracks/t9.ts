@@ -23,7 +23,7 @@ FROM users u
 JOIN orders o ON o.user_id = u.id`,
     },
     options: [
-      { text: 'One row per order, and users with no orders do not appear at all', correct: true },
+      { text: 'One row per order, and no row for users with none', correct: true },
       {
         text: '100, one per user, with nulls where there are no orders',
         whyWrong:
@@ -95,7 +95,7 @@ HAVING COUNT(*) > 3`,
     },
     options: [
       {
-        text: 'A user, and how many shipped orders they have, given it is over three',
+        text: 'A user, and how many shipped orders they have',
         correct: true,
       },
       {
@@ -144,7 +144,7 @@ ____ COUNT(*) > 5`,
     prompt:
       '**"This was fine in testing and it crawls at a million rows."** The query filters on `email`. First move?',
     options: [
-      { text: 'Add an index on `email`, so the database stops reading every row', correct: true },
+      { text: 'Add an index on the `email` column', correct: true },
       {
         text: 'Add more memory to the database server',
         whyWrong:
@@ -173,11 +173,11 @@ ____ COUNT(*) > 5`,
     prompt: 'So why not index every column?',
     options: [
       {
-        text: 'Every write has to update every index, so writes get slower and the table gets bigger',
+        text: 'Every write has to update every index, so writes slow down',
         correct: true,
       },
       {
-        text: 'The database can only use one index per table',
+        text: 'The database can only use one index per table, whatever you add',
         whyWrong:
           'It can use several, and combine them. The limit is not the count, it is what each one costs you on the way in.',
       },
@@ -230,7 +230,7 @@ return posts;`,
     prompt: 'You have found the N+1. **How do you say the diagnosis, and the fix?**',
     options: [
       {
-        text: '"One query per row. I would collect the ids and fetch them all in one query, or let the ORM include the relation."',
+        text: '"One query per row. I would batch the ids into one query."',
         correct: true,
       },
       {
@@ -250,7 +250,7 @@ return posts;`,
       },
     ],
     explanation:
-      'Naming it is half the answer, and interviewers are listening for the phrase. "One query per row" is the diagnosis; batching them into one is the fix. Two queries in total, whatever the row count, and the cost stops growing with the size of the list.',
+      'Naming it is half the answer, and interviewers are listening for the phrase. "One query per row" is the diagnosis; batching the ids into a single query is the fix, and most ORMs will do it for you if you ask them to include the relation. Two queries in total, whatever the row count, and the cost stops growing with the size of the list.',
   },
   {
     id: 't9-09',
@@ -385,7 +385,7 @@ return rows;`,
     ],
     options: [
       {
-        text: 'The debit stands unless the whole thing was in a transaction that was rolled back',
+        text: 'The debit stands, unless it was inside a transaction',
         correct: true,
       },
       {
