@@ -72,16 +72,16 @@ export const t5Exercises: Exercise[] = [
       'A feed page is slow. It is **read constantly and written rarely**. What is the first lever?',
     options: [
       {
-        text: 'Cache the computed feed. Check the cache, and on a miss build it and store it',
+        text: 'Cache the computed feed and serve reads from it',
         correct: true,
       },
       {
-        text: 'Add more application servers',
+        text: 'Add more application servers behind the balancer',
         whyWrong:
           'More servers all making the same expensive query just move the bottleneck to the database. Scale out after you have stopped repeating the work.',
       },
       {
-        text: 'Move to a NoSQL database',
+        text: 'Move to a NoSQL database, which handles load better',
         whyWrong:
           'A big migration that does not address the actual problem: you are recomputing the same answer over and over regardless of where it is stored.',
       },
@@ -104,7 +104,7 @@ export const t5Exercises: Exercise[] = [
       'Your cached feed can be **up to an hour stale**. TTL or write-through? **What is the trade-off?**',
     options: [
       {
-        text: 'TTL is simpler and tolerates staleness; write-through is fresher but couples every write to the cache',
+        text: 'TTL is simpler to run; write-through keeps the cache fresher',
         correct: true,
       },
       {
@@ -113,7 +113,7 @@ export const t5Exercises: Exercise[] = [
           'Staleness is a product decision, not automatically a bug. Plenty of feeds are perfectly usable a minute behind, and write-through adds a failure mode on the write path.',
       },
       {
-        text: 'TTL is always better because it is simpler',
+        text: 'TTL is always better, because a simpler system has fewer failure modes',
         whyWrong:
           'Simplicity is a real advantage, but not unconditional. Where staleness is unacceptable (a balance, a permission check), a TTL is the wrong tool.',
       },
@@ -136,7 +136,7 @@ export const t5Exercises: Exercise[] = [
       'An image-upload endpoint times out because it resizes images inline. **Why not just raise the timeout?**',
     options: [
       {
-        text: 'It only moves the limit. Accept the upload, queue the resize, and return a job id straight away',
+        text: 'It only moves the limit. Queue the resize instead',
         correct: true,
       },
       {
@@ -167,21 +167,21 @@ export const t5Exercises: Exercise[] = [
     prompt: '**"SQL or NoSQL?"** What is the balanced senior answer?',
     options: [
       {
-        text: 'It depends on the data shape and the queries. Relational when things relate and you need transactions, document when records are self-contained',
+        text: 'It depends on the shape of the data and the queries',
         correct: true,
       },
       {
-        text: 'NoSQL, because it scales better',
+        text: 'NoSQL, because horizontal scaling is built in',
         whyWrong:
           'The scaling gap is much narrower than the marketing suggests, and a single Postgres instance handles far more than most products ever need. This answer reads as repeating a slogan.',
       },
       {
-        text: 'SQL, because you can always add indexes',
+        text: 'SQL, because you can always add indexes when it gets slow',
         whyWrong:
           'Right instinct, wrong reason. Indexes are not the deciding factor. The shape of the data and the access patterns are.',
       },
       {
-        text: 'Whichever the team already knows',
+        text: 'It depends on the team, whichever they already know',
         whyWrong:
           'Genuinely a real-world factor and worth mentioning as a tiebreaker. On its own it dodges the technical question they asked.',
       },
@@ -198,23 +198,23 @@ export const t5Exercises: Exercise[] = [
     prompt: 'Explain **horizontal versus vertical scaling**, and where each stops working.',
     options: [
       {
-        text: 'Vertical is a bigger machine and runs out at the biggest machine; horizontal is more machines and needs them to be stateless',
+        text: 'Vertical is a bigger machine; horizontal is more machines that must be stateless',
         correct: true,
       },
       {
-        text: 'Horizontal is always better, so vertical is a legacy idea',
+        text: 'Horizontal is always better; vertical is a legacy idea that hits a ceiling too soon',
         whyWrong:
           'Vertical is often the right first move: no distributed-systems complexity, and modern machines are enormous. Dismissing it signals theory over judgement.',
       },
       {
-        text: 'Vertical means more CPU, horizontal means more memory',
+        text: 'Vertical means more CPU, horizontal means more memory and disk',
         whyWrong:
           'Both add resources. The distinction is one bigger machine versus many machines, not which resource you are adding.',
       },
       {
-        text: 'They are the same thing once you use a cloud provider',
+        text: 'Horizontal comes free once you put a load balancer in front of the app',
         whyWrong:
-          'The cloud makes both easier to buy but does not merge them. Horizontal still demands stateless services in a way vertical never does.',
+          'A load balancer spreads requests, it does not make the servers interchangeable. Anything held in the memory of one server, sessions or in-process caches, still breaks when the next request lands elsewhere.',
       },
     ],
     explanation:
@@ -230,7 +230,7 @@ export const t5Exercises: Exercise[] = [
       'You scale to five servers and users start getting logged out at random. **What happened, and what is the fix?**',
     options: [
       {
-        text: 'Sessions live in memory on one server; move them to shared storage or a signed token',
+        text: 'Sessions live in memory on one server, so move them out',
         correct: true,
       },
       {
@@ -239,7 +239,7 @@ export const t5Exercises: Exercise[] = [
           'It does stop the logouts, which is why it is tempting. But it unbalances the load and every deploy or crash still logs those users out. It hides the statelessness problem rather than fixing it.',
       },
       {
-        text: 'The load balancer is misconfigured',
+        text: 'The load balancer is misconfigured and ignoring sessions',
         whyWrong:
           'The load balancer is doing exactly its job: spreading requests. The problem is that the servers are not interchangeable.',
       },
@@ -262,7 +262,7 @@ export const t5Exercises: Exercise[] = [
       'A user double-taps **Pay** on a flaky connection. **What stops them being charged twice?**',
     options: [
       {
-        text: 'An idempotency key sent with the request. The same key returns the original result instead of charging again',
+        text: 'An idempotency key sent with the request',
         correct: true,
       },
       {
@@ -311,7 +311,7 @@ export const t5Exercises: Exercise[] = [
       'The feed is fine on page 1 and crawls by page 100. **Why, and what do you use instead?**',
     options: [
       {
-        text: 'OFFSET makes the database walk past every skipped row; a cursor jumps straight to the last item seen',
+        text: 'OFFSET walks past every skipped row, a cursor does not',
         correct: true,
       },
       {
@@ -320,7 +320,7 @@ export const t5Exercises: Exercise[] = [
           'Every page returns the same number of items. What grows is the work done to *reach* them.',
       },
       {
-        text: 'The cache only covers the first few pages',
+        text: 'The cache only covers the first few pages, so deep pages miss it',
         whyWrong:
           'Plausible and often partly true, but it is a symptom. The deep pages are slow at the database even with a cold cache on page 1 too.',
       },
@@ -343,7 +343,7 @@ export const t5Exercises: Exercise[] = [
       'One client is hammering your API. **Where does rate limiting live, and how does a token bucket work?**',
     options: [
       {
-        text: 'At the edge, before your code runs. A bucket refills at a steady rate and each request spends a token',
+        text: 'At the edge. The bucket refills steadily and each request spends a token',
         correct: true,
       },
       {
@@ -406,19 +406,19 @@ export const t5Exercises: Exercise[] = [
     prompt:
       '**"How would you scale this to 10x users?"** What is the first thing out of your mouth?',
     options: [
-      { text: '"Measure first. I want to know what is actually the bottleneck"', correct: true },
+      { text: '"Measure first. Where is the bottleneck?"', correct: true },
       {
-        text: '"Add caching and more servers"',
+        text: '"Add caching and more application servers"',
         whyWrong:
           'Probably part of the answer, but leading with it is guessing. If the bottleneck is a single slow query or a lock, more servers make it worse.',
       },
       {
-        text: '"Move to microservices"',
+        text: '"Move to microservices so each part scales"',
         whyWrong:
           'A change in team structure and deployment complexity, not a performance fix. Offered as an opening move it signals cargo-culting.',
       },
       {
-        text: '"Shard the database"',
+        text: '"Shard the database across more nodes"',
         whyWrong:
           'One of the most invasive changes available, and rarely the first thing 10x needs. Reaching for it early suggests you have not considered what comes before.',
       },

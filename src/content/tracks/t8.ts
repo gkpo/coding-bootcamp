@@ -46,7 +46,7 @@ export const t8Exercises: Exercise[] = [
     prompt:
       'The network dropped and your request may or may not have arrived. **Which is safe to just send again?**',
     options: [
-      { text: '`PUT` and `DELETE`, because repeating them lands in the same place', correct: true },
+      { text: '`PUT` and `DELETE`, because a repeat lands in the same place', correct: true },
       {
         text: 'All of them, since the server can spot the duplicate',
         whyWrong:
@@ -160,7 +160,7 @@ export const t8Exercises: Exercise[] = [
       'Your fetch works in the terminal and fails in the browser with a CORS error. **Who blocked it?**',
     options: [
       {
-        text: 'The browser, after the server answered without the header that permits your origin',
+        text: 'The browser, after the server answered without the header',
         correct: true,
       },
       {
@@ -169,7 +169,7 @@ export const t8Exercises: Exercise[] = [
           'The server usually handled it and replied normally. The browser then refused to hand the reply to your code, which is why the request shows up in the server logs as a success.',
       },
       {
-        text: 'A proxy or firewall between the two',
+        text: 'A proxy or firewall between the two of them',
         whyWrong:
           'Nothing in the middle is involved. This is a rule the browser enforces on its own, which is exactly why the terminal is unaffected.',
       },
@@ -192,7 +192,7 @@ export const t8Exercises: Exercise[] = [
       'Before your `DELETE` goes out, the browser sends an `OPTIONS`. **Why, and what next?**',
     options: [
       {
-        text: 'It is asking permission first, and will send the real request only if the answer allows that method and headers',
+        text: 'It is asking permission before sending the real request',
         correct: true,
       },
       {
@@ -223,7 +223,7 @@ export const t8Exercises: Exercise[] = [
     prompt: '**"Where would you keep the token?"** What does each answer cost you?',
     options: [
       {
-        text: 'An httpOnly cookie: script cannot read it, so you handle CSRF with SameSite and a token',
+        text: 'An httpOnly cookie, and you handle CSRF separately',
         correct: true,
       },
       {
@@ -243,7 +243,7 @@ export const t8Exercises: Exercise[] = [
       },
     ],
     explanation:
-      'There is no free option, and interviewers ask precisely to see whether you know that. localStorage is readable by any script, so XSS takes the token. An httpOnly cookie is unreadable by script but travels automatically, which is what CSRF abuses. Pick the cookie and defend against CSRF, and say why out loud.',
+      'There is no free option, and interviewers ask precisely to see whether you know that. localStorage is readable by any script, so XSS takes the token. An httpOnly cookie is unreadable by script but travels automatically, which is what CSRF abuses. Pick the cookie, defend against CSRF with `SameSite` and a token of your own, and say why out loud.',
   },
   {
     id: 't8-09',
@@ -254,16 +254,16 @@ export const t8Exercises: Exercise[] = [
     prompt: 'Sessions or tokens: **what actually differs when you run more than one server?**',
     options: [
       {
-        text: 'A session lives on the server, so every server needs to reach it. A token carries its own claims, so any server can check it',
+        text: 'A session lives on the server; a token carries its claims',
         correct: true,
       },
       {
-        text: 'Tokens are encrypted and sessions are not',
+        text: 'Tokens are encrypted, sessions are just an id',
         whyWrong:
           'A normal JWT is signed, not encrypted: anyone holding it can read the contents. Signing proves nobody tampered with it, which is a different promise.',
       },
       {
-        text: 'Sessions expire and tokens do not',
+        text: 'Sessions expire and tokens do not, once issued',
         whyWrong:
           'Both expire. The awkward part is the reverse: a session can be destroyed on the spot, and a token stays valid until it expires unless you build a list to revoke it.',
       },
@@ -302,7 +302,7 @@ export const t8Exercises: Exercise[] = [
     prompt: "You render a user's bio as HTML so they can use bold. **What have you allowed?**",
     options: [
       {
-        text: 'Any script they put in it runs as your page, with access to everything your page has',
+        text: 'Any script they put in it runs as your own page does',
         correct: true,
       },
       {
@@ -359,7 +359,7 @@ export const t8Exercises: Exercise[] = [
       'A user is logged into your bank app. They open another site, which quietly posts to your transfer endpoint. **Why does it work?**',
     options: [
       {
-        text: 'The browser attaches your cookies to the request, whoever started it',
+        text: 'The browser attaches your cookies, whoever started it',
         correct: true,
       },
       {
@@ -415,7 +415,7 @@ export const t8Exercises: Exercise[] = [
     prompt: '**"How do you stop the browser downloading this every time?"**',
     options: [
       {
-        text: '`Cache-Control: max-age` skips the request entirely; an `ETag` still asks, but gets a small "unchanged" back',
+        text: '`max-age` skips the request, an `ETag` only saves the body',
         correct: true,
       },
       {
@@ -480,7 +480,7 @@ export const t8Exercises: Exercise[] = [
     promptVariants: ['The same URL loads fine in a new tab and is blocked from your page. Why?'],
     options: [
       {
-        text: "A typed URL is not a cross-origin request. Only the page's own fetch is subject to the check",
+        text: 'A typed URL is not a cross-origin request',
         correct: true,
       },
       {
@@ -515,16 +515,16 @@ export const t8Exercises: Exercise[] = [
     ],
     options: [
       {
-        text: '409 Conflict. The request is valid, it conflicts with the current state',
+        text: '409 Conflict, it clashes with what is stored',
         correct: true,
       },
       {
-        text: '422 Unprocessable Content',
+        text: '422 Unprocessable Content, the email is not usable',
         whyWrong:
           '422 says the shape is right but the values do not make sense on their own. Here the email is entirely valid, and the problem only exists because of what is already stored.',
       },
       {
-        text: '400 Bad Request',
+        text: '400 Bad Request, the server cannot accept it',
         whyWrong:
           '400 means the server could not understand the request. This one was understood perfectly, which is how the server knows the email is taken.',
       },
@@ -576,7 +576,7 @@ export const t8Exercises: Exercise[] = [
     ],
     options: [
       {
-        text: 'Give each build a new filename, and keep the long cache on those hashed files',
+        text: 'Give each build a content-hashed filename',
         correct: true,
       },
       {
@@ -585,7 +585,7 @@ export const t8Exercises: Exercise[] = [
           'It shortens the window without closing it, and it throws away the caching you wanted. Every user now re-downloads the bundle several times a day for nothing.',
       },
       {
-        text: 'Ask users to hard refresh',
+        text: 'Ask users to hard refresh the page',
         whyWrong:
           'It is not a fix, it is a support burden, and most users will never see the request. The browser is doing exactly what the header told it to.',
       },

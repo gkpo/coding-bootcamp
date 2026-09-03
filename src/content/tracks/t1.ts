@@ -225,7 +225,7 @@ export const t1Exercises: Exercise[] = [
     },
     options: [
       {
-        text: '`includes` scans the whole `banned` array on every iteration, so there are really two loops',
+        text: '`includes` scans the whole `banned` array on every iteration',
         correct: true,
       },
       {
@@ -294,7 +294,7 @@ export const t1Exercises: Exercise[] = [
     },
     options: [
       {
-        text: 'Keep a `Set` of items already seen and check `seen.has(item)` instead',
+        text: 'Keep a `Set` of items already seen and check `seen.has(item)`',
         correct: true,
       },
       {
@@ -303,7 +303,7 @@ export const t1Exercises: Exercise[] = [
           'That does work and it is a real answer, but sorting costs O(n log n), so it is slower than the Set version and it also reorders the data, losing which repeat came first.',
       },
       {
-        text: 'Replace `indexOf` with `lastIndexOf`',
+        text: 'Replace `indexOf` with `lastIndexOf`, which starts from the end',
         whyWrong:
           'Both scan the array. One from the front, one from the back. Changing direction does not remove the scan, so it stays quadratic.',
       },
@@ -346,7 +346,7 @@ export const t1Exercises: Exercise[] = [
       'You replaced the `indexOf` scan with a `Set` and the function went from O(n²) to O(n). The interviewer asks: **what did that cost you?**',
     options: [
       {
-        text: 'Extra memory. Up to one Set entry per item, so O(n) additional space',
+        text: 'Extra memory. Up to one Set entry per item, so O(n) space',
         correct: true,
       },
       {
@@ -417,7 +417,7 @@ for (const item of items) {
     },
     options: [
       {
-        text: 'Growing is rare, and its cost spreads across all the cheap pushes. That average is what "amortized O(1)" means',
+        text: 'Growing is rare, and its cost spreads across all the cheap pushes',
         correct: true,
       },
       {
@@ -473,27 +473,27 @@ for (const item of items) {
       'You wrote an O(n²) loop. The interviewer asks whether you would optimize it. **What is the strongest answer?**',
     options: [
       {
-        text: '"It depends on how big n gets. At around 100 items this is fine, so I would leave it readable unless we expect it to grow"',
+        text: '"It depends on how big n gets. At 100 items I would leave it readable"',
         correct: true,
       },
       {
-        text: '"Yes, always. Quadratic code should never ship"',
+        text: '"Yes, always. Quadratic code should never get past review"',
         whyWrong:
           'Too absolute. Plenty of quadratic code is perfectly correct and perfectly fast on small inputs, and rewriting it can cost clarity for no real gain. Interviewers read this as rule-following rather than judgement.',
       },
       {
-        text: '"No, premature optimization is the root of all evil"',
+        text: '"No. Premature optimization is the root of all evil, so I would ship it"',
         whyWrong:
           'Quoting the maxim without engaging looks like dodging. The full quote is about *premature* optimization; if n is a million, optimizing here is not premature, it is required.',
       },
       {
-        text: '"I would benchmark it and decide from the numbers"',
+        text: '"It depends on the benchmark. I would profile it first and let the numbers decide"',
         whyWrong:
-          'Sensible in a real codebase, but in an interview it postpones the thinking they are testing. Reason about the input size first, then benchmarking is a refinement, not a substitute.',
+          'This does depend on something, just not the thing that decides the answer. Reason about how big n gets first: a hundred items is fine whatever the profiler says, a million is not. Benchmarking refines that, it does not replace it.',
       },
     ],
     explanation:
-      'The signal here is judgement, not doctrine. Asking "how big does n get?" shows you connect complexity to real cost. A hundred items is 10,000 steps and finishes instantly; a million items is a trillion and never finishes. Same code, completely different answer, so the honest response depends on the size.',
+      'The signal here is judgement, not doctrine. Asking "how big does n get?" shows you connect complexity to real cost. A hundred items is 10,000 steps and finishes instantly; a million items is a trillion and never finishes. Same code, completely different answer, so leaving it readable is only right while n stays small.',
   },
   {
     id: 't1-18',
